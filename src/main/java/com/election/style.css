@@ -1,0 +1,26 @@
+/* src/main/resources/com/election/style.css */
+.button {
+    -fx-background-color: #4CAF50;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 8 16;
+}
+
+.button:hover {
+    -fx-background-color: #45a049;
+}
+
+.text-field, .password-field {
+    -fx-pref-width: 250px;
+    -fx-font-size: 14px;
+}
+
+.label-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 20 0;
+}
+.button-with-icon {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}

@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<!--<?import javafx.scene.image.ImageView?>-->
+<!--<?import javafx.scene.image.Image?>-->
+<BorderPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.election.controller.LoginController">
+
+<!--    <center>-->
+<!--        <HBox alignment="TOP_RIGHT" padding="10">-->
+<!--            <Button onAction="#handleRefresh">-->
+<!--                <graphic>-->
+<!--                    <ImageView fitWidth="20" fitHeight="20">-->
+<!--                        <Image>-->
+<!--                            <url>-->
+<!--                                data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAXElEQVR4nO2UQQqAMAwEf4oH8SDi/7/UIHhQbKttbFQQZkJgJjubVQRBEARBEARBEARBEARBEFzBC1hqjQewAXN6t9R4B6Yf4w7YgSlrXoHlqgE/4AM8s+YXWK8a8C+4HZ0AAAAASUVORK5CYII=-->
+<!--                            </url>-->
+<!--                        </Image>-->
+<!--                    </ImageView>-->
+<!--                </graphic>-->
+<!--            </Button>-->
+<!--        </HBox>-->
+
+<!--    </center>-->
+
+<!--    <center>-->
+<!--        <VBox alignment="TOP_RIGHT" padding="10">-->
+<!--            <Button text="Odśwież" onAction="#handleRefresh"-->
+<!--                    style="-fx-font-size: 16; -fx-padding: 5 10;"/>-->
+<!--        </VBox>-->
+<!--        <VBox alignment="CENTER" spacing="20" padding="20">-->
+<!--            <Label text="System głosowania" style="-fx-font-size: 24; -fx-font-weight: bold;">-->
+<!--                <font>-->
+<!--                    <Font name="Arial" size="24" />-->
+<!--                </font>-->
+<!--            </Label>-->
+
+<!--            <GridPane hgap="10" vgap="10" alignment="CENTER">-->
+<!--                <columnConstraints>-->
+<!--                    <ColumnConstraints halignment="RIGHT" />-->
+<!--                    <ColumnConstraints />-->
+<!--                </columnConstraints>-->
+
+<!--                <rowConstraints>-->
+<!--                    <RowConstraints />-->
+<!--                    <RowConstraints />-->
+<!--                    <RowConstraints />-->
+<!--                </rowConstraints>-->
+
+<!--                <Label text="Login:" GridPane.rowIndex="0" GridPane.columnIndex="0" />-->
+<!--                <TextField fx:id="usernameField" GridPane.rowIndex="0" GridPane.columnIndex="1"-->
+<!--                           prefWidth="200" promptText="Wprowadź login" />-->
+
+<!--                <Label text="Hasło:" GridPane.rowIndex="1" GridPane.columnIndex="0" />-->
+<!--                <PasswordField fx:id="passwordField" GridPane.rowIndex="1" GridPane.columnIndex="1"-->
+<!--                               prefWidth="200" promptText="Wprowadź hasło" />-->
+
+<!--                <HBox spacing="10" alignment="CENTER" GridPane.rowIndex="2" GridPane.columnIndex="1">-->
+<!--                    <Button text="Zaloguj" onAction="#handleLogin" prefWidth="100" />-->
+<!--                    <Button text="Tryb generowania" onAction="#handleLoginOrGenerate" prefWidth="150" />-->
+<!--                </HBox>-->
+<!--            </GridPane>-->
+
+<!--            <VBox spacing="10" alignment="CENTER">-->
+<!--                <Label fx:id="errorLabel" style="-fx-text-fill: #ff0000;" />-->
+<!--                <Label fx:id="statusLabel" />-->
+<!--            </VBox>-->
+<!--        </VBox>-->
+<!--    </center>-->
+    <center>
+        <VBox spacing="10">
+            <VBox alignment="TOP_RIGHT">
+                <padding>
+                    <Insets top="10" right="10" bottom="10" left="10"/>
+                </padding>
+                <Button text="Odśwież" onAction="#handleRefresh"
+                        style="-fx-font-size: 16; -fx-padding: 5 10;"/>
+            </VBox>
+
+            <VBox alignment="CENTER" spacing="20">
+                <padding>
+                    <Insets top="20" right="20" bottom="20" left="20"/>
+                </padding>
+                <Label text="System głosowania" style="-fx-font-size: 24; -fx-font-weight: bold;">
+                    <font>
+                        <Font name="Arial" size="24" />
+                    </font>
+                </Label>
+
+                <GridPane hgap="10" vgap="10" alignment="CENTER">
+                    <columnConstraints>
+                        <ColumnConstraints halignment="RIGHT" />
+                        <ColumnConstraints />
+                    </columnConstraints>
+
+                    <rowConstraints>
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                    </rowConstraints>
+
+                    <Label text="Login:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+                    <TextField fx:id="usernameField" GridPane.rowIndex="0" GridPane.columnIndex="1"
+                               prefWidth="200" promptText="Wprowadź login" />
+
+                    <Label text="Hasło:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+                    <PasswordField fx:id="passwordField" GridPane.rowIndex="1" GridPane.columnIndex="1"
+                                   prefWidth="200" promptText="Wprowadź hasło" />
+
+                    <HBox spacing="10" alignment="CENTER" GridPane.rowIndex="2" GridPane.columnIndex="1">
+                        <Button text="Zaloguj" onAction="#handleLogin" prefWidth="100" />
+                        <Button text="Tryb generowania" onAction="#handleLoginOrGenerate" prefWidth="150" />
+                    </HBox>
+                </GridPane>
+
+                <VBox spacing="10" alignment="CENTER">
+                    <Label fx:id="errorLabel" style="-fx-text-fill: #ff0000;" />
+                    <Label fx:id="statusLabel" />
+                </VBox>
+            </VBox>
+        </VBox>
+    </center>
+
+</BorderPane>

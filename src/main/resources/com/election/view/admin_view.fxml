@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<TabPane xmlns="http://javafx.com/javafx/17"
+         xmlns:fx="http://javafx.com/fxml/1"
+         fx:controller="com.election.controller.AdminController"
+         tabClosingPolicy="UNAVAILABLE">
+
+    <!-- Zakładka z użytkownikami -->
+    <Tab text="Użytkownicy">
+        <content>
+            <VBox spacing="10" style="-fx-padding: 20;">
+                <Label text="Panel administratora" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+
+                <TableView fx:id="usersTable">
+                    <columns>
+                        <TableColumn fx:id="idColumn" text="ID" prefWidth="50"/>
+                        <TableColumn fx:id="usernameColumn" text="Login" prefWidth="150"/>
+                        <TableColumn fx:id="roleColumn" text="Rola" prefWidth="100"/>
+                    </columns>
+                </TableView>
+            </VBox>
+        </content>
+    </Tab>
+
+    <!-- Nowa zakładka z wynikami -->
+    <Tab text="Wyniki wyborów">
+        <content>
+            <VBox spacing="10" style="-fx-padding: 20;">
+                <Label text="Aktualne wyniki wyborów" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+
+                <TableView fx:id="resultsTable">
+                    <columns>
+                        <TableColumn fx:id="candidateColumn" text="Kandydat" prefWidth="200">
+                            <cellValueFactory><PropertyValueFactory property="name"/></cellValueFactory>
+                        </TableColumn>
+                        <TableColumn fx:id="votesColumn" text="Liczba głosów" prefWidth="150">
+                            <cellValueFactory><PropertyValueFactory property="votes"/></cellValueFactory>
+                        </TableColumn>
+                    </columns>
+                </TableView>
+                <Label fx:id="statusLabel" style="-fx-text-fill: #2ecc71; -fx-font-style: italic;"/>
+                <Button text="Odśwież wyniki" onAction="#refreshResults"
+                        style="-fx-font-size: 14; -fx-padding: 5 15;"/>
+                <Button text="Wyloguj" onAction="#handleLogout" style="-fx-base: #e74c3c; -fx-text-fill: white;"/>
+            </VBox>
+        </content>
+    </Tab>
+</TabPane>

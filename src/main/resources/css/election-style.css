@@ -1,0 +1,7 @@
+#resultsTable {
+    -fx-font-size: 14px;
+}
+
+.table-row-cell:leading {
+    -fx-background-color: derive(-fx-success, 80%);
+}
