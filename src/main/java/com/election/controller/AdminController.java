@@ -1,7 +1,8 @@
 package com.election.controller;
 
+import com.election.HashGenerator;
 import com.election.dao.UserDAO;
-import com.election.model.Candidate;
+import com.election.model.CandidateResult;
 import com.election.model.User;
 import com.election.service.ElectionService;
 import javafx.collections.FXCollections;
@@ -22,21 +23,21 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class AdminController {
-    // Sekcja dla użytkowników
+
     @FXML private TableView<User> usersTable;
     @FXML private TableColumn<User, Long> idColumn;
     @FXML private TableColumn<User, String> usernameColumn;
     @FXML private TableColumn<User, String> roleColumn;
 
-    // Sekcja dla wyników
-    @FXML private TableView<Candidate> resultsTable;
-    @FXML private TableColumn<Candidate, String> candidateColumn;
-    @FXML private TableColumn<Candidate, Number> votesColumn;
+    @FXML private TableView<CandidateResult> resultsTable;
+    @FXML private TableColumn<CandidateResult, String> candidateColumn;
+    @FXML private TableColumn<CandidateResult, Number> votesColumn;
+
     @FXML private Label statusLabel;
 
     private final UserDAO userDAO = new UserDAO();
     private final ElectionService electionService = new ElectionService();
-    private final ObservableList<Candidate> candidatesData = FXCollections.observableArrayList();
+    private final ObservableList<CandidateResult> candidatesData = FXCollections.observableArrayList();
     private User currentAdmin;
 
     @FXML
@@ -44,6 +45,7 @@ public class AdminController {
         configureUserTable();
         configureResultsTable();
         loadInitialData();
+        roleComboBox.setItems(FXCollections.observableArrayList("USER", "ADMIN"));
     }
 
     private void configureUserTable() {
@@ -56,7 +58,6 @@ public class AdminController {
         candidateColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         votesColumn.setCellValueFactory(new PropertyValueFactory<>("votes"));
 
-        // Formatowanie liczb
         votesColumn.setCellFactory(tc -> new TableCell<>() {
             @Override
             protected void updateItem(Number value, boolean empty) {
@@ -92,13 +93,10 @@ public class AdminController {
         }
 
         try {
-            List<Candidate> results = electionService.getCurrentResults();
+            List<CandidateResult> results = electionService.getCurrentResults();
             candidatesData.setAll(results);
             resultsTable.setItems(candidatesData);
             statusLabel.setText("Wyniki zaktualizowane: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
-            if (statusLabel != null) {
-                statusLabel.setText("Wyniki zaktualizowane: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
-            }
         } catch (Exception e) {
             if (statusLabel != null) {
                 statusLabel.setText("Błąd podczas aktualizacji!");
@@ -123,6 +121,19 @@ public class AdminController {
         }
     }
 
+    @FXML
+    private void handleOpenHashGenerator(ActionEvent event) {
+        try {
+            Stage adminStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            Stage hashStage = new Stage();
+            HashGenerator hashGenerator = new HashGenerator();
+            hashGenerator.setParentStage(adminStage);
+            hashGenerator.start(hashStage);
+        } catch (Exception e) {
+            showErrorAlert("Błąd generatora", e.getMessage());
+        }
+    }
+
     private void showErrorAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
@@ -130,4 +141,42 @@ public class AdminController {
         alert.setContentText(message);
         alert.showAndWait();
     }
+    @FXML private TextField usernameField;
+    @FXML private TextField passwordField;
+    @FXML private ComboBox<String> roleComboBox;
+    @FXML private Label addUserStatusLabel;
+    @FXML
+    private void handleAddUser(ActionEvent event) {
+        String username = usernameField.getText().trim();
+        String password = passwordField.getText().trim();
+        String role = roleComboBox.getValue();
+
+        if (username.isEmpty() || password.isEmpty() || role == null) {
+            addUserStatusLabel.setText("Wszystkie pola są wymagane!");
+            return;
+        }
+
+        try {
+            User user = new User();
+            user.setUsername(username);
+            user.setPassword(password); // lub zahashuj, jeśli nie jest jeszcze zahashowane
+            user.setRole(role);
+            user.setHasVoted(false);
+
+            userDAO.saveUser(user);
+            usersTable.getItems().add(user);  // od razu aktualizuj tabelę
+            addUserStatusLabel.setText("Użytkownik dodany pomyślnie.");
+            clearAddUserForm();
+        } catch (Exception e) {
+            addUserStatusLabel.setText("Błąd: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void clearAddUserForm() {
+        usernameField.clear();
+        passwordField.clear();
+        roleComboBox.getSelectionModel().clearSelection();
+    }
+
 }

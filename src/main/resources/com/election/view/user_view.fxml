@@ -11,7 +11,9 @@
     <!-- Stopka -->
     <bottom>
         <HBox alignment="CENTER" style="-fx-padding: 15; -fx-background-color: #34495e;">
-            <Label text="Wybory prezydenckie 2025" style="-fx-text-fill: white; -fx-font-size: 30;" textAlignment="CENTER">
+            <Label text="Wybory prezydenckie 2025"
+                   style="-fx-text-fill: white; -fx-font-size: 30;"
+                   textAlignment="CENTER">
                 <font>
                     <Font size="35.0"/>
                 </font>
@@ -19,35 +21,47 @@
         </HBox>
     </bottom>
 
-    <!-- GÓRNY PANEL -->
+    <!-- GŁÓWNA ZAWARTOŚĆ -->
     <top>
         <VBox spacing="20" alignment="CENTER" prefWidth="800.0">
-            <!-- Przycisk wylogowania (ukryty na starcie) -->
-            <HBox alignment="CENTER_RIGHT" style="-fx-padding: 10; -fx-background-color: #34495e;">
-                <Button fx:id="logoutButton" onAction="#handleLogout"
+            <!-- Panel nawigacyjny -->
+            <HBox alignment="CENTER_RIGHT"
+                  style="-fx-padding: 10; -fx-background-color: #34495e;">
+                <Button fx:id="logoutButton"
+                        onAction="#handleLogout"
                         text="Wyloguj"
-                        style="-fx-base: #e74c3c; -fx-text-fill: white; -fx-font-size: 14;"
-                        visible="false"/>
+                        style="-fx-base: #e74c3c; -fx-text-fill: white; -fx-font-size: 14;"/>
             </HBox>
 
-            <!-- Główna zawartość -->
-            <VBox alignment="CENTER" spacing="20" style="-fx-padding: 20; -fx-background-color: white; -fx-background-radius: 10;">
-                <Label fx:id="welcomeLabel" text="Witaj w systemie głosowania!"
+            <!-- Formularz głosowania -->
+            <VBox alignment="CENTER" spacing="20"
+                  style="-fx-padding: 20; -fx-background-color: white; -fx-background-radius: 10;">
+
+                <!-- Nagłówek -->
+                <Label fx:id="welcomeLabel"
+                       text="Witaj w systemie głosowania!"
                        style="-fx-font-size: 55; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
 
-                <Label text="Wybierz kandydata:" style="-fx-font-size: 48; -fx-font-weight: bold;"/>
+                <!-- Lista kandydatów -->
+                <Label text="Wybierz kandydata:"
+                       style="-fx-font-size: 48; -fx-font-weight: bold;"/>
 
-                <ComboBox fx:id="candidateComboBox" promptText="Kliknij, aby wybrać..."
-                          prefWidth="450.0" prefHeight="65.0" style="-fx-font-size: 25;"/>
+                <ComboBox fx:id="candidateComboBox"
+                          promptText="Kliknij, aby wybrać..."
+                          prefWidth="450.0"
+                          prefHeight="65.0"
+                          style="-fx-font-size: 25;"/>
 
-                <!-- Przycisk "Oddaj głos" (widoczny na starcie) -->
-                <Button fx:id="submitButton" onAction="#handleVoteSubmit"
+                <!-- Przycisk głosowania -->
+                <Button fx:id="submitButton"
+                        onAction="#handleVoteSubmit"
                         text="Oddaj głos"
-                        style="-fx-font-size: 32; -fx-base: #27ae60; -fx-text-fill: white; -fx-pref-width: 450;"
-                        visible="true"/>
+                        style="-fx-font-size: 32; -fx-base: #27ae60; -fx-text-fill: white; -fx-pref-width: 450;"/>
 
-                <!-- Komunikat statusu -->
-                <Label fx:id="statusLabel" style="-fx-font-size: 14; -fx-text-fill: #e74c3c;" wrapText="true"/>
+                <!-- Komunikaty statusu -->
+                <Label fx:id="statusLabel"
+                       style="-fx-font-size: 24; -fx-text-fill: #e74c3c;"
+                       wrapText="true"/>
             </VBox>
         </VBox>
     </top>

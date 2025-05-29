@@ -1,11 +1,11 @@
 package com.election.model;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "users")
+@Table(name = "USERS")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,8 +18,12 @@ public class User {
     private String password;
 
     @Column(nullable = false)
-    private String role; // ADMIN lub USER
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private String role;
+
+    @Column(name = "has_voted", nullable = false)
+    private boolean hasVoted = false;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Vote> votes = new ArrayList<>();
 
     public List<Vote> getVotes() {
@@ -38,6 +42,14 @@ public class User {
 
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
+
+    public boolean isHasVoted() {
+        return hasVoted;
+    }
+
+    public void setHasVoted(boolean hasVoted) {
+        this.hasVoted = hasVoted;
+    }
 
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }

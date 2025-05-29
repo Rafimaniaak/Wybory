@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-
 <?import javafx.scene.control.cell.PropertyValueFactory?>
+
 <TabPane xmlns="http://javafx.com/javafx/17"
          xmlns:fx="http://javafx.com/fxml/1"
          fx:controller="com.election.controller.AdminController"
@@ -25,7 +25,7 @@
         </content>
     </Tab>
 
-    <!-- Nowa zakładka z wynikami -->
+    <!-- Zakładka z wynikami -->
     <Tab text="Wyniki wyborów">
         <content>
             <VBox spacing="10" style="-fx-padding: 20;">
@@ -48,4 +48,45 @@
             </VBox>
         </content>
     </Tab>
+
+    <!-- Nowa trzecia zakładka z generatorem hashów -->
+    <Tab text="Narzędzia">
+        <content>
+            <VBox spacing="10" style="-fx-padding: 20;">
+                <Label text="Narzędzia administratora" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+
+                <VBox spacing="15" alignment="CENTER" style="-fx-padding: 30 0 0 0;">
+                    <Button text="Otwórz Generator Hashy"
+                            onAction="#handleOpenHashGenerator"
+                            style="-fx-font-size: 14; -fx-padding: 8 20; -fx-base: #3498db; -fx-text-fill: white;"/>
+
+                    <Button text="Wyloguj" onAction="#handleLogout"
+                            style="-fx-base: #e74c3c; -fx-text-fill: white; -fx-padding: 5 15;"/>
+                </VBox>
+            </VBox>
+        </content>
+    </Tab>
+    <Tab text="Dodaj użytkownika">
+        <content>
+            <VBox spacing="10" style="-fx-padding: 20;">
+                <Label text="Dodaj nowego użytkownika" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+
+                <GridPane hgap="10" vgap="10">
+                    <Label text="Login:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                    <TextField fx:id="usernameField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                    <Label text="Hasło (zahashowane):" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                    <TextField fx:id="passwordField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                    <Label text="Rola:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                    <ComboBox fx:id="roleComboBox" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                </GridPane>
+
+                <Button text="Dodaj użytkownika" onAction="#handleAddUser"
+                        style="-fx-font-size: 14; -fx-padding: 5 15;"/>
+                <Label fx:id="addUserStatusLabel" style="-fx-text-fill: #2ecc71; -fx-font-style: italic;"/>
+            </VBox>
+        </content>
+    </Tab>
+
 </TabPane>

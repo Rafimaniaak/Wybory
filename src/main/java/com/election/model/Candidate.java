@@ -1,10 +1,10 @@
 package com.election.model;
 
 import javafx.beans.property.*;
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
-@Table(name = "candidates")
+@Table(name = "CANDIDATE")
 public class Candidate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

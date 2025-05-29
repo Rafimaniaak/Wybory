@@ -23,7 +23,8 @@ import java.io.IOException;
 import java.util.List;
 
 public class UserController {
-
+    private User currentUser;
+    private final VotingService votingService = new VotingService();
     @FXML
     private Label statusLabel;
 
@@ -36,6 +37,41 @@ public class UserController {
     public void initialize() { // Ta metoda jest wywoływana automatycznie
         loadCandidates();
     }
+    public void initializeWithUser(User user) {
+        this.currentUser = user;
+
+        if(user.isHasVoted()) {
+            submitButton.setDisable(true);
+            candidateComboBox.setDisable(true);
+            statusLabel.setText("Już oddałeś głos w tych wyborach!");
+            statusLabel.setStyle("-fx-text-fill: #2ecc71;");
+        }
+    }
+
+    private void refreshVotingStatus() {
+        if (currentUser != null && currentUser.isHasVoted()) {  // Użyj metody dostępu
+            submitButton.setDisable(true);
+            candidateComboBox.setDisable(true);
+            statusLabel.setText("Już oddałeś głos! Możesz się wylogować.");
+        }
+    }
+
+    @FXML
+    private void handleVoteSubmit(ActionEvent event) {
+        Candidate selectedCandidate = candidateComboBox.getValue(); // <- tu masz selectedCandidate
+
+        if (selectedCandidate == null) {
+            statusLabel.setText("Wybierz kandydata przed oddaniem głosu!");
+            return;
+        }
+
+        votingService.castVote(currentUser, selectedCandidate); // <- przekazujesz dalej
+
+        submitButton.setDisable(true);
+        candidateComboBox.setDisable(true);
+        statusLabel.setText("Głos został pomyślnie zarejestrowany!");
+        statusLabel.setStyle("-fx-text-fill: #2ecc71;");
+    }
 
     private void loadCandidates() {
         List<Candidate> candidates = electionService.getAllCandidates();
@@ -45,29 +81,29 @@ public class UserController {
     @FXML private Button submitButton;
     @FXML private Button logoutButton;
     //private final ElectionService electionService = new ElectionService();
-    @FXML
-    private void handleVoteSubmit(ActionEvent event) {
-        Candidate selectedCandidate = candidateComboBox.getValue();
-
-        if (selectedCandidate == null) {
-            statusLabel.setText("Wybierz kandydata przed oddaniem głosu!");
-            return;
-        }
-
-        try {
-            // Oddaj głos
-            electionService.registerVote(selectedCandidate);
-
-            // Ukryj przycisk "Oddaj głos", pokaż "Wyloguj"
-            submitButton.setVisible(false);
-            logoutButton.setVisible(true);
-            statusLabel.setText("Głos oddany pomyślnie! Możesz się wylogować.");
-
-        } catch (Exception e) {
-            statusLabel.setText("Błąd: " + e.getMessage());
-            submitButton.setVisible(true); // Przywróć przycisk w przypadku błędu
-        }
-    }
+//    @FXML
+//    private void handleVoteSubmit(ActionEvent event) {
+//        Candidate selectedCandidate = candidateComboBox.getValue();
+//
+//        if (selectedCandidate == null) {
+//            statusLabel.setText("Wybierz kandydata przed oddaniem głosu!");
+//            return;
+//        }
+//
+//        try {
+//            // Oddaj głos
+//            electionService.registerVote(selectedCandidate);
+//
+//            // Ukryj przycisk "Oddaj głos", pokaż "Wyloguj"
+//            submitButton.setVisible(false);
+//            logoutButton.setVisible(true);
+//            statusLabel.setText("Głos oddany pomyślnie! Możesz się wylogować.");
+//
+//        } catch (Exception e) {
+//            statusLabel.setText("Błąd: " + e.getMessage());
+//            submitButton.setVisible(true); // Przywróć przycisk w przypadku błędu
+//        }
+//    }
     @FXML
     private void handleLogout(ActionEvent event) {
         try {
