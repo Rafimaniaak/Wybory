@@ -1,8 +1,6 @@
 package com.election.model;
 
-//import jakarta.persistence.*;
-
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "election_results")

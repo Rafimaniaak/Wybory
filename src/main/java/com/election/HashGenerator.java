@@ -19,9 +19,9 @@ public class HashGenerator extends Application {
     public void setParentStage(Stage parentStage) {
         this.parentStage = parentStage;
     }
+
     @Override
     public void start(Stage stage) {
-        // Konfiguracja GUI
         VBox root = new VBox(20);
         root.setPadding(new Insets(20));
         root.setAlignment(Pos.CENTER);
@@ -56,29 +56,25 @@ public class HashGenerator extends Application {
             }
         });
 
+        Button backButton = new Button("← Powrót do panelu admina");
+        backButton.setOnAction(e -> {
+            if (parentStage != null) {
+                parentStage.show();
+            }
+            stage.close();
+        });
+
         root.getChildren().addAll(
                 titleLabel,
                 passwordField,
                 hashField,
                 generateBtn,
-                copyBtn
+                copyBtn,
+                backButton
         );
-        // Przycisk z ikoną i tekstem
-        Button backButton = new Button("← Powrót");
-        //backButton.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("@/com/election/images/arrow-rotate-left-solid.png"))));
 
-        backButton.setOnAction(e -> {
-            if (parentStage != null) {
-                parentStage.show(); // Pokazuje okno logowania
-            }
-            stage.close(); // Zamyka bieżące okno generatora
-        });
-
-        root.getChildren().add(backButton);
-
-        //root.getChildren().add(backButton);
-
-        Scene scene = new Scene(root, 800, 600);
+        Scene scene = new Scene(root, 400, 300);
+        stage.setTitle("Generator Hashy BCrypt");
         stage.setScene(scene);
         stage.show();
     }

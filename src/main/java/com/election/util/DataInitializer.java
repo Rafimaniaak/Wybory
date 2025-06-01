@@ -1,50 +1,60 @@
 package com.election.util;
 
+import com.election.model.Candidate;
+import com.election.model.User;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.sql.Statement;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class DataInitializer {
-    public static void initialize() {
 
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            if (isDatabaseEmpty(session)) {
-                try {
-                    executeSqlScript(session, "import.sql");
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
+    public static void initializeIfEmpty(Session session) {
+        boolean shouldImport = isDatabaseEmpty(session);
+
+        if (shouldImport) {
+            System.out.println("Import danych z import.sql...");
+            runImportSQL(session);
+        } else {
+            System.out.println("Baza danych już zawiera dane. Import pominięty.");
         }
     }
 
     private static boolean isDatabaseEmpty(Session session) {
-        return session.createQuery("SELECT COUNT(u) FROM User u", Long.class)
-                .uniqueResult() == 0;
+        List<?> users = session.createQuery("from User").setMaxResults(1).list();
+        List<?> candidates = session.createQuery("from Candidate").setMaxResults(1).list();
+        return users.isEmpty() && candidates.isEmpty();
     }
 
-    private static void executeSqlScript(Session session, String scriptPath) throws IOException {
-        String sql = new String(
-                Files.readAllBytes(Paths.get("src/main/resources/" + scriptPath)),
-                StandardCharsets.UTF_8
-        );
+    private static void runImportSQL(Session session) {
+        runSqlFile(session, "import.sql");
+        runSqlFile(session, "import_dynamic.sql");
+    }
 
-        // Usuń komentarze i puste linie
-        sql = sql.replaceAll("--.*", "")
-                .replaceAll("/\\*.*?\\*/", "")
-                .trim();
+    private static void runSqlFile(Session session, String fileName) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                DataInitializer.class.getClassLoader().getResourceAsStream(fileName)))) {
 
-        Transaction transaction = session.beginTransaction();
-        try {
-            session.createNativeQuery(sql).executeUpdate();
-            transaction.commit();
+            String sql = reader.lines().collect(Collectors.joining("\n"));
+
+            session.doWork(connection -> {
+                try (Statement stmt = connection.createStatement()) {
+                    for (String part : sql.split(";")) {
+                        if (!part.trim().isEmpty()) {
+                            stmt.execute(part.trim());
+                        }
+                    }
+                }
+            });
+
+            System.out.println("Zaimportowano dane z " + fileName);
+
         } catch (Exception e) {
-            transaction.rollback();
-            throw e;
+            System.err.println("Błąd przy imporcie pliku " + fileName + ": " + e.getMessage());
         }
     }
+
 }

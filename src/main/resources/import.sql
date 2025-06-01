@@ -1,7 +1,9 @@
-MERGE INTO users (username, password, role) KEY(username) VALUES
-('admin', '$2a$10$7YcKdX.DM7iRmVrbV7nCC.B9MExsLsoem0e7Rs7H/KI1UKLObWSEm', 'ADMIN'),
-('user', '$2a$10$7iApbN9Nypj/q1zlWQnsCOcQCExUKK/CBX356ZEjAx1dbEIR0ADlq', 'USER');
+INSERT INTO USERS (username, password, role, has_voted)
+VALUES ('admin', '$2a$10$dj9eHfuT2oAOd4H0LabcZexzBX7MS7/NgfhabawxQpXd57ZAr3nEq', 'ADMIN', FALSE);
 
-INSERT INTO candidates (name, party, votes) VALUES
-('Jan Kowalski', 'Partia X', 0),
-('Anna Nowak', 'Partia Y', 0);
+INSERT INTO USERS (username, password, role, has_voted)
+VALUES ('user', '$2a$10$SvcT2pdsn5ndUfkfSvtFZ.dlYk/jnKfOz/gyq0yQdl58miFuAi23e', 'USER', FALSE);
+
+INSERT INTO CANDIDATE (id, name, party, votes) VALUES (1, 'Jan Kowalski', 'Partia A', 0);
+INSERT INTO CANDIDATE (id, name, party, votes) VALUES (2, 'Anna Nowak', 'Partia B', 0);
+INSERT INTO CANDIDATE (id, name, party, votes) VALUES (3, 'Jan Tarczynski', 'Partia C', 0);

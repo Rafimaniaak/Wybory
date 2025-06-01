@@ -1,25 +1,28 @@
 package com.election.model;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "votes")
+@Table(name = "VOTES")
 public class Vote {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false) // Mapowanie na kolumnę user_id
+    @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "candidate_id", nullable = false) // Mapowanie na kolumnę candidate_id
+    @JoinColumn(name = "candidate_id")
     private Candidate candidate;
 
+    @Column(name = "has_voted", nullable = false)
+    private boolean hasVoted;
+
     @Column(name = "vote_time", nullable = false)
-    private LocalDateTime voteTime = LocalDateTime.now();
+    private LocalDateTime voteTime;
 
     // Gettery i Settery
     public Long getId() {
@@ -34,6 +37,7 @@ public class Vote {
         this.user = user;
     }
 
+
     public Candidate getCandidate() {
         return candidate;
     }
@@ -44,5 +48,16 @@ public class Vote {
 
     public LocalDateTime getVoteTime() {
         return voteTime;
+    }
+
+    public void setVoteTime(LocalDateTime voteTime) {
+        this.voteTime = voteTime;
+    }
+    public boolean isHasVoted() {
+        return hasVoted;
+    }
+
+    public void setHasVoted(boolean hasVoted) {
+        this.hasVoted = hasVoted;
     }
 }

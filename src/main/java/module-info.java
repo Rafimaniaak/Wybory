@@ -12,9 +12,11 @@ module com.election {
 //    requires org.kordamp.bootstrapfx.core;
 //    requires eu.hansolo.tilesfx;
 //    requires com.almasb.fxgl.all;
-    requires java.persistence;
+    //requires java.persistence;
     requires jbcrypt;
     requires org.hibernate.orm.core;
+    requires org.slf4j;
+    requires jakarta.persistence;
 
     exports com.election;
     opens com.election to javafx.fxml;
