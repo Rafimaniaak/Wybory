@@ -2,177 +2,202 @@
 
 <?import javafx.scene.chart.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.control.cell.*?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.layout.*?>
 
-<StackPane prefHeight="600" prefWidth="800" style="-fx-background-color: #34495e;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.election.controller.AdminController">
+<StackPane prefHeight="600" prefWidth="800" style="-fx-background-color: #34495e;"
+           xmlns="http://javafx.com/javafx/17.0.12"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.election.controller.AdminController">
 
     <TabPane fx:id="tabPane" prefHeight="600" prefWidth="800" tabClosingPolicy="UNAVAILABLE">
 
-        <!-- Zakładka z użytkownikami -->
+        <!-- Użytkownicy -->
         <Tab text="Użytkownicy">
-            <content>
-                <VBox spacing="10" style="-fx-padding: 20;">
+            <VBox spacing="10" style="-fx-padding: 20;">
+                <HBox spacing="10" alignment="CENTER_LEFT">
                     <Label style="-fx-font-size: 18; -fx-font-weight: bold;" text="Panel administratora" textFill="WHITE" />
-                    <TableView fx:id="usersTable">
+                    <Label text="Szukaj PESEL:" textFill="WHITE" />
+                    <TextField fx:id="peselSearchField" promptText="Wprowadź PESEL" />
+                    <Button onAction="#handlePeselSearch" text="Szukaj" />
+                    <Button onAction="#handleShowAllUsers" text="Pokaż wszystkich" />
+                </HBox>
+
+                <TableView fx:id="usersTable">
+                    <columns>
+                        <TableColumn fx:id="idColumn" prefWidth="50" text="ID" />
+                        <TableColumn fx:id="usernameColumn" prefWidth="100" text="Login" />
+                        <TableColumn fx:id="roleColumn" prefWidth="100" text="Rola" />
+                        <TableColumn fx:id="firstNameColumn" prefWidth="120" text="Imię" />
+                        <TableColumn fx:id="lastNameColumn" prefWidth="120" text="Nazwisko" />
+                        <TableColumn fx:id="peselColumn" prefWidth="150" text="PESEL" />
+                    </columns>
+                </TableView>
+            </VBox>
+        </Tab>
+
+        <!-- Wyniki wyborów -->
+        <Tab text="Wyniki wyborów">
+            <VBox spacing="10" style="-fx-padding: 20;">
+                <Label style="-fx-font-size: 18; -fx-font-weight: bold;" text="Aktualne wyniki wyborów" textFill="WHITE" />
+                <HBox spacing="20">
+                    <TableView fx:id="resultsTable" prefWidth="450">
                         <columns>
-                            <TableColumn fx:id="idColumn" prefWidth="50" text="ID" />
-                            <TableColumn fx:id="usernameColumn" prefWidth="150" text="Login" />
-                            <TableColumn fx:id="roleColumn" prefWidth="100" text="Rola" />
+                            <TableColumn fx:id="candidateColumn" prefWidth="200" text="Kandydat">
+                                <cellValueFactory>
+                                    <PropertyValueFactory property="name" />
+                                </cellValueFactory>
+                            </TableColumn>
+                            <TableColumn fx:id="votesColumn" prefWidth="150" text="Liczba głosów">
+                                <cellValueFactory>
+                                    <PropertyValueFactory property="votes" />
+                                </cellValueFactory>
+                            </TableColumn>
                         </columns>
                     </TableView>
-                </VBox>
-            </content>
+
+                    <BarChart fx:id="resultsChart"
+                              prefWidth="300"
+                              prefHeight="250"
+                              animated="true"
+                              legendVisible="false"
+                              title="Głosy wg kandydata"
+                              style="-fx-title-fill: white;">
+                        <xAxis>
+                            <CategoryAxis fx:id="xAxis" label="Kandydat" />
+                        </xAxis>
+                        <yAxis>
+                            <NumberAxis fx:id="yAxis" label="Liczba głosów" />
+                        </yAxis>
+                    </BarChart>
+                </HBox>
+
+                <HBox spacing="20" alignment="CENTER_LEFT">
+                    <Button onAction="#refreshResults" style="-fx-font-size: 14; -fx-padding: 5 15;" text="Odśwież wyniki" />
+                    <Button onAction="#handleLogout" style="-fx-base: #e74c3c; -fx-text-fill: white;" text="Wyloguj" />
+                    <Label fx:id="statusLabel" style="-fx-text-fill: #2ecc71; -fx-font-style: italic;" />
+                </HBox>
+            </VBox>
         </Tab>
 
-        <!-- Zakładka z wynikami -->
-        <Tab text="Wyniki wyborów">
-            <content>
-                <VBox spacing="10" style="-fx-padding: 20;">
-                    <Label style="-fx-font-size: 18; -fx-font-weight: bold;" text="Aktualne wyniki wyborów" textFill="WHITE" />
-
-                    <HBox spacing="20">
-                        <!-- Tabela wyników -->
-                        <TableView fx:id="resultsTable" prefWidth="450">
-                            <columns>
-                                <TableColumn fx:id="candidateColumn" prefWidth="200" text="Kandydat">
-                                    <cellValueFactory>
-                                        <PropertyValueFactory property="name" />
-                                    </cellValueFactory>
-                                </TableColumn>
-                                <TableColumn fx:id="votesColumn" prefWidth="150" text="Liczba głosów">
-                                    <cellValueFactory>
-                                        <PropertyValueFactory property="votes" />
-                                    </cellValueFactory>
-                                </TableColumn>
-                            </columns>
-                        </TableView>
-
-                        <!-- Wykres słupkowy -->
-                        <BarChart fx:id="resultsChart"
-                                  prefWidth="300"
-                                  prefHeight="250"
-                                  animated="true"
-                                  legendVisible="false"
-                                  title="Głosy wg kandydata"
-                                  style="-fx-title-fill: white;">
-                            <xAxis>
-                                <CategoryAxis fx:id="xAxis" label="Kandydat" />
-                            </xAxis>
-                            <yAxis>
-                                <NumberAxis fx:id="yAxis" label="Liczba głosów" />
-                            </yAxis>
-                        </BarChart>
-                    </HBox>
-
-                    <!-- Przyciski i status -->
-                    <HBox spacing="20" alignment="CENTER_LEFT">
-                        <Button onAction="#refreshResults" style="-fx-font-size: 14; -fx-padding: 5 15;" text="Odśwież wyniki" />
-                        <Button onAction="#handleLogout" style="-fx-base: #e74c3c; -fx-text-fill: white;" text="Wyloguj" />
-                        <Label fx:id="statusLabel" style="-fx-text-fill: #2ecc71; -fx-font-style: italic;" />
-                    </HBox>
-                </VBox>
-
-            </content>
-        </Tab>
-
-        <!-- Zakładka narzędzi -->
+        <!-- Narzędzia -->
         <Tab text="Narzędzia">
-            <content>
-                <VBox spacing="10" style="-fx-padding: 20;">
-                    <Label style="-fx-font-size: 18; -fx-font-weight: bold;" text="Narzędzia administratora" textFill="WHITE" />
-                    <VBox alignment="CENTER" spacing="15" style="-fx-padding: 30 0 0 0;">
-                        <Button onAction="#handleOpenHashGenerator" style="-fx-font-size: 14; -fx-padding: 8 20; -fx-base: #3498db; -fx-text-fill: white;" text="Otwórz Generator Hashy" />
-                        <Button onAction="#handleLogout" style="-fx-base: #e74c3c; -fx-text-fill: white; -fx-padding: 5 15;" text="Wyloguj" />
-                    </VBox>
+            <VBox spacing="10" style="-fx-padding: 20;">
+                <Label style="-fx-font-size: 18; -fx-font-weight: bold;" text="Narzędzia administratora" textFill="WHITE" />
+                <VBox alignment="CENTER" spacing="15" style="-fx-padding: 30 0 0 0;">
+                    <Button onAction="#handleOpenHashGenerator" style="-fx-font-size: 14; -fx-padding: 8 20; -fx-base: #3498db; -fx-text-fill: white;" text="Otwórz Generator Hashy" />
+                    <Button onAction="#handleLogout" style="-fx-base: #e74c3c; -fx-text-fill: white; -fx-padding: 5 15;" text="Wyloguj" />
                 </VBox>
-            </content>
+            </VBox>
         </Tab>
 
-        <!-- Zakładka dodawania użytkownika -->
+        <!-- Dodaj użytkownika -->
         <Tab text="Dodaj użytkownika">
-            <content>
-                <VBox spacing="10" style="-fx-padding: 20;">
-                    <Label style="-fx-font-size: 18; -fx-font-weight: bold;" text="Dodaj nowego użytkownika" textFill="WHITE" />
-                    <GridPane hgap="10" vgap="10">
-                        <Label text="Login:" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                        <TextField fx:id="usernameField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-                        <Label text="Hasło (zahashowane):" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                        <TextField fx:id="passwordField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                        <Label text="Rola:" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                        <ComboBox fx:id="roleComboBox" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                  <columnConstraints>
-                     <ColumnConstraints />
-                     <ColumnConstraints />
-                  </columnConstraints>
-                  <rowConstraints>
-                     <RowConstraints />
-                     <RowConstraints />
-                     <RowConstraints />
-                  </rowConstraints>
-                    </GridPane>
-                    <Button onAction="#handleAddUser" style="-fx-font-size: 14; -fx-padding: 5 15;" text="Dodaj użytkownika" />
-                    <Label fx:id="addUserStatusLabel" style="-fx-text-fill: #2ecc71; -fx-font-style: italic;" />
-                </VBox>
-            </content>
+            <VBox spacing="10" style="-fx-padding: 20;">
+                <Label style="-fx-font-size: 18; -fx-font-weight: bold;" text="Dodaj nowego użytkownika" textFill="WHITE" />
+                <GridPane hgap="10" vgap="10">
+                    <Label text="Login:" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <TextField fx:id="usernameField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                    <Label text="Hasło (zahashowane):" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                    <TextField fx:id="passwordField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                    <Label text="Rola:" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                    <ComboBox fx:id="roleComboBox" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                    <Label text="Imię:" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                    <TextField fx:id="firstNameField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                    <Label text="Nazwisko:" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                    <TextField fx:id="lastNameField" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+
+                    <Label text="PESEL:" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                    <TextField fx:id="peselField" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+
+                    <columnConstraints>
+                        <ColumnConstraints />
+                        <ColumnConstraints />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                    </rowConstraints>
+                </GridPane>
+                <Button onAction="#handleAddUser" style="-fx-font-size: 14; -fx-padding: 5 15;" text="Dodaj użytkownika" />
+                <Label fx:id="addUserStatusLabel" style="-fx-text-fill: #2ecc71; -fx-font-style: italic;" />
+            </VBox>
         </Tab>
-        <!-- Zakładka edycji użytkownika -->
+
+        <!-- Edytuj użytkownika -->
         <Tab text="Edytuj użytkownika">
-            <content>
-                <VBox spacing="10" style="-fx-padding: 20;">
-                    <Label style="-fx-font-size: 18; -fx-font-weight: bold;" text="Edytuj użytkownika" textFill="WHITE" />
-                    <GridPane hgap="10" vgap="10">
-                        <Label text="ID użytkownika:" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                        <TextField fx:id="editUserIdField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+            <VBox spacing="10" style="-fx-padding: 20;">
+                <Label style="-fx-font-size: 18; -fx-font-weight: bold;" text="Edytuj użytkownika" textFill="WHITE" />
+                <GridPane hgap="10" vgap="10">
+                    <Label text="ID użytkownika:" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <TextField fx:id="editUserIdField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-                        <Label text="Nowy login:" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                        <TextField fx:id="editUsernameField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                    <Label text="Nowy login:" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                    <TextField fx:id="editUsernameField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-                        <Label text="Nowe hasło (zahashowane):" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                        <TextField fx:id="editPasswordField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                    <Label text="Nowe hasło (zahashowane):" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                    <TextField fx:id="editPasswordField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
-                        <Label text="Nowa rola:" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                        <ComboBox fx:id="editRoleComboBox" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                    <Label text="Nowa rola:" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                    <ComboBox fx:id="editRoleComboBox" GridPane.columnIndex="1" GridPane.rowIndex="3" />
 
-                        <columnConstraints>
-                            <ColumnConstraints />
-                            <ColumnConstraints />
-                        </columnConstraints>
-                        <rowConstraints>
-                            <RowConstraints />
-                            <RowConstraints />
-                            <RowConstraints />
-                            <RowConstraints />
-                        </rowConstraints>
-                    </GridPane>
-                    <Button onAction="#handleEditUser" style="-fx-font-size: 14; -fx-padding: 5 15;" text="Zapisz zmiany" />
-                    <Label fx:id="editUserStatusLabel" style="-fx-text-fill: #f1c40f; -fx-font-style: italic;" />
-                </VBox>
-            </content>
+                    <Label text="Nowe imię:" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                    <TextField fx:id="editFirstNameField" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+
+                    <Label text="Nowe nazwisko:" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                    <TextField fx:id="editLastNameField" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+
+                    <Label text="Nowy PESEL:" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="6" />
+                    <TextField fx:id="editPeselField" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+
+                    <columnConstraints>
+                        <ColumnConstraints />
+                        <ColumnConstraints />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                    </rowConstraints>
+                </GridPane>
+                <Button onAction="#handleEditUser" style="-fx-font-size: 14; -fx-padding: 5 15;" text="Zapisz zmiany" />
+                <Label fx:id="editUserStatusLabel" style="-fx-text-fill: #f1c40f; -fx-font-style: italic;" />
+            </VBox>
         </Tab>
 
-        <!-- Zakładka usuwania użytkownika -->
+        <!-- Usuń użytkownika -->
         <Tab text="Usuń użytkownika">
-            <content>
-                <VBox spacing="10" style="-fx-padding: 20;">
-                    <Label style="-fx-font-size: 18; -fx-font-weight: bold;" text="Usuń użytkownika" textFill="WHITE" />
-                    <GridPane hgap="10" vgap="10">
-                        <Label text="ID użytkownika do usunięcia:" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                        <TextField fx:id="deleteUserIdField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+            <VBox spacing="10" style="-fx-padding: 20;">
+                <Label style="-fx-font-size: 18; -fx-font-weight: bold;" text="Usuń użytkownika" textFill="WHITE" />
+                <GridPane hgap="10" vgap="10">
+                    <Label text="ID użytkownika do usunięcia:" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <TextField fx:id="deleteUserIdField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-                        <columnConstraints>
-                            <ColumnConstraints />
-                            <ColumnConstraints />
-                        </columnConstraints>
-                        <rowConstraints>
-                            <RowConstraints />
-                        </rowConstraints>
-                    </GridPane>
-                    <Button onAction="#handleDeleteUser" style="-fx-font-size: 14; -fx-padding: 5 15;" text="Usuń użytkownika" />
-                    <Label fx:id="deleteUserStatusLabel" style="-fx-text-fill: #e74c3c; -fx-font-style: italic;" />
-                </VBox>
-            </content>
+                    <columnConstraints>
+                        <ColumnConstraints />
+                        <ColumnConstraints />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints />
+                    </rowConstraints>
+                </GridPane>
+                <Button onAction="#handleDeleteUser" style="-fx-font-size: 14; -fx-padding: 5 15;" text="Usuń użytkownika" />
+                <Label fx:id="deleteUserStatusLabel" style="-fx-text-fill: #e74c3c; -fx-font-style: italic;" />
+            </VBox>
         </Tab>
+
 
     </TabPane>
 </StackPane>

@@ -115,6 +115,14 @@ public class UserDAO {
             return null;
         }
     }
+    public User findByPesel(String pesel) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            return session.createQuery("FROM User WHERE pesel = :pesel", User.class)
+                    .setParameter("pesel", pesel)
+                    .uniqueResult();
+        }
+    }
+
 
     public boolean isAdmin(User user) {
         return "ADMIN".equals(user.getRole());

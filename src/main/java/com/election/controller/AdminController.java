@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class AdminController {
 
@@ -49,6 +50,31 @@ public class AdminController {
     private final ElectionService electionService = new ElectionService();
     private final ObservableList<CandidateResult> candidatesData = FXCollections.observableArrayList();
     private User currentAdmin;
+
+    @FXML private TextField usernameField;
+    @FXML private TextField passwordField;
+    @FXML private ComboBox<String> roleComboBox;
+    @FXML private Label addUserStatusLabel;
+    @FXML private TextField firstNameField;
+    @FXML private TextField lastNameField;
+    @FXML private TextField peselField;
+
+    @FXML private TextField editUserIdField;
+    @FXML private TextField editUsernameField;
+    @FXML private TextField editPasswordField;
+    @FXML private ComboBox<String> editRoleComboBox;
+    @FXML private Label editUserStatusLabel;
+    @FXML private TextField editFirstNameField;
+    @FXML private TextField editLastNameField;
+    @FXML private TextField editPeselField;
+
+    @FXML private TextField deleteUserIdField;
+    @FXML private Label deleteUserStatusLabel;
+
+    @FXML private TextField searchUsernameField;
+    @FXML private TextField searchFirstNameField;
+    @FXML private TextField searchLastNameField;
+    @FXML private TextField searchPeselField;
 
     @FXML
     public void initialize() {
@@ -82,7 +108,11 @@ public class AdminController {
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         usernameColumn.setCellValueFactory(new PropertyValueFactory<>("username"));
         roleColumn.setCellValueFactory(new PropertyValueFactory<>("role"));
+        firstNameColumn.setCellValueFactory(new PropertyValueFactory<>("firstName"));
+        lastNameColumn.setCellValueFactory(new PropertyValueFactory<>("lastName"));
+        peselColumn.setCellValueFactory(new PropertyValueFactory<>("pesel"));
     }
+
 
     private void configureResultsTable() {
         candidateColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -98,7 +128,9 @@ public class AdminController {
     }
 
     private void loadInitialData() {
-        usersTable.getItems().setAll(userDAO.getAllUsers());
+        List<User> users = userDAO.getAllUsers();
+        masterUserList.setAll(users);
+        usersTable.setItems(masterUserList);
         refreshElectionData();
     }
 
@@ -207,27 +239,16 @@ public class AdminController {
         alert.showAndWait();
     }
 
-    @FXML private TextField usernameField;
-    @FXML private TextField passwordField;
-    @FXML private ComboBox<String> roleComboBox;
-    @FXML private Label addUserStatusLabel;
-
-    @FXML private TextField editUserIdField;
-    @FXML private TextField editUsernameField;
-    @FXML private TextField editPasswordField;
-    @FXML private ComboBox<String> editRoleComboBox;
-    @FXML private Label editUserStatusLabel;
-
-    @FXML private TextField deleteUserIdField;
-    @FXML private Label deleteUserStatusLabel;
-
     @FXML
     private void handleAddUser(ActionEvent event) {
         String username = usernameField.getText().trim();
         String password = passwordField.getText().trim();
         String role = roleComboBox.getValue();
+        String firstName = firstNameField.getText().trim();
+        String lastName = lastNameField.getText().trim();
+        String pesel = peselField.getText().trim();
 
-        if (username.isEmpty() || password.isEmpty() || role == null) {
+        if (username.isEmpty() || password.isEmpty() || role == null || firstName.isEmpty() || lastName.isEmpty() || pesel.isEmpty()) {
             addUserStatusLabel.setText("Wszystkie pola są wymagane!");
             return;
         }
@@ -238,6 +259,9 @@ public class AdminController {
             user.setPassword(password);
             user.setRole(role);
             user.setHasVoted(false);
+            user.setFirstName(firstName);
+            user.setLastName(lastName);
+            user.setPesel(pesel);
 
             userDAO.saveUser(user);
             usersTable.getItems().add(user);
@@ -262,10 +286,16 @@ public class AdminController {
             String newUsername = editUsernameField.getText().trim();
             String newPassword = editPasswordField.getText().trim();
             String newRole = editRoleComboBox.getValue();
+            String newFirstName = editFirstNameField.getText().trim();
+            String newLastName = editLastNameField.getText().trim();
+            String newPesel = editPeselField.getText().trim();
 
             if (!newUsername.isEmpty()) user.setUsername(newUsername);
             if (!newPassword.isEmpty()) user.setPassword(newPassword);
             if (newRole != null) user.setRole(newRole);
+            if (!newFirstName.isEmpty()) user.setFirstName(newFirstName);
+            if (!newLastName.isEmpty()) user.setLastName(newLastName);
+            if (!newPesel.isEmpty()) user.setPesel(newPesel);
 
             userDAO.updateUser(user);
             usersTable.getItems().setAll(userDAO.getAllUsers());
@@ -299,9 +329,69 @@ public class AdminController {
         }
     }
 
+    @FXML
+    private void handleSearchUsers(ActionEvent event) {
+        String username = searchUsernameField.getText().trim().toLowerCase();
+        String firstName = searchFirstNameField.getText().trim().toLowerCase();
+        String lastName = searchLastNameField.getText().trim().toLowerCase();
+        String pesel = searchPeselField.getText().trim();
+
+        List<User> allUsers = userDAO.getAllUsers();
+
+        List<User> filteredUsers = allUsers.stream()
+                .filter(user -> (username.isEmpty() || user.getUsername().toLowerCase().contains(username)) &&
+                        (firstName.isEmpty() || user.getFirstName().toLowerCase().contains(firstName)) &&
+                        (lastName.isEmpty() || user.getLastName().toLowerCase().contains(lastName)) &&
+                        (pesel.isEmpty() || user.getPesel().contains(pesel)))
+                .collect(Collectors.toList());
+
+        usersTable.setItems(FXCollections.observableArrayList(filteredUsers));
+    }
+
+    @FXML
+    private void handleClearSearch(ActionEvent event) {
+        searchUsernameField.clear();
+        searchFirstNameField.clear();
+        searchLastNameField.clear();
+        searchPeselField.clear();
+        usersTable.setItems(FXCollections.observableArrayList(userDAO.getAllUsers()));
+    }
+    @FXML
+    private TextField peselSearchField;
+
+    @FXML private TableColumn<User, String> firstNameColumn;
+    @FXML private TableColumn<User, String> lastNameColumn;
+    @FXML private TableColumn<User, String> peselColumn;
+
+    private ObservableList<User> masterUserList = FXCollections.observableArrayList();
+
+    @FXML
+    private void handlePeselSearch() {
+        String pesel = peselSearchField.getText().trim();
+        if (pesel.isEmpty()) {
+            usersTable.setItems(masterUserList);
+            return;
+        }
+
+        ObservableList<User> filtered = masterUserList.filtered(user ->
+                user.getPesel() != null && user.getPesel().contains(pesel)
+        );
+        usersTable.setItems(filtered);
+    }
+
+
     private void clearAddUserForm() {
         usernameField.clear();
         passwordField.clear();
         roleComboBox.getSelectionModel().clearSelection();
+        firstNameField.clear();
+        lastNameField.clear();
+        peselField.clear();
     }
+    @FXML
+    private void handleShowAllUsers() {
+        usersTable.setItems(masterUserList);
+        peselSearchField.clear();
+    }
+
 }
