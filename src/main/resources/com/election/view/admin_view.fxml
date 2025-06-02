@@ -80,8 +80,8 @@
 
                 <!-- Przyciski eksportu -->
                 <HBox spacing="10" alignment="CENTER_LEFT">
-                    <Button onAction="#handleexportToCSV" style="-fx-font-size: 14; -fx-padding: 5 15;" text="Eksportuj do CSV" />
-                    <Button onAction="#handleexportToPDF" style="-fx-font-size: 14; -fx-padding: 5 15;" text="Eksportuj do PDF" />
+                    <Button onAction="#handleExportToCSV" style="-fx-font-size: 14; -fx-padding: 5 15;" text="Eksportuj do CSV" />
+                    <Button onAction="#handleExportToPDF" style="-fx-font-size: 14; -fx-padding: 5 15;" text="Eksportuj do PDF" />
                 </HBox>
             </VBox>
         </Tab>

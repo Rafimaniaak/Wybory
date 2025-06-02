@@ -403,7 +403,7 @@ public class AdminController {
     }
 
     @FXML
-    private void handleexportToCSV() {
+    private void handleExportToCSV() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Zapisz plik CSV");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV files (*.csv)", "*.csv"));
@@ -441,7 +441,7 @@ public class AdminController {
 
 
     @FXML
-    private void handleexportToPDF() {
+    private void handleExportToPDF() {
         try {
             ExportServicePDF.exportToPDF(candidateDAO.getAllCandidates(), "wyniki.pdf");
             System.out.println("Zapisano do PDF");
