@@ -72,13 +72,20 @@
                     </BarChart>
                 </HBox>
 
-                <HBox spacing="20" alignment="CENTER_LEFT">
+                <HBox spacing="10" alignment="CENTER_LEFT">
                     <Button onAction="#refreshResults" style="-fx-font-size: 14; -fx-padding: 5 15;" text="Odśwież wyniki" />
                     <Button onAction="#handleLogout" style="-fx-base: #e74c3c; -fx-text-fill: white;" text="Wyloguj" />
                     <Label fx:id="statusLabel" style="-fx-text-fill: #2ecc71; -fx-font-style: italic;" />
                 </HBox>
+
+                <!-- Przyciski eksportu -->
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Button onAction="#handleexportToCSV" style="-fx-font-size: 14; -fx-padding: 5 15;" text="Eksportuj do CSV" />
+                    <Button onAction="#handleexportToPDF" style="-fx-font-size: 14; -fx-padding: 5 15;" text="Eksportuj do PDF" />
+                </HBox>
             </VBox>
         </Tab>
+
 
         <!-- Narzędzia -->
         <Tab text="Narzędzia">

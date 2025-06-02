@@ -5,32 +5,69 @@ import com.election.util.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
-import jakarta.persistence.TypedQuery;
 import java.util.List;
 
 public class CandidateDAO {
+
+    // Pobierz wszystkich kandydatów
     public List<Candidate> getAllCandidates() {
-        try (Session session = JPAUtil.getSessionFactory().openSession()) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             return session.createQuery("FROM Candidate", Candidate.class).list();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
-    // Dodaj przykładowych kandydatów (do inicjalizacji)
-//    public void addSampleCandidates() {
-//        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-//            Transaction transaction = session.beginTransaction();
-//
-//            // Usuń istniejących kandydatów (opcjonalnie)
-//            session.createQuery("DELETE FROM Candidate").executeUpdate();
-//
-//            // Dodaj nowych kandydatów
-//            session.persist(new Candidate("Jan Kowalski", "Partia X"));
-//            session.persist(new Candidate("Anna Nowak", "Partia Y"));
-//            session.persist(new Candidate("Piotr Wiśniewski", "Partia Z"));
-//
-//            transaction.commit();
-//        }
-//    }
+    // Dodaj nowego kandydata
+    public void addCandidate(Candidate candidate) {
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            session.persist(candidate);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) transaction.rollback();
+            e.printStackTrace();
+        }
+    }
+
+    // Usuń kandydata po ID
+    public void deleteCandidate(Long id) {
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            Candidate candidate = session.get(Candidate.class, id);
+            if (candidate != null) {
+                session.remove(candidate);
+            }
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) transaction.rollback();
+            e.printStackTrace();
+        }
+    }
+
+    // Zaktualizuj dane kandydata
+    public void updateCandidate(Candidate candidate) {
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            session.merge(candidate);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) transaction.rollback();
+            e.printStackTrace();
+        }
+    }
+
+    // Pobierz kandydata po ID
+    public Candidate getCandidateById(Long id) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            return session.get(Candidate.class, id);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

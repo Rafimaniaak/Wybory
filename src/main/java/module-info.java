@@ -17,6 +17,7 @@ module com.election {
     requires org.hibernate.orm.core;
     requires org.slf4j;
     requires jakarta.persistence;
+    requires com.github.librepdf.openpdf;
 
     exports com.election;
     opens com.election to javafx.fxml;

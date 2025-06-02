@@ -1,10 +1,13 @@
 package com.election.controller;
 
 import com.election.HashGenerator;
+import com.election.dao.CandidateDAO;
 import com.election.dao.UserDAO;
 import com.election.model.CandidateResult;
 import com.election.model.User;
 import com.election.service.ElectionService;
+import com.election.service.ExportService;
+import com.election.service.ExportServicePDF;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -16,6 +19,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
@@ -23,13 +27,17 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.paint.Color;
 
-import java.io.IOException;
+import javax.xml.transform.Result;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class AdminController {
+
+    private final CandidateDAO candidateDAO = new CandidateDAO();
 
     @FXML private TableView<User> usersTable;
     @FXML private TableColumn<User, Long> idColumn;
@@ -393,5 +401,54 @@ public class AdminController {
         usersTable.setItems(masterUserList);
         peselSearchField.clear();
     }
+
+    @FXML
+    private void handleexportToCSV() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Zapisz plik CSV");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV files (*.csv)", "*.csv"));
+        File file = fileChooser.showSaveDialog(resultsTable.getScene().getWindow());
+
+        if (file != null) {
+            try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
+                // Dodaj BOM — kluczowe dla poprawnego wyświetlania polskich znaków w Excelu
+                writer.write('\uFEFF');
+
+                // Nagłówki
+                writer.write("Kandydat;Liczba głosów\n");
+
+                // Dane
+                for (CandidateResult result : resultsTable.getItems()) {
+                    writer.write(result.getName() + ";" + result.getVotes() + "\n");
+                }
+
+                writer.flush();
+
+            } catch (IOException e) {
+                showError("Błąd zapisu CSV: " + e.getMessage());
+            }
+        }
+    }
+
+    private void showError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Błąd");
+        alert.setHeaderText("Wystąpił błąd");
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+
+
+    @FXML
+    private void handleexportToPDF() {
+        try {
+            ExportServicePDF.exportToPDF(candidateDAO.getAllCandidates(), "wyniki.pdf");
+            System.out.println("Zapisano do PDF");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
 }
