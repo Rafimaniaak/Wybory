@@ -37,3 +37,91 @@ The object is already closed [90007-214]
 2025-06-02 01:09:24 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLNonTransientException: Obiekt jest zamknięty
 The object is already closed [90007-214]
+2025-06-03 20:49:04.180935+02:00 database: flush
+org.h2.message.DbException: Błąd ogólny: "org.h2.mvstore.MVStoreException: The write format 2 is smaller than the supported format 3 [2.3.232/5]"
+General error: "org.h2.mvstore.MVStoreException: The write format 2 is smaller than the supported format 3 [2.3.232/5]" [50000-232]
+	at org.h2.message.DbException.get(DbException.java:212)
+	at org.h2.message.DbException.convert(DbException.java:407)
+	at org.h2.mvstore.db.Store.lambda$new$0(Store.java:122)
+	at org.h2.mvstore.MVStore.handleException(MVStore.java:1546)
+	at org.h2.mvstore.MVStore.panic(MVStore.java:371)
+	at org.h2.mvstore.MVStore.<init>(MVStore.java:291)
+	at org.h2.mvstore.MVStore$Builder.open(MVStore.java:2035)
+	at org.h2.mvstore.db.Store.<init>(Store.java:133)
+	at org.h2.engine.Database.<init>(Database.java:326)
+	at org.h2.engine.Engine.openSession(Engine.java:92)
+	at org.h2.engine.Engine.openSession(Engine.java:222)
+	at org.h2.engine.Engine.createSession(Engine.java:201)
+	at org.h2.engine.SessionRemote.connectEmbeddedOrServer(SessionRemote.java:344)
+	at org.h2.engine.SessionRemote.autoReconnect(SessionRemote.java:516)
+	at org.h2.engine.SessionRemote.removeServer(SessionRemote.java:476)
+	at org.h2.command.CommandRemote.prepare(CommandRemote.java:100)
+	at org.h2.command.CommandRemote.<init>(CommandRemote.java:56)
+	at org.h2.engine.SessionRemote.prepareCommand(SessionRemote.java:488)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1164)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:245)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at org.h2.server.web.WebApp.getResult(WebApp.java:1344)
+	at org.h2.server.web.WebApp.query(WebApp.java:1142)
+	at org.h2.server.web.WebApp$1.next(WebApp.java:1108)
+	at org.h2.server.web.WebApp$1.next(WebApp.java:1095)
+	at org.h2.server.web.WebThread.process(WebThread.java:190)
+	at org.h2.server.web.WebThread.run(WebThread.java:103)
+	at java.base/java.lang.Thread.run(Thread.java:833)
+Caused by: org.h2.jdbc.JdbcSQLNonTransientException: Błąd ogólny: "org.h2.mvstore.MVStoreException: The write format 2 is smaller than the supported format 3 [2.3.232/5]"
+General error: "org.h2.mvstore.MVStoreException: The write format 2 is smaller than the supported format 3 [2.3.232/5]" [50000-232]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:566)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 28 more
+Caused by: org.h2.mvstore.MVStoreException: The write format 2 is smaller than the supported format 3 [2.3.232/5]
+	at org.h2.mvstore.DataUtils.newMVStoreException(DataUtils.java:996)
+	at org.h2.mvstore.FileStore.getUnsupportedWriteFormatException(FileStore.java:945)
+	at org.h2.mvstore.FileStore.processCommonHeaderAttributes(FileStore.java:547)
+	at org.h2.mvstore.RandomAccessStore.readStoreHeader(RandomAccessStore.java:227)
+	at org.h2.mvstore.FileStore.start(FileStore.java:918)
+	at org.h2.mvstore.MVStore.<init>(MVStore.java:289)
+	... 22 more
+2025-06-03 20:49:04.184950+02:00 database: opening C:/Users/Rafimaniaak/ProjektJAVA/Wybory/database/election_db
+org.h2.message.DbException: Nieprawidłowa wersja pliku bazy danych lub nieprawidłowy nagłówek pliku "C:/Users/Rafimaniaak/ProjektJAVA/Wybory/database/election_db.mv.db"
+Unsupported database file version or invalid file header in file "C:/Users/Rafimaniaak/ProjektJAVA/Wybory/database/election_db.mv.db" [90048-232]
+	at org.h2.message.DbException.get(DbException.java:212)
+	at org.h2.mvstore.db.Store.convertMVStoreException(Store.java:158)
+	at org.h2.mvstore.db.Store.<init>(Store.java:142)
+	at org.h2.engine.Database.<init>(Database.java:326)
+	at org.h2.engine.Engine.openSession(Engine.java:92)
+	at org.h2.engine.Engine.openSession(Engine.java:222)
+	at org.h2.engine.Engine.createSession(Engine.java:201)
+	at org.h2.engine.SessionRemote.connectEmbeddedOrServer(SessionRemote.java:344)
+	at org.h2.engine.SessionRemote.autoReconnect(SessionRemote.java:516)
+	at org.h2.engine.SessionRemote.removeServer(SessionRemote.java:476)
+	at org.h2.command.CommandRemote.prepare(CommandRemote.java:100)
+	at org.h2.command.CommandRemote.<init>(CommandRemote.java:56)
+	at org.h2.engine.SessionRemote.prepareCommand(SessionRemote.java:488)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1164)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:245)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at org.h2.server.web.WebApp.getResult(WebApp.java:1344)
+	at org.h2.server.web.WebApp.query(WebApp.java:1142)
+	at org.h2.server.web.WebApp$1.next(WebApp.java:1108)
+	at org.h2.server.web.WebApp$1.next(WebApp.java:1095)
+	at org.h2.server.web.WebThread.process(WebThread.java:190)
+	at org.h2.server.web.WebThread.run(WebThread.java:103)
+	at java.base/java.lang.Thread.run(Thread.java:833)
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: Nieprawidłowa wersja pliku bazy danych lub nieprawidłowy nagłówek pliku "C:/Users/Rafimaniaak/ProjektJAVA/Wybory/database/election_db.mv.db"
+Unsupported database file version or invalid file header in file "C:/Users/Rafimaniaak/ProjektJAVA/Wybory/database/election_db.mv.db" [90048-232]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:690)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 23 more
+Caused by: org.h2.mvstore.MVStoreException: The write format 2 is smaller than the supported format 3 [2.3.232/5]
+	at org.h2.mvstore.DataUtils.newMVStoreException(DataUtils.java:996)
+	at org.h2.mvstore.FileStore.getUnsupportedWriteFormatException(FileStore.java:945)
+	at org.h2.mvstore.FileStore.processCommonHeaderAttributes(FileStore.java:547)
+	at org.h2.mvstore.RandomAccessStore.readStoreHeader(RandomAccessStore.java:227)
+	at org.h2.mvstore.FileStore.start(FileStore.java:918)
+	at org.h2.mvstore.MVStore.<init>(MVStore.java:289)
+	at org.h2.mvstore.MVStore$Builder.open(MVStore.java:2035)
+	at org.h2.mvstore.db.Store.<init>(Store.java:133)
+	... 20 more
+2025-06-03 21:08:27 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: Obiekt jest zamknięty
+The object is already closed [90007-214]
