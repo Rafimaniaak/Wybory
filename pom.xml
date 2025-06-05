@@ -113,6 +113,7 @@
                     <include>**/*.xml</include>
                     <include>**/*.sql</include>
                     <include>**/*.fxml</include>
+                    <include>**/*.css</include>
                     <include>**/*.properties</include>
                     <include>MANIFEST.MF</include>
                 </includes>
