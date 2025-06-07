@@ -1,5 +1,5 @@
 Eksport struktury katalogów i plików
-Wygenerowano: 06/05/2025 23:29:02
+Wygenerowano: 06/06/2025 01:59:50
 
 
 
@@ -323,7 +323,7 @@ cmd /C exit /B %ERROR_CODE%
                     <include>**/*.xml</include>
                     <include>**/*.sql</include>
                     <include>**/*.fxml</include>
-                    <include>**.*.css</include>
+                    <include>**/*.css</include>
                     <include>**/*.properties</include>
                     <include>MANIFEST.MF</include>
                 </includes>
@@ -572,14 +572,7 @@ Jan Tarczynski;1
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e9c5088e-ab39-436c-a56e-66d5552ef37a" name="Changes" comment="V0.8">
-      <change afterPath="$PROJECT_DIR$/src/main/resources/com/election/view/style.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/election_db.mv.db" beforeDir="false" afterPath="$PROJECT_DIR$/database/election_db.mv.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/com/election/view/admin_view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/com/election/view/admin_view.fxml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/com/election/view/login.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/com/election/view/login.fxml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/com/election/view/user_view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/com/election/view/user_view.fxml" afterDir="false" />
-    </list>
+    <list default="true" id="e9c5088e-ab39-436c-a56e-66d5552ef37a" name="Changes" comment="V0.9" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -779,7 +772,15 @@ Jan Tarczynski;1
       <option name="project" value="LOCAL" />
       <updated>1748983732149</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="V0.9">
+      <option name="closed" value="true" />
+      <created>1749167559132</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1749167559132</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -800,7 +801,8 @@ Jan Tarczynski;1
     <MESSAGE value="Commit" />
     <MESSAGE value="V0.7" />
     <MESSAGE value="V0.8" />
-    <option name="LAST_COMMIT_MESSAGE" value="V0.8" />
+    <MESSAGE value="V0.9" />
+    <option name="LAST_COMMIT_MESSAGE" value="V0.9" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -4075,6 +4077,185 @@ INSERT INTO USERS (id, username, password, role, has_voted) VALUES (2, 'user', '
         </VBox>
     </center>
 </BorderPane>
+
+
+ŒCIE¯KA: target\classes\com\election\view\style.css
+------------------------------------------------------
+/* GLOBALNE STYLE */
+.root-style {
+    -fx-background-color: #34495e;
+}
+
+.white-text {
+    -fx-text-fill: white;
+}
+
+/* TYPOGRAPHY */
+.panel-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.app-title {
+    -fx-font-size: 40px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.form-label {
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+}
+
+/* PRZYCISKI */
+.button-logout {
+    -fx-base: #e74c3c;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+}
+
+.button-generate {
+    -fx-font-size: 14px;
+    -fx-padding: 8px 20px;
+    -fx-base: #3498db;
+    -fx-text-fill: white;
+}
+
+.button-refresh {
+    -fx-font-size: 14px;
+    -fx-padding: 5px 15px;
+}
+
+.button-export {
+    -fx-font-size: 14px;
+    -fx-padding: 5px 15px;
+}
+
+.button-add {
+    -fx-font-size: 14px;
+    -fx-padding: 5px 15px;
+}
+
+.button-save {
+    -fx-font-size: 14px;
+    -fx-padding: 5px 15px;
+}
+
+.button-delete {
+    -fx-font-size: 14px;
+    -fx-padding: 5px 15px;
+}
+
+.button-login {
+    -fx-font-size: 20px;
+    -fx-pref-height: 44px;
+    -fx-pref-width: 202px;
+}
+
+.button-vote {
+    -fx-font-size: 32px;
+    -fx-base: #27ae60;
+    -fx-text-fill: white;
+    -fx-pref-width: 450px;
+}
+
+/* KONTENERY */
+.vbox-padding {
+    -fx-padding: 20px;
+}
+
+.tools-container {
+    -fx-padding: 30px 0 0 0;
+}
+
+.voting-container {
+    -fx-padding: 20px;
+    -fx-background-color: white;
+    -fx-background-radius: 10px;
+}
+
+.header-style {
+    -fx-padding: 10px;
+    -fx-background-color: #34495e;
+}
+
+.footer-style {
+    -fx-padding: 15px;
+    -fx-background-color: #34495e;
+}
+
+/* STATUSY I KOMUNIKATY */
+.status-label {
+    -fx-text-fill: #2ecc71;
+    -fx-font-style: italic;
+}
+
+.edit-status-label {
+    -fx-text-fill: #f1c40f;
+    -fx-font-style: italic;
+}
+
+.delete-status-label {
+    -fx-text-fill: #e74c3c;
+    -fx-font-style: italic;
+}
+
+.error-label {
+    -fx-text-fill: #ff4444;
+    -fx-font-size: 20px;
+}
+
+.vote-status-label {
+    -fx-font-size: 24px;
+    -fx-text-fill: #e74c3c;
+}
+
+/* FORMULARZE */
+.form-field {
+    -fx-pref-width: 200px;
+    -fx-font-size: 20px;
+}
+
+/* WYKRESY */
+.results-chart {
+    -fx-title-fill: white;
+}
+
+.results-chart .chart-title {
+    -fx-text-fill: white;
+}
+
+.results-chart .axis-label {
+    -fx-text-fill: white;
+}
+
+.results-chart .axis {
+    -fx-tick-label-fill: white;
+}
+
+/* SPECJALNE ELEMENTY */
+.welcome-text {
+    -fx-font-size: 50px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+}
+
+.candidate-label {
+    -fx-font-size: 48px;
+    -fx-font-weight: bold;
+}
+
+.candidate-combo {
+    -fx-pref-height: 65px;
+    -fx-pref-width: 450px;
+    -fx-font-size: 25px;
+}
+
+.footer-text {
+    -fx-text-fill: white;
+    -fx-font-size: 30px;
+}
 
 
 ŒCIE¯KA: target\classes\com\election\view\user_view.fxml
