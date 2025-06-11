@@ -17,7 +17,7 @@ public class HibernateUtil {
             // Wczytaj konfigurację z hibernate.cfg.xml z classpath
             Configuration configuration = new Configuration().configure();
 
-            // Dodaj klasy mapowane (jeśli nie masz <mapping> w XML, ale tu są redundantne)
+            // Dodaj klasy mapowane
             configuration.addAnnotatedClass(User.class);
             configuration.addAnnotatedClass(Candidate.class);
             configuration.addAnnotatedClass(Vote.class);

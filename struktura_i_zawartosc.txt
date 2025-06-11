@@ -1,336 +1,6 @@
 Eksport struktury katalogÛw i plikÛw
-Wygenerowano: 06/06/2025 01:59:50
+Wygenerowano: 06/11/2025 19:06:14
 
-
-
-åCIEØKA: .gitignore
-----------------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]
-
-
-åCIEØKA: mvnw
-----------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]
-
-
-åCIEØKA: mvnw.cmd
---------------------
-@REM ----------------------------------------------------------------------------
-@REM Licensed to the Apache Software Foundation (ASF) under one
-@REM or more contributor license agreements.  See the NOTICE file
-@REM distributed with this work for additional information
-@REM regarding copyright ownership.  The ASF licenses this file
-@REM to you under the Apache License, Version 2.0 (the
-@REM "License"); you may not use this file except in compliance
-@REM with the License.  You may obtain a copy of the License at
-@REM
-@REM    https://www.apache.org/licenses/LICENSE-2.0
-@REM
-@REM Unless required by applicable law or agreed to in writing,
-@REM software distributed under the License is distributed on an
-@REM "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-@REM KIND, either express or implied.  See the License for the
-@REM specific language governing permissions and limitations
-@REM under the License.
-@REM ----------------------------------------------------------------------------
-
-@REM ----------------------------------------------------------------------------
-@REM Maven Start Up Batch script
-@REM
-@REM Required ENV vars:
-@REM JAVA_HOME - location of a JDK home dir
-@REM
-@REM Optional ENV vars
-@REM M2_HOME - location of maven2's installed home dir
-@REM MAVEN_BATCH_ECHO - set to 'on' to enable the echoing of the batch commands
-@REM MAVEN_BATCH_PAUSE - set to 'on' to wait for a keystroke before ending
-@REM MAVEN_OPTS - parameters passed to the Java VM when running Maven
-@REM     e.g. to debug Maven itself, use
-@REM set MAVEN_OPTS=-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000
-@REM MAVEN_SKIP_RC - flag to disable loading of mavenrc files
-@REM ----------------------------------------------------------------------------
-
-@REM Begin all REM lines with '@' in case MAVEN_BATCH_ECHO is 'on'
-@echo off
-@REM set title of command window
-title %0
-@REM enable echoing by setting MAVEN_BATCH_ECHO to 'on'
-@if "%MAVEN_BATCH_ECHO%" == "on"  echo %MAVEN_BATCH_ECHO%
-
-@REM set %HOME% to equivalent of $HOME
-if "%HOME%" == "" (set "HOME=%HOMEDRIVE%%HOMEPATH%")
-
-@REM Execute a user defined script before this one
-if not "%MAVEN_SKIP_RC%" == "" goto skipRcPre
-@REM check for pre script, once with legacy .bat ending and once with .cmd ending
-if exist "%USERPROFILE%\mavenrc_pre.bat" call "%USERPROFILE%\mavenrc_pre.bat" %*
-if exist "%USERPROFILE%\mavenrc_pre.cmd" call "%USERPROFILE%\mavenrc_pre.cmd" %*
-:skipRcPre
-
-@setlocal
-
-set ERROR_CODE=0
-
-@REM To isolate internal variables from possible post scripts, we use another setlocal
-@setlocal
-
-@REM ==== START VALIDATION ====
-if not "%JAVA_HOME%" == "" goto OkJHome
-
-echo.
-echo Error: JAVA_HOME not found in your environment. >&2
-echo Please set the JAVA_HOME variable in your environment to match the >&2
-echo location of your Java installation. >&2
-echo.
-goto error
-
-:OkJHome
-if exist "%JAVA_HOME%\bin\java.exe" goto init
-
-echo.
-echo Error: JAVA_HOME is set to an invalid directory. >&2
-echo JAVA_HOME = "%JAVA_HOME%" >&2
-echo Please set the JAVA_HOME variable in your environment to match the >&2
-echo location of your Java installation. >&2
-echo.
-goto error
-
-@REM ==== END VALIDATION ====
-
-:init
-
-@REM Find the project base dir, i.e. the directory that contains the folder ".mvn".
-@REM Fallback to current working directory if not found.
-
-set MAVEN_PROJECTBASEDIR=%MAVEN_BASEDIR%
-IF NOT "%MAVEN_PROJECTBASEDIR%"=="" goto endDetectBaseDir
-
-set EXEC_DIR=%CD%
-set WDIR=%EXEC_DIR%
-:findBaseDir
-IF EXIST "%WDIR%"\.mvn goto baseDirFound
-cd ..
-IF "%WDIR%"=="%CD%" goto baseDirNotFound
-set WDIR=%CD%
-goto findBaseDir
-
-:baseDirFound
-set MAVEN_PROJECTBASEDIR=%WDIR%
-cd "%EXEC_DIR%"
-goto endDetectBaseDir
-
-:baseDirNotFound
-set MAVEN_PROJECTBASEDIR=%EXEC_DIR%
-cd "%EXEC_DIR%"
-
-:endDetectBaseDir
-
-IF NOT EXIST "%MAVEN_PROJECTBASEDIR%\.mvn\jvm.config" goto endReadAdditionalConfig
-
-@setlocal EnableExtensions EnableDelayedExpansion
-for /F "usebackq delims=" %%a in ("%MAVEN_PROJECTBASEDIR%\.mvn\jvm.config") do set JVM_CONFIG_MAVEN_PROPS=!JVM_CONFIG_MAVEN_PROPS! %%a
-@endlocal & set JVM_CONFIG_MAVEN_PROPS=%JVM_CONFIG_MAVEN_PROPS%
-
-:endReadAdditionalConfig
-
-SET MAVEN_JAVA_EXE="%JAVA_HOME%\bin\java.exe"
-set WRAPPER_JAR="%MAVEN_PROJECTBASEDIR%\.mvn\wrapper\maven-wrapper.jar"
-set WRAPPER_LAUNCHER=org.apache.maven.wrapper.MavenWrapperMain
-
-set DOWNLOAD_URL="https://repo.maven.apache.org/maven2/org/apache/maven/wrapper/maven-wrapper/3.1.0/maven-wrapper-3.1.0.jar"
-
-FOR /F "usebackq tokens=1,2 delims==" %%A IN ("%MAVEN_PROJECTBASEDIR%\.mvn\wrapper\maven-wrapper.properties") DO (
-    IF "%%A"=="wrapperUrl" SET DOWNLOAD_URL=%%B
-)
-
-@REM Extension to allow automatically downloading the maven-wrapper.jar from Maven-central
-@REM This allows using the maven wrapper in projects that prohibit checking in binary data.
-if exist %WRAPPER_JAR% (
-    if "%MVNW_VERBOSE%" == "true" (
-        echo Found %WRAPPER_JAR%
-    )
-) else (
-    if not "%MVNW_REPOURL%" == "" (
-        SET DOWNLOAD_URL="%MVNW_REPOURL%/org/apache/maven/wrapper/maven-wrapper/3.1.0/maven-wrapper-3.1.0.jar"
-    )
-    if "%MVNW_VERBOSE%" == "true" (
-        echo Couldn't find %WRAPPER_JAR%, downloading it ...
-        echo Downloading from: %DOWNLOAD_URL%
-    )
-
-    powershell -Command "&{"^
-		"$webclient = new-object System.Net.WebClient;"^
-		"if (-not ([string]::IsNullOrEmpty('%MVNW_USERNAME%') -and [string]::IsNullOrEmpty('%MVNW_PASSWORD%'))) {"^
-		"$webclient.Credentials = new-object System.Net.NetworkCredential('%MVNW_USERNAME%', '%MVNW_PASSWORD%');"^
-		"}"^
-		"[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; $webclient.DownloadFile('%DOWNLOAD_URL%', '%WRAPPER_JAR%')"^
-		"}"
-    if "%MVNW_VERBOSE%" == "true" (
-        echo Finished downloading %WRAPPER_JAR%
-    )
-)
-@REM End of extension
-
-@REM Provide a "standardized" way to retrieve the CLI args that will
-@REM work with both Windows and non-Windows executions.
-set MAVEN_CMD_LINE_ARGS=%*
-
-%MAVEN_JAVA_EXE% ^
-  %JVM_CONFIG_MAVEN_PROPS% ^
-  %MAVEN_OPTS% ^
-  %MAVEN_DEBUG_OPTS% ^
-  -classpath %WRAPPER_JAR% ^
-  "-Dmaven.multiModuleProjectDirectory=%MAVEN_PROJECTBASEDIR%" ^
-  %WRAPPER_LAUNCHER% %MAVEN_CONFIG% %*
-if ERRORLEVEL 1 goto error
-goto end
-
-:error
-set ERROR_CODE=1
-
-:end
-@endlocal & set ERROR_CODE=%ERROR_CODE%
-
-if not "%MAVEN_SKIP_RC%"=="" goto skipRcPost
-@REM check for post script, once with legacy .bat ending and once with .cmd ending
-if exist "%USERPROFILE%\mavenrc_post.bat" call "%USERPROFILE%\mavenrc_post.bat"
-if exist "%USERPROFILE%\mavenrc_post.cmd" call "%USERPROFILE%\mavenrc_post.cmd"
-:skipRcPost
-
-@REM pause the script if MAVEN_BATCH_PAUSE is set to 'on'
-if "%MAVEN_BATCH_PAUSE%"=="on" pause
-
-if "%MAVEN_TERMINATE_CMD%"=="on" exit %ERROR_CODE%
-
-cmd /C exit /B %ERROR_CODE%
-
-
-
-åCIEØKA: pom.xml
--------------------
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
-    <groupId>com.election</groupId>
-    <artifactId>election-system</artifactId>
-    <version>1.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
-
-    <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <javafx.version>17</javafx.version>
-        <hibernate.version>6.4.2.Final</hibernate.version>
-    </properties>
-    <dependencies>
-        <!-- BCrypt do hashowania hase≈Ç -->
-        <dependency>
-            <groupId>org.mindrot</groupId>
-            <artifactId>jbcrypt</artifactId>
-            <version>0.4</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/javax.naming/jndi -->
-<!--        <dependency>-->
-<!--            <groupId>javax.naming</groupId>-->
-<!--            <artifactId>jndi</artifactId>-->
-<!--            <version>1.2.1</version>-->
-<!--        </dependency>-->
-        <dependency>
-            <groupId>jakarta.annotation</groupId>
-            <artifactId>jakarta.annotation-api</artifactId>
-            <version>3.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.transaction</groupId>
-            <artifactId>javax.transaction-api</artifactId>
-            <version>1.3</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/javax.sql/jdbc-stdext -->
-<!--        <dependency>-->
-<!--            <groupId>javax.sql</groupId>-->
-<!--            <artifactId>jdbc-stdext</artifactId>-->
-<!--            <version>2.0</version>-->
-<!--        </dependency>-->
-        <!-- JavaFX -->
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-controls</artifactId>
-            <version>17.0.12</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-fxml</artifactId>
-            <version>17.0.12</version>
-        </dependency>
-
-        <!-- Hibernate -->
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-core</artifactId>
-            <version>${hibernate.version}</version>
-        </dependency>
-
-        <!-- H2 Database -->
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>2.1.214</version>
-        </dependency>
-
-        <!-- Logowanie -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.7.36</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
-            <version>2.17.1</version>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.5.13</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.librepdf</groupId>
-            <artifactId>openpdf</artifactId>
-            <version>1.3.30</version>
-        </dependency>
-
-    </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.openjfx</groupId>
-                <artifactId>javafx-maven-plugin</artifactId>
-                <version>0.0.8</version>
-                <configuration>
-                    <mainClass>com.election.Main</mainClass>
-                </configuration>
-            </plugin>
-        </plugins>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <includes>
-                    <include>**/*.png</include>
-                    <include>**/*.xml</include>
-                    <include>**/*.sql</include>
-                    <include>**/*.fxml</include>
-                    <include>**/*.css</include>
-                    <include>**/*.properties</include>
-                    <include>MANIFEST.MF</include>
-                </includes>
-            </resource>
-        </resources>
-    </build>
-</project>
 
 
 åCIEØKA: README.md
@@ -339,531 +9,19 @@ Projekt Wybor√≥w
 
 
 
-åCIEØKA: schema.sql
-----------------------
--- H2 2.1.214;
-;             
-CREATE USER IF NOT EXISTS "SA" SALT '7562c89feab4b8f7' HASH 'b69680163c4d7c9f786dca71006ce238485766cefd86776cc05f8af0f5392a65' ADMIN;         
-CREATE CACHED TABLE "PUBLIC"."CANDIDATE"(
-    "ID" BIGINT GENERATED BY DEFAULT AS IDENTITY(START WITH 1) NOT NULL,
-    "NAME" CHARACTER VARYING(255) NOT NULL,
-    "PARTY" CHARACTER VARYING(255),
-    "VOTES" INTEGER NOT NULL
-);       
-ALTER TABLE "PUBLIC"."CANDIDATE" ADD CONSTRAINT "PUBLIC"."CONSTRAINT_C" PRIMARY KEY("ID");    
--- 3 +/- SELECT COUNT(*) FROM PUBLIC.CANDIDATE;               
-INSERT INTO "PUBLIC"."CANDIDATE" VALUES
-(1, 'Jan Kowalski', 'Partia A', 7),
-(2, 'Anna Nowak', 'Partia B', 2),
-(3, 'Jan Tarczynski', 'Partia C', 1);        
-CREATE CACHED TABLE "PUBLIC"."ELECTION_RESULTS"(
-    "ID" BIGINT GENERATED BY DEFAULT AS IDENTITY(START WITH 1 RESTART WITH 4) NOT NULL,
-    "CANDIDATE_NAME" CHARACTER VARYING(255),
-    "VOTES" INTEGER NOT NULL
-);     
-ALTER TABLE "PUBLIC"."ELECTION_RESULTS" ADD CONSTRAINT "PUBLIC"."CONSTRAINT_4" PRIMARY KEY("ID");             
--- 3 +/- SELECT COUNT(*) FROM PUBLIC.ELECTION_RESULTS;        
-INSERT INTO "PUBLIC"."ELECTION_RESULTS" VALUES
-(1, 'Jan Kowalski', 7),
-(2, 'Anna Nowak', 2),
-(3, 'Jan Tarczynski', 1);     
-CREATE CACHED TABLE "PUBLIC"."USERS"(
-    "ID" BIGINT GENERATED BY DEFAULT AS IDENTITY(START WITH 1 RESTART WITH 54) NOT NULL,
-    "FIRST_NAME" CHARACTER VARYING(255) NOT NULL,
-    "HAS_VOTED" BOOLEAN NOT NULL,
-    "LAST_NAME" CHARACTER VARYING(255) NOT NULL,
-    "PASSWORD" CHARACTER VARYING(255) NOT NULL,
-    "PESEL" CHARACTER VARYING(11) NOT NULL,
-    "ROLE" CHARACTER VARYING(255) NOT NULL,
-    "USERNAME" CHARACTER VARYING(255) NOT NULL
-);        
-ALTER TABLE "PUBLIC"."USERS" ADD CONSTRAINT "PUBLIC"."CONSTRAINT_4D" PRIMARY KEY("ID");       
--- 52 +/- SELECT COUNT(*) FROM PUBLIC.USERS;  
-INSERT INTO "PUBLIC"."USERS" VALUES
-(1, 'Admin', FALSE, 'Adminowski', '$2a$10$dj9eHfuT2oAOd4H0LabcZexzBX7MS7/NgfhabawxQpXd57ZAr3nEq', '00000000000', 'ADMIN', 'admin'),
-(2, 'Jan', FALSE, 'Nowak', '$2a$10$SvcT2pdsn5ndUfkfSvtFZ.dlYk/jnKfOz/gyq0yQdl58miFuAi23e', '00000000123', 'USER', 'user'),
-(3, 'Marek', TRUE, U&'Szyma\0144ski', '$2a$10$Sc7BeEhS1QPGvKYOA5oczuFz3/8eG6050d/8gRKFPWAnYwcdyO5f6', '10000000001', 'USER', 'user1'),
-(4, 'Magda', TRUE, U&'Kami\0144ski', '$2a$10$vUMiwF08NNen0DeWQb/pcukun3Sx1WXcHVuWka8TTi7ComDtJJw06', '10000000002', 'USER', 'user2'),
-(5, 'Marek', TRUE, 'Kowalski', '$2a$10$LN4./y9hOIu.DXEhHgYeye0290.ZeRJJUUojUFyfVaiKFLjAq3FOW', '10000000003', 'USER', 'user3'),
-(6, 'Katarzyna', TRUE, U&'Szyma\0144ski', '$2a$10$S0fJi2pjiVxVHXsvoGp68eT5BgSWnfGCkjmyE4KWW7XTRGcbcZKY.', '10000000004', 'USER', 'user4'),
-(7, 'Anna', TRUE, U&'Wi\015bniewski', '$2a$10$7iok5jJS41OR2pA1TLKtiOgsjw8EjzMLROjkUjMgKYifQRO7.nB4y', '10000000005', 'USER', 'user5'),
-(8, 'Marek', TRUE, U&'Wi\015bniewski', '$2a$10$tJqpsZKMTsqSvuDg4d.xu.kyODVx6xHi740N9fXwFbvksimF6Clg.', '10000000006', 'USER', 'user6'),
-(9, 'Monika', TRUE, U&'Szyma\0144ski', '$2a$10$RZZTcoYwB1LtI7c3yqjapOF265vC.tkqOva7/QABqATowIzrAotn.', '10000000007', 'USER', 'user7'),
-(10, 'Monika', TRUE, U&'Wo\017aniak', '$2a$10$2qrM8S0aJDxxPD36386btu43C40PspPXm0num5ZI6OIoB9O25EEqu', '10000000008', 'USER', 'user8'),
-(11, U&'Pawe\0142', TRUE, U&'Wo\017aniak', '$2a$10$uieEDiqemn1oXopEzDtsfeXoP2dLILg198oJzmw8Xinz2zh580d.6', '10000000009', 'USER', 'user9'),
-(12, 'Agnieszka', TRUE, U&'Wo\017aniak', '$2a$10$rUUN0rUD3Dmb1OacpLXwxuc8pEUJApxdi/Zq2/VhnYpZZrgcsZq/K', '10000000010', 'USER', 'user10'),
-(13, 'Agnieszka', FALSE, 'Nowak', '$2a$10$/7Vqc7iLsSa4hMlLOK6qc.1ftRGezIAWLwzkC2P/A0pDNPlsnmXX.', '10000000011', 'USER', 'user11'),
-(14, 'Tomasz', FALSE, U&'Wi\015bniewski', '$2a$10$DrjdCOEFl1p4jRQ7PKiD6eZtJ89ChOc3p5CzuxB6WMbTip/NXUyxK', '10000000012', 'USER', 'user12'),
-(15, 'Agnieszka', FALSE, U&'Zieli\0144ski', '$2a$10$N5WKCe1KpuTmWbl72WnnLeCQuLggnSsiF7ns/XBPv.QzMKr47UCMC', '10000000013', 'USER', 'user13'),
-(16, 'Magda', FALSE, U&'D\0105browski', '$2a$10$pFdWbG91JFHKIpDkH6CTE.WGB8in0xk96aLh4obJkLgs9D/OGipoe', '10000000014', 'USER', 'user14'),
-(17, 'Katarzyna', FALSE, U&'Wo\017aniak', '$2a$10$wWZ0BjtBY1zhrm6AsCAULuP.GashgN/mFP8VA4ZxDM0W6W/wnoaR.', '10000000015', 'USER', 'user15'),
-(18, 'Piotr', FALSE, 'Nowak', '$2a$10$vLts/gfZMZo/uWGuXNZmDOVZ/0Xh8n46XaeNJJnxh33pU/Chobb4G', '10000000016', 'USER', 'user16'),
-(19, 'Piotr', FALSE, U&'Wi\015bniewski', '$2a$10$pUFMvRQNJ9VxoyOmgTien.kO90.uEEAhUC/mOdzXpAya/5EytmcFC', '10000000017', 'USER', 'user17'),
-(20, 'Marek', FALSE, U&'Wo\017aniak', '$2a$10$7rHiMtPGw.eEOur502IKxe3uwScOa7TeHh1L.SMYTK/lLF.wmetQe', '10000000018', 'USER', 'user18'),
-(21, 'Katarzyna', FALSE, 'Lewandowski', '$2a$10$N5E7A5Xup5kgz.G12NMgXudDS/O6Qxpe4VY78k2MvmoH/4jfTbJSC', '10000000019', 'USER', 'user19'),
-(22, 'Agnieszka', FALSE, U&'Wo\017aniak', '$2a$10$x7DrVGNEG..Lq7DG7LrWleHie25IyuueDxr2kLGe/msvmJOvrzHi6', '10000000020', 'USER', 'user20'),
-(23, 'Katarzyna', FALSE, 'Nowak', '$2a$10$nU7dkq9M9yuZ20.3BC.G8edd.wdcsLpJ1P5/XF6pKHJof7pQJOtvG', '10000000021', 'USER', 'user21'),
-(24, 'Agnieszka', FALSE, U&'W\00f3jcik', '$2a$10$hbx/t4ngdAGcRciCam3MQOvLuSeTXncsl3ZDaElGAURulNxKXBMEK', '10000000022', 'USER', 'user22'),
-(25, 'Tomasz', FALSE, 'Lewandowski', '$2a$10$Mpw36WNX/tT6ETZFuNs2G.w0r70IA0mR8ZtpyobNdMhtjYyYfqZjy', '10000000023', 'USER', 'user23'),
-(26, 'Tomasz', FALSE, U&'W\00f3jcik', '$2a$10$bLdn.mugKrdnHMuKl5VGIuFEatnKsOltxWy5BN5IwsOMXPQkdFHMm', '10000000024', 'USER', 'user24'),
-(27, 'Jan', FALSE, U&'Kami\0144ski', '$2a$10$KkwrB4uEUl.lp3rqwJYjEOcvDXhvYcv.0TniEx5INoIVns2/oAE5q', '10000000025', 'USER', 'user25'),
-(28, U&'Pawe\0142', FALSE, U&'Wo\017aniak', '$2a$10$jLkzCGgy7We5U29sm6rmwOkODd9Ohe3OdtIIGpsLqqwQ0wCqlD6Em', '10000000026', 'USER', 'user26'),
-(29, 'Agnieszka', FALSE, 'Lewandowski', '$2a$10$LQzB5KcUpsgH3STf4mc8keEruwNNy8sqyS5SlJI0lnAuA3KDA2G6i', '10000000027', 'USER', 'user27'),
-(30, 'Piotr', FALSE, U&'Zieli\0144ski', '$2a$10$2ZS3M8guNnNc11gNl0QoseLG6oqV7p.UgXfMIcct3JKJWZbXqYnHm', '10000000028', 'USER', 'user28');             
-INSERT INTO "PUBLIC"."USERS" VALUES
-(31, 'Jan', FALSE, U&'W\00f3jcik', '$2a$10$fcKJW1a3fJYeWsZfGxNlhuSdExyzTTrOdcZSqDDsyBLOR6ow/7sk2', '10000000029', 'USER', 'user29'),
-(32, 'Katarzyna', FALSE, U&'Zieli\0144ski', '$2a$10$uwxDabORqbjeNuDS9KbTG.nplCIYazNZYWn6H3PaW1DZdQ3dqr/Cm', '10000000030', 'USER', 'user30'),
-(33, 'Tomasz', FALSE, 'Kowalski', '$2a$10$88TtNyHUTYUAE.3N71kj2ukBMKshGJZiXd/MT0chFc3SL0CvnbUdy', '10000000031', 'USER', 'user31'),
-(34, 'Jan', FALSE, U&'Wi\015bniewski', '$2a$10$0chFpgSbyDUo4p7H7PVPGe.amRwvRnmpGnr/pj0MuHaodPj7Ar1XC', '10000000032', 'USER', 'user32'),
-(35, 'Jan', FALSE, U&'Wi\015bniewski', '$2a$10$hJTZUd5V7mIYEimn8xuQ9.8Is03hy63tKk1L0nsl2Zz6YCrKsG8g.', '10000000033', 'USER', 'user33'),
-(36, 'Marek', FALSE, U&'Wo\017aniak', '$2a$10$4S/qhltwLg6VglOW.amso.2pnoDD08ARedAkFNM5slB5eXwBvIS6G', '10000000034', 'USER', 'user34'),
-(37, 'Tomasz', FALSE, U&'W\00f3jcik', '$2a$10$FX62/Xf0T.yi6oaoQk6jnOhl8tIC6MNVR8Sa/3CviSrMx1Vabuuma', '10000000035', 'USER', 'user35'),
-(38, 'Agnieszka', FALSE, U&'Wo\017aniak', '$2a$10$QjXWEHp16B19vWjmUiF7YuhtBz154A3cjp.cd8hNTrZYkm6uOYjtm', '10000000036', 'USER', 'user36'),
-(39, 'Tomasz', FALSE, U&'Wo\017aniak', '$2a$10$LFiYRxMfQtr55t2YWrp8L.4QEhRIA2pvY9bJkYcwjCYi4uLYh0rzK', '10000000037', 'USER', 'user37'),
-(40, 'Piotr', FALSE, U&'D\0105browski', '$2a$10$AUD0va4N9IdiRpyoMaurUu9x.Hki1F42iq.BvwmWuAEm5iICyl4RS', '10000000038', 'USER', 'user38'),
-(41, 'Magda', FALSE, U&'Wo\017aniak', '$2a$10$9Tsw2X14CpYPMfuHneTXGuTwt79gGhf99LsNOAsOzTmhZBdZbyJ4S', '10000000039', 'USER', 'user39'),
-(42, 'Monika', FALSE, U&'W\00f3jcik', '$2a$10$IrJb1jriiLjeYieqI4hAC.h9//AlizJ72d7doZJ2XQRosI66YbEpO', '10000000040', 'USER', 'user40'),
-(43, 'Monika', FALSE, 'Kowalski', '$2a$10$tm3L8s/LdUWfgfxWjLb5PuecQvQok.u9oOOKoYEw2T/kN/.DPUyGe', '10000000041', 'USER', 'user41'),
-(44, 'Tomasz', FALSE, U&'Kami\0144ski', '$2a$10$KubEOlRt5ALVaXFpzzrOX.eNMsGe90sYGwoyE/4Cj1gUaHJ0A/11q', '10000000042', 'USER', 'user42'),
-(45, 'Monika', FALSE, U&'W\00f3jcik', '$2a$10$V0/fRnRKiLgLNUL.m/t8OeMEDkiPYHyfyIVmhVq8eIFlyTBWVsVTO', '10000000043', 'USER', 'user43'),
-(46, 'Agnieszka', FALSE, U&'W\00f3jcik', '$2a$10$bl/1DJFjrE8ZjIj2nCpmOeA9.aIeD2ultQJ/nzYhAunoECId.AZqy', '10000000044', 'USER', 'user44'),
-(47, 'Agnieszka', FALSE, 'Lewandowski', '$2a$10$4LA4v6s3GgrTRUfikvNF3.9RiudGLCLnbczCH3Kz9OvAFwWGs6dnK', '10000000045', 'USER', 'user45'),
-(48, 'Katarzyna', FALSE, U&'Wo\017aniak', '$2a$10$9pJLoakbVZUDrvBb.51eS.HtQ3C302IXetVEU8QmjTGXedawivEhe', '10000000046', 'USER', 'user46'),
-(49, 'Anna', FALSE, 'Kowalski', '$2a$10$sG7n7p/y0gc4huMUlcqviOtC3X7KLJDfcxwXh7YvvvlBKq7NXeWyi', '10000000047', 'USER', 'user47'),
-(50, 'Anna', FALSE, 'Lewandowski', '$2a$10$HxdO2KKX6bRlyBLOF7EqO.hXdmyTomhnpSZ8QFU4ETf67S7R31fUG', '10000000048', 'USER', 'user48'),
-(51, 'Anna', FALSE, U&'Kami\0144ski', '$2a$10$SmF5JJjFMHBv5wAwV5wa4uhRyRMY2QVSK7EO8QL/zriswO/P/4/H.', '10000000049', 'USER', 'user49'),
-(52, 'Magda', FALSE, U&'Szyma\0144ski', '$2a$10$BTC9Z2.MtEe4CfDPpY6DS.9DFIRjLnqaK/JCjEWFsBivhG1vXjliO', '10000000050', 'USER', 'user50');             
-CREATE CACHED TABLE "PUBLIC"."VOTES"(
-    "ID" BIGINT GENERATED BY DEFAULT AS IDENTITY(START WITH 1 RESTART WITH 11) NOT NULL,
-    "HAS_VOTED" BOOLEAN NOT NULL,
-    "VOTE_TIME" TIMESTAMP(6) NOT NULL,
-    "CANDIDATE_ID" BIGINT,
-    "USER_ID" BIGINT
-);              
-ALTER TABLE "PUBLIC"."VOTES" ADD CONSTRAINT "PUBLIC"."CONSTRAINT_4E" PRIMARY KEY("ID");       
--- 10 +/- SELECT COUNT(*) FROM PUBLIC.VOTES;  
-INSERT INTO "PUBLIC"."VOTES" VALUES
-(1, FALSE, TIMESTAMP '2025-06-02 01:07:41.721076', 1, 3),
-(2, FALSE, TIMESTAMP '2025-06-02 01:08:01.660704', 1, 4),
-(3, FALSE, TIMESTAMP '2025-06-02 01:08:10.485262', 1, 5),
-(4, FALSE, TIMESTAMP '2025-06-02 01:08:18.74781', 1, 6),
-(5, FALSE, TIMESTAMP '2025-06-02 01:08:28.624073', 1, 7),
-(6, FALSE, TIMESTAMP '2025-06-02 01:08:41.264531', 1, 8),
-(7, FALSE, TIMESTAMP '2025-06-02 01:08:53.638943', 1, 9),
-(8, FALSE, TIMESTAMP '2025-06-02 01:09:05.015114', 2, 10),
-(9, FALSE, TIMESTAMP '2025-06-02 01:09:14.704246', 2, 11),
-(10, FALSE, TIMESTAMP '2025-06-02 01:09:24.28227', 3, 12);           
-ALTER TABLE "PUBLIC"."USERS" ADD CONSTRAINT "PUBLIC"."UK_DC4EQ7PLR20FDHQ528TWSAK1B" UNIQUE("USERNAME");       
-ALTER TABLE "PUBLIC"."USERS" ADD CONSTRAINT "PUBLIC"."UK_L2INJKE585YM9494Q1I4HJ8BM" UNIQUE("PESEL");          
-ALTER TABLE "PUBLIC"."VOTES" ADD CONSTRAINT "PUBLIC"."FKQD0UT9PP4GAF2FGA1JWPNBTVF" FOREIGN KEY("CANDIDATE_ID") REFERENCES "PUBLIC"."CANDIDATE"("ID") NOCHECK; 
-ALTER TABLE "PUBLIC"."VOTES" ADD CONSTRAINT "PUBLIC"."FKI88G44R9DYLXGB8UDAGU045A8" FOREIGN KEY("USER_ID") REFERENCES "PUBLIC"."USERS"("ID") NOCHECK;          
-
-
-
 åCIEØKA: wyniki.csv
 ----------------------
 Kandydat;Liczba g≥osÛw
-Jan Kowalski;7
+Jan Kowalski;8
 Anna Nowak;2
 Jan Tarczynski;1
 
-
-
-åCIEØKA: wyniki.pdf
-----------------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]
-
-
-åCIEØKA: .idea\.gitignore
-----------------------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]
-
-
-åCIEØKA: .idea\compiler.xml
-------------------------------
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="CompilerConfiguration">
-    <annotationProcessing>
-      <profile name="Maven default annotation processors profile" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <module name="Wybory" />
-      </profile>
-    </annotationProcessing>
-  </component>
-</project>
-
-
-åCIEØKA: .idea\encodings.xml
--------------------------------
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="Encoding">
-    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
-  </component>
-</project>
-
-
-åCIEØKA: .idea\jarRepositories.xml
--------------------------------------
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="RemoteRepositoriesConfiguration">
-    <remote-repository>
-      <option name="id" value="central" />
-      <option name="name" value="Central Repository" />
-      <option name="url" value="https://repo.maven.apache.org/maven2" />
-    </remote-repository>
-    <remote-repository>
-      <option name="id" value="central" />
-      <option name="name" value="Maven Central repository" />
-      <option name="url" value="https://repo1.maven.org/maven2" />
-    </remote-repository>
-    <remote-repository>
-      <option name="id" value="jboss.community" />
-      <option name="name" value="JBoss Community repository" />
-      <option name="url" value="https://repository.jboss.org/nexus/content/repositories/public/" />
-    </remote-repository>
-  </component>
-</project>
-
-
-åCIEØKA: .idea\misc.xml
---------------------------
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="ExternalStorageConfigurationManager" enabled="true" />
-  <component name="MavenProjectsManager">
-    <option name="originalFiles">
-      <list>
-        <option value="$PROJECT_DIR$/pom.xml" />
-      </list>
-    </option>
-  </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_17" default="true" project-jdk-name="ms-17" project-jdk-type="JavaSDK">
-    <output url="file://$PROJECT_DIR$/out" />
-  </component>
-</project>
-
-
-åCIEØKA: .idea\vcs.xml
--------------------------
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="VcsDirectoryMappings">
-    <mapping directory="$PROJECT_DIR$" vcs="Git" />
-  </component>
-</project>
-
-
-åCIEØKA: .idea\workspace.xml
--------------------------------
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="ArtifactsWorkspaceSettings">
-    <artifacts-to-build>
-      <artifact name="Wybory:jar" />
-    </artifacts-to-build>
-  </component>
-  <component name="AutoImportSettings">
-    <option name="autoReloadType" value="SELECTIVE" />
-  </component>
-  <component name="ChangeListManager">
-    <list default="true" id="e9c5088e-ab39-436c-a56e-66d5552ef37a" name="Changes" comment="V0.9" />
-    <option name="SHOW_DIALOG" value="false" />
-    <option name="HIGHLIGHT_CONFLICTS" value="true" />
-    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
-    <option name="LAST_RESOLUTION" value="IGNORE" />
-  </component>
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="Class" />
-      </list>
-    </option>
-  </component>
-  <component name="Git.Settings">
-    <option name="PUSH_TAGS">
-      <GitPushTagMode>
-        <option name="argument" value="--tags" />
-        <option name="title" value="All" />
-      </GitPushTagMode>
-    </option>
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
-  </component>
-  <component name="GitHubPullRequestSearchHistory">{
-  &quot;lastFilter&quot;: {
-    &quot;state&quot;: &quot;OPEN&quot;,
-    &quot;assignee&quot;: &quot;Rafimaniaak&quot;
-  }
-}</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/Rafimaniaak/Wybory.git&quot;,
-    &quot;accountId&quot;: &quot;a07f7332-d502-4940-bef6-259414d3e044&quot;
-  }
-}</component>
-  <component name="MavenImportPreferences">
-    <option name="generalSettings">
-      <MavenGeneralSettings>
-        <option name="mavenHomeTypeForPersistence" value="WRAPPER" />
-      </MavenGeneralSettings>
-    </option>
-  </component>
-  <component name="ProblemsViewState">
-    <option name="selectedTabId" value="CurrentFile" />
-  </component>
-  <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 4
-}</component>
-  <component name="ProjectId" id="2xPPncyrXZwkCpBl5QswHtOE6yo" />
-  <component name="ProjectLevelVcsManager">
-    <ConfirmationsSetting value="2" id="Add" />
-  </component>
-  <component name="ProjectViewState">
-    <option name="hideEmptyMiddlePackages" value="true" />
-    <option name="showLibraryContents" value="true" />
-  </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Application.HashGenerator.executor&quot;: &quot;Run&quot;,
-    &quot;Application.HelloApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Application.Main.executor&quot;: &quot;Run&quot;,
-    &quot;Application.Wybory.executor&quot;: &quot;Run&quot;,
-    &quot;JAR Application.Wybory.jar.executor&quot;: &quot;Run&quot;,
-    &quot;Maven.Wybory [clean].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.election-system [clean,install].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.election-system [clean,package].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.election-system [org.apache.maven.plugins:maven-clean-plugin:2.5:clean].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.election-system [package].executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/Rafimaniaak/ProjektJAVA/Wybory/src/main/resources&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Artifacts&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
-  }
-}</component>
-  <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\Users\Rafimaniaak\ProjektJAVA\Wybory\src\main\resources" />
-      <recent name="C:\Users\Rafimaniaak\ProjektJAVA\Wybory\src\main\java\com\election" />
-      <recent name="C:\Users\Rafimaniaak\ProjektJAVA\Wybory\src\main\resources\com\election\view" />
-      <recent name="C:\Users\Rafimaniaak\ProjektJAVA\Wybory\src\main\resources\com\election" />
-    </key>
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\Users\Rafimaniaak\ProjektJAVA\Wybory\src\main\resources\com\election\view" />
-      <recent name="C:\Users\Rafimaniaak\ProjektJAVA\Wybory\src\main\resources" />
-    </key>
-    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
-      <recent name="com.election" />
-      <recent name="com.election.wybory" />
-    </key>
-    <key name="CopyClassDialog.RECENTS_KEY">
-      <recent name="com.election.model" />
-      <recent name="com.election.dao" />
-      <recent name="com.election" />
-      <recent name="com.election.util" />
-      <recent name="com.election.service" />
-    </key>
-  </component>
-  <component name="RunAnythingCache">
-    <option name="myCommands">
-      <command value="mvn clean" />
-      <command value="mvn clean install" />
-      <command value="mvn clean package" />
-    </option>
-  </component>
-  <component name="RunManager" selected="Application.Wybory">
-    <configuration name="Wybory" type="Application" factoryName="Application">
-      <option name="MAIN_CLASS_NAME" value="com.election.Main" />
-      <module name="Wybory" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Wybory.jar" type="JarApplication" temporary="true">
-      <option name="JAR_PATH" value="$PROJECT_DIR$/out/artifacts/Wybory_jar/Wybory.jar" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
-      <option name="ALTERNATIVE_JRE_PATH" value="ms-17" />
-      <module name="Wybory" />
-      <method v="2" />
-    </configuration>
-    <list>
-      <item itemvalue="Application.Wybory" />
-      <item itemvalue="JAR Application.Wybory.jar" />
-    </list>
-    <recent_temporary>
-      <list>
-        <item itemvalue="JAR Application.Wybory.jar" />
-      </list>
-    </recent_temporary>
-  </component>
-  <component name="TaskManager">
-    <task active="true" id="Default" summary="Default task">
-      <changelist id="e9c5088e-ab39-436c-a56e-66d5552ef37a" name="Changes" comment="" />
-      <created>1747836905852</created>
-      <option name="number" value="Default" />
-      <option name="presentableId" value="Default" />
-      <updated>1747836905852</updated>
-    </task>
-    <task id="LOCAL-00001" summary="Commit">
-      <option name="closed" value="true" />
-      <created>1748217538783</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1748217538783</updated>
-    </task>
-    <task id="LOCAL-00002" summary="V0.7">
-      <option name="closed" value="true" />
-      <created>1748812968459</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1748812968459</updated>
-    </task>
-    <task id="LOCAL-00003" summary="V0.7">
-      <option name="closed" value="true" />
-      <created>1748812984043</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1748812984043</updated>
-    </task>
-    <task id="LOCAL-00004" summary="V0.7">
-      <option name="closed" value="true" />
-      <created>1748819518782</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1748819518782</updated>
-    </task>
-    <task id="LOCAL-00005" summary="V0.8">
-      <option name="closed" value="true" />
-      <created>1748877257891</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1748877257891</updated>
-    </task>
-    <task id="LOCAL-00006" summary="V0.8">
-      <option name="closed" value="true" />
-      <created>1748878296427</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1748878296427</updated>
-    </task>
-    <task id="LOCAL-00007" summary="V0.8">
-      <option name="closed" value="true" />
-      <created>1748983732149</created>
-      <option name="number" value="00007" />
-      <option name="presentableId" value="LOCAL-00007" />
-      <option name="project" value="LOCAL" />
-      <updated>1748983732149</updated>
-    </task>
-    <task id="LOCAL-00008" summary="V0.9">
-      <option name="closed" value="true" />
-      <created>1749167559132</created>
-      <option name="number" value="00008" />
-      <option name="presentableId" value="LOCAL-00008" />
-      <option name="project" value="LOCAL" />
-      <updated>1749167559132</updated>
-    </task>
-    <option name="localTasksCounter" value="9" />
-    <servers />
-  </component>
-  <component name="UnknownFeatures">
-    <option featureType="com.intellij.fileTypeFactory" implementationName="*.db" />
-  </component>
-  <component name="Vcs.Log.Tabs.Properties">
-    <option name="TAB_STATES">
-      <map>
-        <entry key="MAIN">
-          <value>
-            <State />
-          </value>
-        </entry>
-      </map>
-    </option>
-  </component>
-  <component name="VcsManagerConfiguration">
-    <MESSAGE value="Commit" />
-    <MESSAGE value="V0.7" />
-    <MESSAGE value="V0.8" />
-    <MESSAGE value="V0.9" />
-    <option name="LAST_COMMIT_MESSAGE" value="V0.9" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <breakpoint enabled="true" type="java-exception">
-          <properties class="com.election.exception.VotingException" package="com.election.exception" />
-          <option name="timeStamp" value="1" />
-        </breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
-  </component>
-</project>
-
-
-åCIEØKA: .idea\artifacts\Wybory.xml
---------------------------------------
-<component name="ArtifactManager">
-  <artifact type="javafx" name="Wybory">
-    <output-path>$PROJECT_DIR$/out/artifacts/Wybory</output-path>
-    <root id="root">
-      <element id="archive" name="Wybory.jar">
-        <element id="module-output" name="Wybory" />
-      </element>
-    </root>
-  </artifact>
-</component>
-
-
-åCIEØKA: .idea\dictionaries\project.xml
-------------------------------------------
-<component name="ProjectDictionaryState">
-  <dictionary name="project">
-    <words>
-      <w>dodaj</w>
-      <w>has≈Ço</w>
-      <w>nowego</w>
-      <w>u≈ºytkownika</w>
-    </words>
-  </dictionary>
-</component>
-
-
-åCIEØKA: .mvn\wrapper\maven-wrapper.jar
-------------------------------------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]
 
 
 åCIEØKA: .mvn\wrapper\maven-wrapper.properties
 -------------------------------------------------
 distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.8.5/apache-maven-3.8.5-bin.zip
 wrapperUrl=https://repo.maven.apache.org/maven2/org/apache/maven/wrapper/maven-wrapper/3.1.0/maven-wrapper-3.1.0.jar
-
-
-åCIEØKA: database\election_db.mv.db
---------------------------------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]
-
-
-åCIEØKA: database\election_db.trace.db
------------------------------------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]
 
 
 åCIEØKA: src\main\java\module-info.java
@@ -1057,9 +215,7 @@ import com.election.dao.UserDAO;
 import com.election.model.CandidateResult;
 import com.election.model.User;
 import com.election.service.ElectionService;
-import com.election.service.ExportService;
 import com.election.service.ExportServicePDF;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -1070,31 +226,44 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.scene.paint.Color;
-
-import javax.xml.transform.Result;
+import javafx.scene.layout.GridPane;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import org.mindrot.jbcrypt.BCrypt;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 public class AdminController {
-
     private final CandidateDAO candidateDAO = new CandidateDAO();
+    private final UserDAO userDAO = new UserDAO();
+    private final ElectionService electionService = new ElectionService();
+    private final ObservableList<CandidateResult> candidatesData = FXCollections.observableArrayList();
+    private User currentAdmin;
+    private User currentEditUser;
 
     @FXML private TableView<User> usersTable;
     @FXML private TableColumn<User, Long> idColumn;
     @FXML private TableColumn<User, String> usernameColumn;
     @FXML private TableColumn<User, String> roleColumn;
-
+    @FXML private TableColumn<User, String> firstNameColumn;
+    @FXML private TableColumn<User, String> lastNameColumn;
+    @FXML private TableColumn<User, String> peselColumn;
+    @FXML private GridPane userFormGrid;
+    @FXML private GridPane identifierGrid;
+    @FXML private TextField firstNameField;
+    @FXML private TextField lastNameField;
+    @FXML private TextField peselField;
+    @FXML private TextField usernameField;
+    @FXML private PasswordField passwordField;
+    @FXML private ComboBox<String> roleComboBox;
     @FXML private TableView<CandidateResult> resultsTable;
     @FXML private TableColumn<CandidateResult, String> candidateColumn;
     @FXML private TableColumn<CandidateResult, Number> votesColumn;
@@ -1104,65 +273,250 @@ public class AdminController {
     @FXML private NumberAxis yAxis;
 
     @FXML private Label statusLabel;
+    @FXML private TextField peselSearchField;
 
-    private final UserDAO userDAO = new UserDAO();
-    private final ElectionService electionService = new ElectionService();
-    private final ObservableList<CandidateResult> candidatesData = FXCollections.observableArrayList();
-    private User currentAdmin;
+    // Pola dla uniwersalnego zarzƒÖdzania u≈ºytkownikami
+    @FXML private ComboBox<String> actionComboBox;
+    @FXML private TextField identifierField;
+    @FXML private Button actionButton;
+    @FXML private Label userManagementStatus;
 
-    @FXML private TextField usernameField;
-    @FXML private TextField passwordField;
-    @FXML private ComboBox<String> roleComboBox;
-    @FXML private Label addUserStatusLabel;
-    @FXML private TextField firstNameField;
-    @FXML private TextField lastNameField;
-    @FXML private TextField peselField;
-
-    @FXML private TextField editUserIdField;
-    @FXML private TextField editUsernameField;
-    @FXML private TextField editPasswordField;
-    @FXML private ComboBox<String> editRoleComboBox;
-    @FXML private Label editUserStatusLabel;
-    @FXML private TextField editFirstNameField;
-    @FXML private TextField editLastNameField;
-    @FXML private TextField editPeselField;
-
-    @FXML private TextField deleteUserIdField;
-    @FXML private Label deleteUserStatusLabel;
-
-    @FXML private TextField searchUsernameField;
-    @FXML private TextField searchFirstNameField;
-    @FXML private TextField searchLastNameField;
-    @FXML private TextField searchPeselField;
+    private ObservableList<User> masterUserList = FXCollections.observableArrayList();
 
     @FXML
     public void initialize() {
         configureUserTable();
         configureResultsTable();
         loadInitialData();
+
+        // Inicjalizacja ComboBox z rolami
         roleComboBox.setItems(FXCollections.observableArrayList("USER", "ADMIN"));
-        editRoleComboBox.setItems(FXCollections.observableArrayList("USER", "ADMIN"));
 
-        xAxis.setTickLabelFill(Color.WHITE);
-        xAxis.setLabel("Kandydat");
+        // Listener dla ComboBox akcji
+        actionComboBox.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal == null) return;
 
-        yAxis.setTickLabelFill(Color.WHITE);
-        yAxis.setLabel("G≈Çosy");
+            switch (newVal) {
+                case "Dodaj u≈ºytkownika":
+                    userFormGrid.setVisible(true);
+                    identifierGrid.setVisible(false);
+                    actionButton.setText("Dodaj");
+                    clearUserForm();
+                    break;
 
-        resultsChart.setTitle("G≈Çosy wg kandydata");
+                case "Edytuj u≈ºytkownika":
+                    userFormGrid.setVisible(true);
+                    identifierGrid.setVisible(true);
+                    actionButton.setText("Wyszukaj");
+                    clearUserForm();
+                    break;
 
-        Platform.runLater(() -> {
-            Node title = resultsChart.lookup(".chart-title");
-            if (title != null) title.setStyle("-fx-text-fill: white;");
-
-            Node xAxisLabel = xAxis.lookup(".axis-label");
-            if (xAxisLabel != null) xAxisLabel.setStyle("-fx-text-fill: white;");
-
-            Node yAxisLabel = yAxis.lookup(".axis-label");
-            if (yAxisLabel != null) yAxisLabel.setStyle("-fx-text-fill: white;");
+                case "Usu≈Ñ u≈ºytkownika":
+                    userFormGrid.setVisible(false);
+                    identifierGrid.setVisible(true);
+                    actionButton.setText("Usu≈Ñ");
+                    break;
+            }
         });
     }
+    private void clearUserForm() {
+        firstNameField.clear();
+        lastNameField.clear();
+        peselField.clear();
+        usernameField.clear();
+        passwordField.clear();
+        roleComboBox.getSelectionModel().clearSelection();
+        currentEditUser = null; // Resetuj przy czyszczeniu formularza
+    }
 
+    @FXML
+    private void handleUserManagement() {
+        String action = actionComboBox.getValue();
+
+        switch (action) {
+            case "Dodaj u≈ºytkownika":
+                addNewUser();
+                break;
+
+            case "Edytuj u≈ºytkownika":
+                if (actionButton.getText().equals("Wyszukaj")) {
+                    findUserForEdit();
+                } else {
+                    updateUser();
+                }
+                break;
+
+            case "Usu≈Ñ u≈ºytkownika":
+                deleteUser();
+                break;
+        }
+    }
+
+    private void deleteUser() {
+        String identifier = identifierField.getText().trim();
+        if (identifier.isEmpty()) {
+            userManagementStatus.setText("Wprowad≈∫ ID lub PESEL!");
+            return;
+        }
+
+        User user = findUserByIdentifier(identifier);
+        if (user == null) {
+            userManagementStatus.setText("Nie znaleziono u≈ºytkownika!");
+            return;
+        }
+
+        // Potwierdzenie przed usuniƒôciem
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Potwierdzenie usuniƒôcia");
+        alert.setHeaderText("Czy na pewno chcesz usunƒÖƒá u≈ºytkownika?");
+        alert.setContentText(user.getFirstName() + " " + user.getLastName() + " (" + user.getUsername() + ")");
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            try {
+                userDAO.deleteUser(user);
+                masterUserList.remove(user);
+                refreshUserTable();
+                userManagementStatus.setText("U≈ºytkownik usuniƒôty pomy≈õlnie!");
+            } catch (Exception e) {
+                userManagementStatus.setText("B≈ÇƒÖd: " + e.getMessage());
+                e.printStackTrace();
+            }
+        } else {
+            userManagementStatus.setText("Anulowano usuwanie.");
+        }
+    }
+    private void addNewUser() {
+        // Walidacja danych
+        if (!validateUserForm()) return;
+
+        // Tworzenie nowego u≈ºytkownika
+        User newUser = new User();
+        newUser.setFirstName(firstNameField.getText().trim());
+        newUser.setLastName(lastNameField.getText().trim());
+        newUser.setPesel(peselField.getText().trim());
+        newUser.setUsername(usernameField.getText().trim());
+        newUser.setPassword(BCrypt.hashpw(passwordField.getText(), BCrypt.gensalt()));
+        newUser.setRole(roleComboBox.getValue());
+        newUser.setHasVoted(false);
+
+        try {
+            userDAO.saveUser(newUser);
+            masterUserList.add(newUser);
+            refreshUserTable();
+            userManagementStatus.setText("U≈ºytkownik dodany pomy≈õlnie!");
+            clearUserForm();
+        } catch (Exception e) {
+            userManagementStatus.setText("B≈ÇƒÖd: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void findUserForEdit() {
+        String identifier = identifierField.getText().trim();
+        //User user = findUserByIdentifier(identifier);
+        currentEditUser = findUserByIdentifier(identifier);
+
+        if (currentEditUser != null) {
+            // Wype≈Çnij formularz danymi u≈ºytkownika
+            firstNameField.setText(currentEditUser.getFirstName());
+            lastNameField.setText(currentEditUser.getLastName());
+            peselField.setText(currentEditUser.getPesel());
+            usernameField.setText(currentEditUser.getUsername());
+            roleComboBox.setValue(currentEditUser.getRole());
+
+            // Przygotuj do aktualizacji
+            actionButton.setText("Zaktualizuj");
+            userManagementStatus.setText("Znaleziono u≈ºytkownika. Edytuj dane.");
+        } else {
+            userManagementStatus.setText("Nie znaleziono u≈ºytkownika!");
+        }
+    }
+
+    private void updateUser() {
+        String identifier = identifierField.getText().trim();
+        User user = findUserByIdentifier(identifier);
+
+        if (user == null) {
+            userManagementStatus.setText("Nie znaleziono u≈ºytkownika!");
+            return;
+        }
+
+        // Aktualizuj dane
+        user.setFirstName(firstNameField.getText().trim());
+        user.setLastName(lastNameField.getText().trim());
+        user.setPesel(peselField.getText().trim());
+        user.setUsername(usernameField.getText().trim());
+
+        // Aktualizuj has≈Ço tylko je≈õli zosta≈Ço zmienione
+        if (!passwordField.getText().isEmpty()) {
+            user.setPassword(BCrypt.hashpw(passwordField.getText(), BCrypt.gensalt()));
+        }
+
+        user.setRole(roleComboBox.getValue());
+
+        try {
+            userDAO.updateUser(user);
+            usersTable.refresh();
+            refreshUserTable();
+            userManagementStatus.setText("Dane u≈ºytkownika zaktualizowane!");
+            actionButton.setText("Wyszukaj"); // Przywr√≥ƒá stan poczƒÖtkowy
+            clearUserForm();
+        } catch (Exception e) {
+            userManagementStatus.setText("B≈ÇƒÖd: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private boolean validateUserForm() {
+        if (firstNameField.getText().trim().isEmpty() ||
+                lastNameField.getText().trim().isEmpty() ||
+                peselField.getText().trim().isEmpty() ||
+                usernameField.getText().trim().isEmpty() ||
+                roleComboBox.getValue() == null) {
+
+            userManagementStatus.setText("Wype≈Çnij wszystkie pola!");
+            return false;
+        }
+
+        // Walidacja PESEL
+        String pesel = peselField.getText().trim();
+        if (!pesel.matches("\\d{11}")) {
+            userManagementStatus.setText("PESEL musi mieƒá 11 cyfr!");
+            return false;
+        }
+        // Sprawdzenie unikalno≈õci PESEL
+        User existing = userDAO.findByPesel(pesel);
+        if (existing != null) {
+            if (currentEditUser == null || !existing.getId().equals(currentEditUser.getId())) {
+                userManagementStatus.setText("PESEL ju≈º istnieje w systemie!");
+                return false;
+            }
+        }
+        // Walidacja imienia
+        if (!firstNameField.getText().trim().matches("[\\p{L}\\s\\-]+")) {
+            userManagementStatus.setText("Imiƒô mo≈ºe zawieraƒá tylko litery, spacje i my≈õlniki!");
+            return false;
+        }
+
+        // Walidacja nazwiska
+        if (!lastNameField.getText().trim().matches("[\\p{L}\\s\\-]+")) {
+            userManagementStatus.setText("Nazwisko mo≈ºe zawieraƒá tylko litery, spacje i my≈õlniki!");
+            return false;
+        }
+
+        // Walidacja loginu
+        if (!usernameField.getText().trim().matches("[a-zA-Z0-9_]+")) {
+            userManagementStatus.setText("Login mo≈ºe zawieraƒá tylko litery, cyfry i podkre≈õlniki!");
+            return false;
+        }
+
+        return true;
+    }
+    private void refreshUserTable() {
+        masterUserList.setAll(userDAO.getAllUsers());
+        usersTable.refresh();
+    }
     private void configureUserTable() {
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         usernameColumn.setCellValueFactory(new PropertyValueFactory<>("username"));
@@ -1171,7 +525,6 @@ public class AdminController {
         lastNameColumn.setCellValueFactory(new PropertyValueFactory<>("lastName"));
         peselColumn.setCellValueFactory(new PropertyValueFactory<>("pesel"));
     }
-
 
     private void configureResultsTable() {
         candidateColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -1187,9 +540,9 @@ public class AdminController {
     }
 
     private void loadInitialData() {
-        List<User> users = userDAO.getAllUsers();
-        masterUserList.setAll(users);
+        masterUserList.setAll(userDAO.getAllUsers());
         usersTable.setItems(masterUserList);
+        refreshUserTable();
         refreshElectionData();
     }
 
@@ -1209,9 +562,7 @@ public class AdminController {
     }
 
     private void refreshElectionData() {
-        if (statusLabel != null) {
-            statusLabel.setText("Od≈õwie≈ºanie wynik√≥w...");
-        }
+        statusLabel.setText("Od≈õwie≈ºanie wynik√≥w...");
 
         try {
             List<CandidateResult> results = electionService.getCurrentResults();
@@ -1225,23 +576,15 @@ public class AdminController {
             for (CandidateResult result : results) {
                 int votes = result.getVotes();
                 series.getData().add(new XYChart.Data<>(result.getName(), votes));
-                if (votes > maxVotes) {
-                    maxVotes = votes;
-                }
+                if (votes > maxVotes) maxVotes = votes;
             }
             resultsChart.getData().add(series);
-
             updateYAxisRange(maxVotes);
 
-            if (statusLabel != null) {
-                statusLabel.setText("Wyniki zaktualizowane: " + LocalDateTime.now()
-                        .format(DateTimeFormatter.ofPattern("HH:mm:ss")));
-            }
-
+            statusLabel.setText("Wyniki zaktualizowane: " +
+                    LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
         } catch (Exception e) {
-            if (statusLabel != null) {
-                statusLabel.setText("B≈ÇƒÖd podczas aktualizacji!");
-            }
+            statusLabel.setText("B≈ÇƒÖd podczas aktualizacji!");
             e.printStackTrace();
         }
     }
@@ -1252,12 +595,6 @@ public class AdminController {
         yAxis.setUpperBound(maxVotes < 5 ? 5 : maxVotes + 1);
         yAxis.setTickUnit(1);
         yAxis.setMinorTickVisible(false);
-        yAxis.setTickLabelFormatter(new NumberAxis.DefaultFormatter(yAxis) {
-            @Override
-            public String toString(Number object) {
-                return String.valueOf(object.intValue());
-            }
-        });
     }
 
     @FXML
@@ -1267,9 +604,8 @@ public class AdminController {
             currentStage.close();
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/election/view/login.fxml"));
-            Parent root = loader.load();
             Stage loginStage = new Stage();
-            loginStage.setScene(new Scene(root));
+            loginStage.setScene(new Scene(loader.load()));
             loginStage.setTitle("Logowanie");
             loginStage.show();
         } catch (IOException e) {
@@ -1298,131 +634,100 @@ public class AdminController {
         alert.showAndWait();
     }
 
-    @FXML
-    private void handleAddUser(ActionEvent event) {
-        String username = usernameField.getText().trim();
-        String password = passwordField.getText().trim();
-        String role = roleComboBox.getValue();
-        String firstName = firstNameField.getText().trim();
-        String lastName = lastNameField.getText().trim();
-        String pesel = peselField.getText().trim();
+    private void handleAddUser() {
+        userManagementStatus.setText("Dodawanie u≈ºytkownika...");
 
-        if (username.isEmpty() || password.isEmpty() || role == null || firstName.isEmpty() || lastName.isEmpty() || pesel.isEmpty()) {
-            addUserStatusLabel.setText("Wszystkie pola sƒÖ wymagane!");
+        User newUser = new User();
+        newUser.setUsername("user_" + System.currentTimeMillis());
+        newUser.setPassword("password");
+        newUser.setRole("USER");
+        newUser.setFirstName("Nowy");
+        newUser.setLastName("U≈ºytkownik");
+        newUser.setPesel("00000000000");
+
+        try {
+            userDAO.saveUser(newUser);
+            masterUserList.add(newUser);
+            userManagementStatus.setText("U≈ºytkownik dodany pomy≈õlnie!");
+        } catch (Exception e) {
+            userManagementStatus.setText("B≈ÇƒÖd: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void handleEditUser(String identifier) {
+        userManagementStatus.setText("Edytowanie u≈ºytkownika...");
+        User user = findUserByIdentifier(identifier);
+
+        if (user == null) {
+            userManagementStatus.setText("Nie znaleziono u≈ºytkownika!");
             return;
         }
 
+        user.setLastName(user.getLastName() + " (Edytowany)");
+
         try {
-            User user = new User();
-            user.setUsername(username);
-            user.setPassword(password);
-            user.setRole(role);
-            user.setHasVoted(false);
-            user.setFirstName(firstName);
-            user.setLastName(lastName);
-            user.setPesel(pesel);
-
-            userDAO.saveUser(user);
-            usersTable.getItems().add(user);
-            addUserStatusLabel.setText("U≈ºytkownik dodany pomy≈õlnie.");
-            clearAddUserForm();
-        } catch (Exception e) {
-            addUserStatusLabel.setText("B≈ÇƒÖd: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    private void handleEditUser(ActionEvent event) {
-        try {
-            long id = Long.parseLong(editUserIdField.getText().trim());
-            User user = userDAO.getUserById(id);
-            if (user == null) {
-                editUserStatusLabel.setText("Nie znaleziono u≈ºytkownika.");
-                return;
-            }
-
-            String newUsername = editUsernameField.getText().trim();
-            String newPassword = editPasswordField.getText().trim();
-            String newRole = editRoleComboBox.getValue();
-            String newFirstName = editFirstNameField.getText().trim();
-            String newLastName = editLastNameField.getText().trim();
-            String newPesel = editPeselField.getText().trim();
-
-            if (!newUsername.isEmpty()) user.setUsername(newUsername);
-            if (!newPassword.isEmpty()) user.setPassword(newPassword);
-            if (newRole != null) user.setRole(newRole);
-            if (!newFirstName.isEmpty()) user.setFirstName(newFirstName);
-            if (!newLastName.isEmpty()) user.setLastName(newLastName);
-            if (!newPesel.isEmpty()) user.setPesel(newPesel);
-
             userDAO.updateUser(user);
-            usersTable.getItems().setAll(userDAO.getAllUsers());
-            editUserStatusLabel.setText("Zmieniono dane u≈ºytkownika.");
-        } catch (NumberFormatException e) {
-            editUserStatusLabel.setText("Nieprawid≈Çowe ID.");
+            usersTable.refresh();
+            userManagementStatus.setText("U≈ºytkownik zaktualizowany!");
         } catch (Exception e) {
-            editUserStatusLabel.setText("B≈ÇƒÖd: " + e.getMessage());
+            userManagementStatus.setText("B≈ÇƒÖd: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    @FXML
-    private void handleDeleteUser(ActionEvent event) {
-        try {
-            long id = Long.parseLong(deleteUserIdField.getText().trim());
-            User user = userDAO.getUserById(id);
+    private void handleDeleteUser(String identifier) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Potwierdzenie usuniƒôcia");
+        alert.setHeaderText("Czy na pewno chcesz usunƒÖƒá u≈ºytkownika?");
+        alert.setContentText("Identyfikator: " + identifier);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            userManagementStatus.setText("Usuwanie u≈ºytkownika...");
+            User user = findUserByIdentifier(identifier);
+
             if (user == null) {
-                deleteUserStatusLabel.setText("Nie znaleziono u≈ºytkownika.");
+                userManagementStatus.setText("Nie znaleziono u≈ºytkownika!");
                 return;
             }
 
-            userDAO.deleteUser(user);
-            usersTable.getItems().removeIf(u -> u.getId() == id);
-            deleteUserStatusLabel.setText("U≈ºytkownik usuniƒôty.");
-        } catch (NumberFormatException e) {
-            deleteUserStatusLabel.setText("Nieprawid≈Çowe ID.");
-        } catch (Exception e) {
-            deleteUserStatusLabel.setText("B≈ÇƒÖd: " + e.getMessage());
-            e.printStackTrace();
+            try {
+                userDAO.deleteUser(user);
+                masterUserList.remove(user);
+                refreshUserTable();
+                userManagementStatus.setText("U≈ºytkownik usuniƒôty pomy≈õlnie!");
+            } catch (Exception e) {
+                userManagementStatus.setText("B≈ÇƒÖd: " + e.getMessage());
+                e.printStackTrace();
+            }
+        } else {
+            userManagementStatus.setText("Anulowano usuwanie.");
         }
     }
 
-    @FXML
-    private void handleSearchUsers(ActionEvent event) {
-        String username = searchUsernameField.getText().trim().toLowerCase();
-        String firstName = searchFirstNameField.getText().trim().toLowerCase();
-        String lastName = searchLastNameField.getText().trim().toLowerCase();
-        String pesel = searchPeselField.getText().trim();
-
-        List<User> allUsers = userDAO.getAllUsers();
-
-        List<User> filteredUsers = allUsers.stream()
-                .filter(user -> (username.isEmpty() || user.getUsername().toLowerCase().contains(username)) &&
-                        (firstName.isEmpty() || user.getFirstName().toLowerCase().contains(firstName)) &&
-                        (lastName.isEmpty() || user.getLastName().toLowerCase().contains(lastName)) &&
-                        (pesel.isEmpty() || user.getPesel().contains(pesel)))
-                .collect(Collectors.toList());
-
-        usersTable.setItems(FXCollections.observableArrayList(filteredUsers));
+    private User findUserByIdentifier(String identifier) {
+        if (identifier == null || identifier.isEmpty()) return null;
+        try {
+            if (identifier.matches("\\d{11}")) {
+                return userDAO.findByPesel(identifier);
+            } else if (identifier.matches("\\d+")) {
+                Long id = Long.parseLong(identifier);
+                return userDAO.getUserById(id);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
-    @FXML
-    private void handleClearSearch(ActionEvent event) {
-        searchUsernameField.clear();
-        searchFirstNameField.clear();
-        searchLastNameField.clear();
-        searchPeselField.clear();
-        usersTable.setItems(FXCollections.observableArrayList(userDAO.getAllUsers()));
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
-    @FXML
-    private TextField peselSearchField;
-
-    @FXML private TableColumn<User, String> firstNameColumn;
-    @FXML private TableColumn<User, String> lastNameColumn;
-    @FXML private TableColumn<User, String> peselColumn;
-
-    private ObservableList<User> masterUserList = FXCollections.observableArrayList();
 
     @FXML
     private void handlePeselSearch() {
@@ -1438,15 +743,6 @@ public class AdminController {
         usersTable.setItems(filtered);
     }
 
-
-    private void clearAddUserForm() {
-        usernameField.clear();
-        passwordField.clear();
-        roleComboBox.getSelectionModel().clearSelection();
-        firstNameField.clear();
-        lastNameField.clear();
-        peselField.clear();
-    }
     @FXML
     private void handleShowAllUsers() {
         usersTable.setItems(masterUserList);
@@ -1461,23 +757,31 @@ public class AdminController {
         File file = fileChooser.showSaveDialog(resultsTable.getScene().getWindow());
 
         if (file != null) {
-            try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
-                // Dodaj BOM ‚Äî kluczowe dla poprawnego wy≈õwietlania polskich znak√≥w w Excelu
-                writer.write('\uFEFF');
+            try (OutputStreamWriter writer = new OutputStreamWriter(
+                    new FileOutputStream(file), StandardCharsets.UTF_8)) {
 
-                // Nag≈Ç√≥wki
+                writer.write('\uFEFF'); // BOM dla UTF-8
                 writer.write("Kandydat;Liczba g≈Ços√≥w\n");
 
-                // Dane
                 for (CandidateResult result : resultsTable.getItems()) {
                     writer.write(result.getName() + ";" + result.getVotes() + "\n");
                 }
 
                 writer.flush();
-
             } catch (IOException e) {
                 showError("B≈ÇƒÖd zapisu CSV: " + e.getMessage());
             }
+        }
+    }
+
+    @FXML
+    private void handleExportToPDF() {
+        try {
+            ExportServicePDF.exportToPDF(candidateDAO.getAllCandidates(), "wyniki.pdf");
+            statusLabel.setText("Zapisano wyniki do PDF");
+        } catch (Exception e) {
+            statusLabel.setText("B≈ÇƒÖd eksportu do PDF");
+            e.printStackTrace();
         }
     }
 
@@ -1488,22 +792,7 @@ public class AdminController {
         alert.setContentText(message);
         alert.showAndWait();
     }
-
-
-
-    @FXML
-    private void handleExportToPDF() {
-        try {
-            ExportServicePDF.exportToPDF(candidateDAO.getAllCandidates(), "wyniki.pdf");
-            System.out.println("Zapisano do PDF");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
 }
-
 
 
 åCIEØKA: src\main\java\com\election\controller\LoginController.java
@@ -1731,30 +1020,7 @@ public class UserController {
 
     @FXML private Button submitButton;
     @FXML private Button logoutButton;
-    //private final ElectionService electionService = new ElectionService();
-//    @FXML
-//    private void handleVoteSubmit(ActionEvent event) {
-//        Candidate selectedCandidate = candidateComboBox.getValue();
-//
-//        if (selectedCandidate == null) {
-//            statusLabel.setText("Wybierz kandydata przed oddaniem g≈Çosu!");
-//            return;
-//        }
-//
-//        try {
-//            // Oddaj g≈Ços
-//            electionService.registerVote(selectedCandidate);
-//
-//            // Ukryj przycisk "Oddaj g≈Ços", poka≈º "Wyloguj"
-//            submitButton.setVisible(false);
-//            logoutButton.setVisible(true);
-//            statusLabel.setText("G≈Ços oddany pomy≈õlnie! Mo≈ºesz siƒô wylogowaƒá.");
-//
-//        } catch (Exception e) {
-//            statusLabel.setText("B≈ÇƒÖd: " + e.getMessage());
-//            submitButton.setVisible(true); // Przywr√≥ƒá przycisk w przypadku b≈Çƒôdu
-//        }
-//    }
+
     @FXML
     private void handleLogout(ActionEvent event) {
         try {
@@ -1899,46 +1165,6 @@ public class ElectionResultDAO {
 }
 
 
-åCIEØKA: src\main\java\com\election\dao\JPAUtil.java
--------------------------------------------------------
-package com.election.dao;
-
-import org.hibernate.SessionFactory;
-import org.hibernate.boot.Metadata;
-import org.hibernate.boot.MetadataSources;
-import org.hibernate.boot.registry.StandardServiceRegistry;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-
-public class JPAUtil {
-    private static final SessionFactory sessionFactory = buildSessionFactory();
-
-    private static SessionFactory buildSessionFactory() {
-        try {
-            StandardServiceRegistry standardRegistry = new StandardServiceRegistryBuilder()
-                    .configure("hibernate.cfg.xml")
-                    .build();
-
-            Metadata metadata = new MetadataSources(standardRegistry)
-                    .addAnnotatedClass(com.election.model.Candidate.class)
-                    .getMetadataBuilder()
-                    .build();
-
-            return metadata.getSessionFactoryBuilder().build();
-        } catch (Exception ex) {
-            throw new ExceptionInInitializerError(ex);
-        }
-    }
-
-    public static SessionFactory getSessionFactory() {
-        return sessionFactory;
-    }
-
-    public static void shutdown() {
-        getSessionFactory().close();
-    }
-}
-
-
 åCIEØKA: src\main\java\com\election\dao\UserDAO.java
 -------------------------------------------------------
 package com.election.dao;
@@ -2006,6 +1232,7 @@ public class UserDAO {
             if (transaction != null) transaction.rollback();
             System.err.println("B≈ÇƒÖd usuwania u≈ºytkownika:");
             e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -2049,13 +1276,9 @@ public class UserDAO {
 
     public User findByUsername(String username) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            Query<User> query = session.createQuery("FROM User WHERE username = :username", User.class);
-            query.setParameter("username", username);
-            return query.uniqueResult();
-        } catch (Exception e) {
-            System.err.println("B≈ÇƒÖd wyszukiwania u≈ºytkownika " + username + ":");
-            e.printStackTrace();
-            return null;
+            return session.createQuery("FROM User WHERE username = :username", User.class)
+                    .setParameter("username", username)
+                    .uniqueResult();
         }
     }
     public User findByPesel(String pesel) {
@@ -2235,7 +1458,7 @@ public class ElectionResult {
     @Column(nullable = false)
     private int votes;
 
-    // Konstruktor domy≈õlny (wymagany przez Hibernate)
+    // Konstruktor domyƒπ‚Ä∫lny (wymagany przez Hibernate)
     public ElectionResult() {}
 
     // Konstruktor z parametrami
@@ -2253,10 +1476,12 @@ public class ElectionResult {
 }
 
 
+
 åCIEØKA: src\main\java\com\election\model\User.java
 ------------------------------------------------------
 package com.election.model;
 
+import javafx.beans.property.*;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -2341,10 +1566,14 @@ public class User {
     }
 
     public void setPesel(String pesel) {
+        if (pesel == null || !pesel.matches("\\d{11}")) {
+            throw new IllegalArgumentException("Nieprawid≈Çowy PESEL");
+        }
         this.pesel = pesel;
     }
 
     public User() {}
+
 }
 
 
@@ -2513,37 +1742,13 @@ public class ElectionService {
 }
 
 
-åCIEØKA: src\main\java\com\election\service\ExportService.java
------------------------------------------------------------------
-package com.election.service;
-
-import com.election.model.Candidate;
-
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.List;
-
-public class ExportService {
-
-    public static void exportToCSV(List<Candidate> candidates, String filePath) throws IOException {
-        try (FileWriter writer = new FileWriter(filePath)) {
-            writer.write("ID,Nazwisko i Imiƒô,Partia,Liczba g≈Ços√≥w\n");
-            for (Candidate c : candidates) {
-                writer.write(String.format("%d,%s,%s,%d\n",
-                        c.getId(), c.getName(), c.getParty(), c.getVotes()));
-            }
-        }
-    }
-}
-
-
-
 åCIEØKA: src\main\java\com\election\service\ExportServicePDF.java
 --------------------------------------------------------------------
 package com.election.service;
 
 import com.election.model.Candidate;
 import com.lowagie.text.*;
+import com.lowagie.text.pdf.BaseFont;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 
@@ -2557,7 +1762,10 @@ public class ExportServicePDF {
         PdfWriter.getInstance(document, new FileOutputStream(filePath));
         document.open();
 
-        document.add(new Paragraph("Wyniki wybor√≥w"));
+        BaseFont bf = BaseFont.createFont("c:/windows/fonts/arial.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+        Font font = new Font(bf, 12);
+
+        document.add(new Paragraph("Wyniki wybor√≥w", font));
         document.add(new Paragraph(" "));
 
         PdfPTable table = new PdfPTable(4);
@@ -2585,7 +1793,6 @@ public class ExportServicePDF {
 package com.election.service;
 
 import com.election.model.Candidate;
-import com.election.model.ElectionResult;
 import com.election.model.User;
 import com.election.model.Vote;
 import com.election.util.HibernateUtil;
@@ -2621,11 +1828,12 @@ public class VotingService {
             session.save(vote);
 
             // Zaktualizuj u≈ºytkownika
-            user.setHasVoted(true);
+            User managedUser = session.get(User.class, user.getId());
+            managedUser.setHasVoted(true);
             session.merge(user);
 
             // Opcjonalnie: aktualizacja wynik√≥w
-            updateElectionResults(session, candidate);
+            //updateElectionResults(session, candidate);
 
             tx.commit();
         } catch (Exception e) {
@@ -2637,21 +1845,21 @@ public class VotingService {
     }
 
 
-    private void updateElectionResults(Session session, Candidate candidate) {
-        ElectionResult result = session.createQuery(
-                        "FROM ElectionResult WHERE candidateName = :name",
-                        ElectionResult.class)
-                .setParameter("name", candidate.getName())
-                .uniqueResult();
-
-        if (result == null) {
-            result = new ElectionResult(candidate.getName(), 1);
-        } else {
-            result.setVotes(result.getVotes() + 1);
-        }
-
-        session.merge(result);
-    }
+//    private void updateElectionResults(Session session, Candidate candidate) {
+//        ElectionResult result = session.createQuery(
+//                        "FROM ElectionResult WHERE candidateName = :name",
+//                        ElectionResult.class)
+//                .setParameter("name", candidate.getName())
+//                .uniqueResult();
+//
+//        if (result == null) {
+//            result = new ElectionResult(candidate.getName(), 1);
+//        } else {
+//            result.setVotes(result.getVotes() + 1);
+//        }
+//
+//        session.merge(result);
+//    }
 
     public boolean hasUserVoted(User user) {
         return user.isHasVoted();
@@ -2775,195 +1983,6 @@ public class HibernateUtil {
 }
 
 
-åCIEØKA: src\main\resources\hibernate.cfg.xml
-------------------------------------------------
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE hibernate-configuration PUBLIC
-        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
-        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
-
-<hibernate-configuration>
-    <session-factory>
-        <!-- Po≈ÇƒÖczenie z bazƒÖ H2 (plikowa baza danych) -->
-        <property name="hibernate.connection.driver_class">org.h2.Driver</property>
-        <property name="hibernate.connection.url">jdbc:h2:file:./database/election_db;AUTO_SERVER=TRUE</property>
-        <property name="hibernate.connection.username">sa</property>
-        <property name="hibernate.connection.password"></property>
-
-        <!-- Dialekt i automatyczne aktualizowanie tabel -->
-        <property name="hibernate.dialect">org.hibernate.dialect.H2Dialect</property>
-        <property name="hibernate.hbm2ddl.auto">update</property>
-
-        <!-- Debug SQL -->
-        <property name="hibernate.show_sql">true</property>
-        <property name="hibernate.format_sql">true</property>
-
-        <!-- Mapowania encji -->
-        <mapping class="com.election.model.User"/>
-        <mapping class="com.election.model.Candidate"/>
-        <mapping class="com.election.model.Vote"/>
-        <mapping class="com.election.model.ElectionResult"/>
-    </session-factory>
-</hibernate-configuration>
-
-
-
-åCIEØKA: src\main\resources\import.sql
------------------------------------------
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('admin', '$2a$10$dj9eHfuT2oAOd4H0LabcZexzBX7MS7/NgfhabawxQpXd57ZAr3nEq', 'ADMIN', FALSE, 'Admin', 'Adminowski', '00000000000');
-
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user', '$2a$10$SvcT2pdsn5ndUfkfSvtFZ.dlYk/jnKfOz/gyq0yQdl58miFuAi23e', 'USER', FALSE, 'Jan', 'Nowak', '00000000123');
-
--- 50 przyk≈Çadowych u≈ºytkownik√≥w
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user1', '$2a$10$Sc7BeEhS1QPGvKYOA5oczuFz3/8eG6050d/8gRKFPWAnYwcdyO5f6', 'USER', FALSE, 'Marek', 'Szyma≈Ñski', '10000000001');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user2', '$2a$10$vUMiwF08NNen0DeWQb/pcukun3Sx1WXcHVuWka8TTi7ComDtJJw06', 'USER', FALSE, 'Magda', 'Kami≈Ñski', '10000000002');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user3', '$2a$10$LN4./y9hOIu.DXEhHgYeye0290.ZeRJJUUojUFyfVaiKFLjAq3FOW', 'USER', FALSE, 'Marek', 'Kowalski', '10000000003');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user4', '$2a$10$S0fJi2pjiVxVHXsvoGp68eT5BgSWnfGCkjmyE4KWW7XTRGcbcZKY.', 'USER', FALSE, 'Katarzyna', 'Szyma≈Ñski', '10000000004');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user5', '$2a$10$7iok5jJS41OR2pA1TLKtiOgsjw8EjzMLROjkUjMgKYifQRO7.nB4y', 'USER', FALSE, 'Anna', 'Wi≈õniewski', '10000000005');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user6', '$2a$10$tJqpsZKMTsqSvuDg4d.xu.kyODVx6xHi740N9fXwFbvksimF6Clg.', 'USER', FALSE, 'Marek', 'Wi≈õniewski', '10000000006');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user7', '$2a$10$RZZTcoYwB1LtI7c3yqjapOF265vC.tkqOva7/QABqATowIzrAotn.', 'USER', FALSE, 'Monika', 'Szyma≈Ñski', '10000000007');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user8', '$2a$10$2qrM8S0aJDxxPD36386btu43C40PspPXm0num5ZI6OIoB9O25EEqu', 'USER', FALSE, 'Monika', 'Wo≈∫niak', '10000000008');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user9', '$2a$10$uieEDiqemn1oXopEzDtsfeXoP2dLILg198oJzmw8Xinz2zh580d.6', 'USER', FALSE, 'Pawe≈Ç', 'Wo≈∫niak', '10000000009');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user10', '$2a$10$rUUN0rUD3Dmb1OacpLXwxuc8pEUJApxdi/Zq2/VhnYpZZrgcsZq/K', 'USER', FALSE, 'Agnieszka', 'Wo≈∫niak', '10000000010');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user11', '$2a$10$/7Vqc7iLsSa4hMlLOK6qc.1ftRGezIAWLwzkC2P/A0pDNPlsnmXX.', 'USER', FALSE, 'Agnieszka', 'Nowak', '10000000011');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user12', '$2a$10$DrjdCOEFl1p4jRQ7PKiD6eZtJ89ChOc3p5CzuxB6WMbTip/NXUyxK', 'USER', FALSE, 'Tomasz', 'Wi≈õniewski', '10000000012');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user13', '$2a$10$N5WKCe1KpuTmWbl72WnnLeCQuLggnSsiF7ns/XBPv.QzMKr47UCMC', 'USER', FALSE, 'Agnieszka', 'Zieli≈Ñski', '10000000013');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user14', '$2a$10$pFdWbG91JFHKIpDkH6CTE.WGB8in0xk96aLh4obJkLgs9D/OGipoe', 'USER', FALSE, 'Magda', 'DƒÖbrowski', '10000000014');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user15', '$2a$10$wWZ0BjtBY1zhrm6AsCAULuP.GashgN/mFP8VA4ZxDM0W6W/wnoaR.', 'USER', FALSE, 'Katarzyna', 'Wo≈∫niak', '10000000015');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user16', '$2a$10$vLts/gfZMZo/uWGuXNZmDOVZ/0Xh8n46XaeNJJnxh33pU/Chobb4G', 'USER', FALSE, 'Piotr', 'Nowak', '10000000016');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user17', '$2a$10$pUFMvRQNJ9VxoyOmgTien.kO90.uEEAhUC/mOdzXpAya/5EytmcFC', 'USER', FALSE, 'Piotr', 'Wi≈õniewski', '10000000017');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user18', '$2a$10$7rHiMtPGw.eEOur502IKxe3uwScOa7TeHh1L.SMYTK/lLF.wmetQe', 'USER', FALSE, 'Marek', 'Wo≈∫niak', '10000000018');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user19', '$2a$10$N5E7A5Xup5kgz.G12NMgXudDS/O6Qxpe4VY78k2MvmoH/4jfTbJSC', 'USER', FALSE, 'Katarzyna', 'Lewandowski', '10000000019');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user20', '$2a$10$x7DrVGNEG..Lq7DG7LrWleHie25IyuueDxr2kLGe/msvmJOvrzHi6', 'USER', FALSE, 'Agnieszka', 'Wo≈∫niak', '10000000020');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user21', '$2a$10$nU7dkq9M9yuZ20.3BC.G8edd.wdcsLpJ1P5/XF6pKHJof7pQJOtvG', 'USER', FALSE, 'Katarzyna', 'Nowak', '10000000021');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user22', '$2a$10$hbx/t4ngdAGcRciCam3MQOvLuSeTXncsl3ZDaElGAURulNxKXBMEK', 'USER', FALSE, 'Agnieszka', 'W√≥jcik', '10000000022');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user23', '$2a$10$Mpw36WNX/tT6ETZFuNs2G.w0r70IA0mR8ZtpyobNdMhtjYyYfqZjy', 'USER', FALSE, 'Tomasz', 'Lewandowski', '10000000023');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user24', '$2a$10$bLdn.mugKrdnHMuKl5VGIuFEatnKsOltxWy5BN5IwsOMXPQkdFHMm', 'USER', FALSE, 'Tomasz', 'W√≥jcik', '10000000024');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user25', '$2a$10$KkwrB4uEUl.lp3rqwJYjEOcvDXhvYcv.0TniEx5INoIVns2/oAE5q', 'USER', FALSE, 'Jan', 'Kami≈Ñski', '10000000025');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user26', '$2a$10$jLkzCGgy7We5U29sm6rmwOkODd9Ohe3OdtIIGpsLqqwQ0wCqlD6Em', 'USER', FALSE, 'Pawe≈Ç', 'Wo≈∫niak', '10000000026');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user27', '$2a$10$LQzB5KcUpsgH3STf4mc8keEruwNNy8sqyS5SlJI0lnAuA3KDA2G6i', 'USER', FALSE, 'Agnieszka', 'Lewandowski', '10000000027');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user28', '$2a$10$2ZS3M8guNnNc11gNl0QoseLG6oqV7p.UgXfMIcct3JKJWZbXqYnHm', 'USER', FALSE, 'Piotr', 'Zieli≈Ñski', '10000000028');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user29', '$2a$10$fcKJW1a3fJYeWsZfGxNlhuSdExyzTTrOdcZSqDDsyBLOR6ow/7sk2', 'USER', FALSE, 'Jan', 'W√≥jcik', '10000000029');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user30', '$2a$10$uwxDabORqbjeNuDS9KbTG.nplCIYazNZYWn6H3PaW1DZdQ3dqr/Cm', 'USER', FALSE, 'Katarzyna', 'Zieli≈Ñski', '10000000030');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user31', '$2a$10$88TtNyHUTYUAE.3N71kj2ukBMKshGJZiXd/MT0chFc3SL0CvnbUdy', 'USER', FALSE, 'Tomasz', 'Kowalski', '10000000031');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user32', '$2a$10$0chFpgSbyDUo4p7H7PVPGe.amRwvRnmpGnr/pj0MuHaodPj7Ar1XC', 'USER', FALSE, 'Jan', 'Wi≈õniewski', '10000000032');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user33', '$2a$10$hJTZUd5V7mIYEimn8xuQ9.8Is03hy63tKk1L0nsl2Zz6YCrKsG8g.', 'USER', FALSE, 'Jan', 'Wi≈õniewski', '10000000033');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user34', '$2a$10$4S/qhltwLg6VglOW.amso.2pnoDD08ARedAkFNM5slB5eXwBvIS6G', 'USER', FALSE, 'Marek', 'Wo≈∫niak', '10000000034');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user35', '$2a$10$FX62/Xf0T.yi6oaoQk6jnOhl8tIC6MNVR8Sa/3CviSrMx1Vabuuma', 'USER', FALSE, 'Tomasz', 'W√≥jcik', '10000000035');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user36', '$2a$10$QjXWEHp16B19vWjmUiF7YuhtBz154A3cjp.cd8hNTrZYkm6uOYjtm', 'USER', FALSE, 'Agnieszka', 'Wo≈∫niak', '10000000036');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user37', '$2a$10$LFiYRxMfQtr55t2YWrp8L.4QEhRIA2pvY9bJkYcwjCYi4uLYh0rzK', 'USER', FALSE, 'Tomasz', 'Wo≈∫niak', '10000000037');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user38', '$2a$10$AUD0va4N9IdiRpyoMaurUu9x.Hki1F42iq.BvwmWuAEm5iICyl4RS', 'USER', FALSE, 'Piotr', 'DƒÖbrowski', '10000000038');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user39', '$2a$10$9Tsw2X14CpYPMfuHneTXGuTwt79gGhf99LsNOAsOzTmhZBdZbyJ4S', 'USER', FALSE, 'Magda', 'Wo≈∫niak', '10000000039');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user40', '$2a$10$IrJb1jriiLjeYieqI4hAC.h9//AlizJ72d7doZJ2XQRosI66YbEpO', 'USER', FALSE, 'Monika', 'W√≥jcik', '10000000040');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user41', '$2a$10$tm3L8s/LdUWfgfxWjLb5PuecQvQok.u9oOOKoYEw2T/kN/.DPUyGe', 'USER', FALSE, 'Monika', 'Kowalski', '10000000041');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user42', '$2a$10$KubEOlRt5ALVaXFpzzrOX.eNMsGe90sYGwoyE/4Cj1gUaHJ0A/11q', 'USER', FALSE, 'Tomasz', 'Kami≈Ñski', '10000000042');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user43', '$2a$10$V0/fRnRKiLgLNUL.m/t8OeMEDkiPYHyfyIVmhVq8eIFlyTBWVsVTO', 'USER', FALSE, 'Monika', 'W√≥jcik', '10000000043');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user44', '$2a$10$bl/1DJFjrE8ZjIj2nCpmOeA9.aIeD2ultQJ/nzYhAunoECId.AZqy', 'USER', FALSE, 'Agnieszka', 'W√≥jcik', '10000000044');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user45', '$2a$10$4LA4v6s3GgrTRUfikvNF3.9RiudGLCLnbczCH3Kz9OvAFwWGs6dnK', 'USER', FALSE, 'Agnieszka', 'Lewandowski', '10000000045');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user46', '$2a$10$9pJLoakbVZUDrvBb.51eS.HtQ3C302IXetVEU8QmjTGXedawivEhe', 'USER', FALSE, 'Katarzyna', 'Wo≈∫niak', '10000000046');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user47', '$2a$10$sG7n7p/y0gc4huMUlcqviOtC3X7KLJDfcxwXh7YvvvlBKq7NXeWyi', 'USER', FALSE, 'Anna', 'Kowalski', '10000000047');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user48', '$2a$10$HxdO2KKX6bRlyBLOF7EqO.hXdmyTomhnpSZ8QFU4ETf67S7R31fUG', 'USER', FALSE, 'Anna', 'Lewandowski', '10000000048');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user49', '$2a$10$SmF5JJjFMHBv5wAwV5wa4uhRyRMY2QVSK7EO8QL/zriswO/P/4/H.', 'USER', FALSE, 'Anna', 'Kami≈Ñski', '10000000049');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user50', '$2a$10$BTC9Z2.MtEe4CfDPpY6DS.9DFIRjLnqaK/JCjEWFsBivhG1vXjliO', 'USER', FALSE, 'Magda', 'Szyma≈Ñski', '10000000050');
-
-INSERT INTO CANDIDATE (id, name, party, votes) VALUES (1, 'Jan Kowalski', 'Partia A', 0);
-INSERT INTO CANDIDATE (id, name, party, votes) VALUES (2, 'Anna Nowak', 'Partia B', 0);
-INSERT INTO CANDIDATE (id, name, party, votes) VALUES (3, 'Jan Tarczynski', 'Partia C', 0);
-
-
-
-åCIEØKA: src\main\resources\import_dynamic.sql
--------------------------------------------------
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel) VALUES ('user2', '$2a$10$SQoysXqwc4PRM69B5dREiu0KyK7mSlY8Jj65Dg7jWeVqnnqaNsLt.', 'USER', false, 'Pawe≈Ç', 'Konopski', '90010254123');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel) VALUES ('user3', '$2a$10$.GqJ9nycIrQIU8cWR3ygEe1JNsPNZ/M1ksruFfDRzB1Qa5G5G0tbm', 'USER', false, 'Alicja', 'Koralik', '90044254321');
-INSERT INTO USERS (id, username, password, role, has_voted) VALUES (2, 'user12345', '$2a$10$SvcT2pdsn5ndUfkfSvtFZ.dlYk/jnKfOz/gyq0yQdl58miFuAi23e', 'USER', false);
-INSERT INTO USERS (id, username, password, role, has_voted) VALUES (2, 'user', '$2a$10$SvcT2pdsn5ndUfkfSvtFZ.dlYk/jnKfOz/gyq0yQdl58miFuAi23e', 'USER', false);
-
-
-
-åCIEØKA: src\main\resources\logback.xml
-------------------------------------------
-<?xml version="1.0" encoding="UTF-8"?>
-<configuration>
-    <!-- Konsola -->
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
-        </encoder>
-    </appender>
-
-    <!-- Plik -->
-    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <file>logs/application.log</file>
-        <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
-        </encoder>
-    </appender>
-
-    <!-- Poziomy logowania -->
-    <root level="DEBUG">
-        <appender-ref ref="CONSOLE"/>
-        <appender-ref ref="FILE"/>
-    </root>
-
-    <!-- Hibernate logging -->
-    <logger name="org.hibernate.SQL" level="DEBUG"/>
-    <logger name="org.hibernate.type.descriptor.sql" level="TRACE"/>
-</configuration>
-
-
 åCIEØKA: src\main\resources\com\election\view\admin_view.fxml
 ----------------------------------------------------------------
 <?xml version="1.0" encoding="UTF-8"?>
@@ -2974,6 +1993,8 @@ INSERT INTO USERS (id, username, password, role, has_voted) VALUES (2, 'user', '
 <?import javafx.scene.layout.*?>
 
 <?import java.net.URL?>
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
 <StackPane prefHeight="600" prefWidth="800" styleClass="root-style"
            xmlns="http://javafx.com/javafx/17.0.12"
            xmlns:fx="http://javafx.com/fxml/1"
@@ -3069,110 +2090,64 @@ INSERT INTO USERS (id, username, password, role, has_voted) VALUES (2, 'user', '
             </VBox>
         </Tab>
 
-        <!-- Dodaj u≈ºytkownika -->
-        <Tab text="Dodaj u≈ºytkownika">
-            <VBox spacing="10" styleClass="vbox-padding">
-                <Label styleClass="panel-title" text="Dodaj nowego u≈ºytkownika" />
-                <GridPane hgap="10" vgap="10">
-                    <Label styleClass="form-label" text="Login:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                    <TextField fx:id="usernameField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+        <!-- ZarzƒÖdzanie u≈ºytkownikami -->
+        <Tab text="ZarzƒÖdzaj u≈ºytkownikami">
+            <VBox styleClass="vbox-padding" spacing="10">
+                <Label styleClass="panel-title" text="ZarzƒÖdzanie u≈ºytkownikami" />
 
-                    <Label styleClass="form-label" text="Has≈Ço (zahashowane):" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                    <TextField fx:id="passwordField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                <!-- Wyb√≥r akcji -->
+                <HBox spacing="10">
+                    <Label styleClass="form-label" text="Wybierz akcjƒô:" />
+                    <ComboBox fx:id="actionComboBox" promptText="Wybierz...">
+                        <items>
+                            <FXCollections fx:factory="observableArrayList">
+                                <String fx:value="Dodaj u≈ºytkownika"/>
+                                <String fx:value="Edytuj u≈ºytkownika"/>
+                                <String fx:value="Usu≈Ñ u≈ºytkownika"/>
+                            </FXCollections>
+                        </items>
+                    </ComboBox>
+                </HBox>
 
-                    <Label styleClass="form-label" text="Rola:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                    <ComboBox fx:id="roleComboBox" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                <!-- Pe≈Çny formularz danych u≈ºytkownika -->
+                <GridPane fx:id="userFormGrid" hgap="10" vgap="10" visible="false">
+                    <Label styleClass="form-label" text="Imiƒô:*" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <TextField fx:id="firstNameField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                    <Label styleClass="form-hint" text="(tylko litery)" GridPane.columnIndex="2" GridPane.rowIndex="0" />
 
-                    <Label styleClass="form-label" text="Imiƒô:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                    <TextField fx:id="firstNameField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                    <Label styleClass="form-label" text="Nazwisko:*" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                    <TextField fx:id="lastNameField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                    <Label styleClass="form-hint" text="(tylko litery)" GridPane.columnIndex="2" GridPane.rowIndex="1" />
 
-                    <Label styleClass="form-label" text="Nazwisko:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-                    <TextField fx:id="lastNameField" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                    <Label styleClass="form-label" text="PESEL:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                    <TextField fx:id="peselField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
-                    <Label styleClass="form-label" text="PESEL:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
-                    <TextField fx:id="peselField" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                    <Label styleClass="form-label" text="Login:*" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                    <TextField fx:id="usernameField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                    <Label styleClass="form-hint" text="(litery, cyfry, _)" GridPane.columnIndex="2" GridPane.rowIndex="3" />
 
-                    <columnConstraints>
-                        <ColumnConstraints />
-                        <ColumnConstraints />
-                    </columnConstraints>
-                    <rowConstraints>
-                        <RowConstraints />
-                        <RowConstraints />
-                        <RowConstraints />
-                        <RowConstraints />
-                        <RowConstraints />
-                        <RowConstraints />
-                    </rowConstraints>
+                    <Label styleClass="form-label" text="Has≈Ço:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                    <PasswordField fx:id="passwordField" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+
+                    <Label styleClass="form-label" text="Rola:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                    <ComboBox fx:id="roleComboBox" GridPane.columnIndex="1" GridPane.rowIndex="5">
+                        <items>
+                            <FXCollections fx:factory="observableArrayList">
+                                <String fx:value="USER"/>
+                                <String fx:value="ADMIN"/>
+                            </FXCollections>
+                        </items>
+                    </ComboBox>
                 </GridPane>
-                <Button styleClass="button-add" onAction="#handleAddUser" text="Dodaj u≈ºytkownika" />
-                <Label fx:id="addUserStatusLabel" styleClass="status-label" />
-            </VBox>
-        </Tab>
 
-        <!-- Edytuj u≈ºytkownika -->
-        <Tab text="Edytuj u≈ºytkownika">
-            <VBox spacing="10" styleClass="vbox-padding">
-                <Label styleClass="panel-title" text="Edytuj u≈ºytkownika" />
-                <GridPane hgap="10" vgap="10">
-                    <Label styleClass="form-label" text="ID u≈ºytkownika:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                    <TextField fx:id="editUserIdField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-
-                    <Label styleClass="form-label" text="Nowy login:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                    <TextField fx:id="editUsernameField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-
-                    <Label styleClass="form-label" text="Nowe has≈Ço (zahashowane):" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                    <TextField fx:id="editPasswordField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-
-                    <Label styleClass="form-label" text="Nowa rola:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                    <ComboBox fx:id="editRoleComboBox" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-
-                    <Label styleClass="form-label" text="Nowe imiƒô:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-                    <TextField fx:id="editFirstNameField" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-
-                    <Label styleClass="form-label" text="Nowe nazwisko:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
-                    <TextField fx:id="editLastNameField" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-
-                    <Label styleClass="form-label" text="Nowy PESEL:" GridPane.columnIndex="0" GridPane.rowIndex="6" />
-                    <TextField fx:id="editPeselField" GridPane.columnIndex="1" GridPane.rowIndex="6" />
-
-                    <columnConstraints>
-                        <ColumnConstraints />
-                        <ColumnConstraints />
-                    </columnConstraints>
-                    <rowConstraints>
-                        <RowConstraints />
-                        <RowConstraints />
-                        <RowConstraints />
-                        <RowConstraints />
-                        <RowConstraints />
-                        <RowConstraints />
-                        <RowConstraints />
-                    </rowConstraints>
+                <!-- Pole identyfikatora (tylko dla edycji/usuwania) -->
+                <GridPane fx:id="identifierGrid" hgap="10" vgap="10" visible="false">
+                    <Label styleClass="form-label" text="ID lub PESEL:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <TextField fx:id="identifierField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
                 </GridPane>
-                <Button styleClass="button-save" onAction="#handleEditUser" text="Zapisz zmiany" />
-                <Label fx:id="editUserStatusLabel" styleClass="edit-status-label" />
-            </VBox>
-        </Tab>
 
-        <!-- Usu≈Ñ u≈ºytkownika -->
-        <Tab text="Usu≈Ñ u≈ºytkownika">
-            <VBox spacing="10" styleClass="vbox-padding">
-                <Label styleClass="panel-title" text="Usu≈Ñ u≈ºytkownika" />
-                <GridPane hgap="10" vgap="10">
-                    <Label styleClass="form-label" text="ID u≈ºytkownika do usuniƒôcia:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                    <TextField fx:id="deleteUserIdField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-
-                    <columnConstraints>
-                        <ColumnConstraints />
-                        <ColumnConstraints />
-                    </columnConstraints>
-                    <rowConstraints>
-                        <RowConstraints />
-                    </rowConstraints>
-                </GridPane>
-                <Button styleClass="button-delete" onAction="#handleDeleteUser" text="Usu≈Ñ u≈ºytkownika" />
-                <Label fx:id="deleteUserStatusLabel" styleClass="delete-status-label" />
+                <Button fx:id="actionButton" text="Wykonaj" onAction="#handleUserManagement" />
+                <Label fx:id="userManagementStatus" styleClass="status-label" />
             </VBox>
         </Tab>
     </TabPane>
@@ -3410,6 +2385,27 @@ INSERT INTO USERS (id, username, password, role, has_voted) VALUES (2, 'user', '
     -fx-text-fill: white;
     -fx-font-size: 30px;
 }
+.form-field {
+    -fx-pref-width: 200px;
+    -fx-font-size: 14px;
+}
+
+.form-label {
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: normal;
+}
+
+#userFormGrid {
+    -fx-padding: 15px;
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+    -fx-background-radius: 5px;
+}
+.form-hint {
+    -fx-text-fill: #bdc3c7;
+    -fx-font-size: 11px;
+    -fx-font-style: italic;
+}
 
 
 åCIEØKA: src\main\resources\com\election\view\user_view.fxml
@@ -3466,350 +2462,6 @@ INSERT INTO USERS (id, username, password, role, has_voted) VALUES (2, 'user', '
 </BorderPane>
 
 
-åCIEØKA: src\main\resources\META-INF\MANIFEST.MF
----------------------------------------------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]
-
-
-åCIEØKA: target\classes\hibernate.cfg.xml
---------------------------------------------
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE hibernate-configuration PUBLIC
-        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
-        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
-
-<hibernate-configuration>
-    <session-factory>
-        <!-- Po≈ÇƒÖczenie z bazƒÖ H2 (plikowa baza danych) -->
-        <property name="hibernate.connection.driver_class">org.h2.Driver</property>
-        <property name="hibernate.connection.url">jdbc:h2:file:./database/election_db;AUTO_SERVER=TRUE</property>
-        <property name="hibernate.connection.username">sa</property>
-        <property name="hibernate.connection.password"></property>
-
-        <!-- Dialekt i automatyczne aktualizowanie tabel -->
-        <property name="hibernate.dialect">org.hibernate.dialect.H2Dialect</property>
-        <property name="hibernate.hbm2ddl.auto">update</property>
-
-        <!-- Debug SQL -->
-        <property name="hibernate.show_sql">true</property>
-        <property name="hibernate.format_sql">true</property>
-
-        <!-- Mapowania encji -->
-        <mapping class="com.election.model.User"/>
-        <mapping class="com.election.model.Candidate"/>
-        <mapping class="com.election.model.Vote"/>
-        <mapping class="com.election.model.ElectionResult"/>
-    </session-factory>
-</hibernate-configuration>
-
-
-
-åCIEØKA: target\classes\import.sql
--------------------------------------
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('admin', '$2a$10$dj9eHfuT2oAOd4H0LabcZexzBX7MS7/NgfhabawxQpXd57ZAr3nEq', 'ADMIN', FALSE, 'Admin', 'Adminowski', '00000000000');
-
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user', '$2a$10$SvcT2pdsn5ndUfkfSvtFZ.dlYk/jnKfOz/gyq0yQdl58miFuAi23e', 'USER', FALSE, 'Jan', 'Nowak', '00000000123');
-
--- 50 przyk≈Çadowych u≈ºytkownik√≥w
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user1', '$2a$10$Sc7BeEhS1QPGvKYOA5oczuFz3/8eG6050d/8gRKFPWAnYwcdyO5f6', 'USER', FALSE, 'Marek', 'Szyma≈Ñski', '10000000001');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user2', '$2a$10$vUMiwF08NNen0DeWQb/pcukun3Sx1WXcHVuWka8TTi7ComDtJJw06', 'USER', FALSE, 'Magda', 'Kami≈Ñski', '10000000002');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user3', '$2a$10$LN4./y9hOIu.DXEhHgYeye0290.ZeRJJUUojUFyfVaiKFLjAq3FOW', 'USER', FALSE, 'Marek', 'Kowalski', '10000000003');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user4', '$2a$10$S0fJi2pjiVxVHXsvoGp68eT5BgSWnfGCkjmyE4KWW7XTRGcbcZKY.', 'USER', FALSE, 'Katarzyna', 'Szyma≈Ñski', '10000000004');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user5', '$2a$10$7iok5jJS41OR2pA1TLKtiOgsjw8EjzMLROjkUjMgKYifQRO7.nB4y', 'USER', FALSE, 'Anna', 'Wi≈õniewski', '10000000005');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user6', '$2a$10$tJqpsZKMTsqSvuDg4d.xu.kyODVx6xHi740N9fXwFbvksimF6Clg.', 'USER', FALSE, 'Marek', 'Wi≈õniewski', '10000000006');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user7', '$2a$10$RZZTcoYwB1LtI7c3yqjapOF265vC.tkqOva7/QABqATowIzrAotn.', 'USER', FALSE, 'Monika', 'Szyma≈Ñski', '10000000007');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user8', '$2a$10$2qrM8S0aJDxxPD36386btu43C40PspPXm0num5ZI6OIoB9O25EEqu', 'USER', FALSE, 'Monika', 'Wo≈∫niak', '10000000008');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user9', '$2a$10$uieEDiqemn1oXopEzDtsfeXoP2dLILg198oJzmw8Xinz2zh580d.6', 'USER', FALSE, 'Pawe≈Ç', 'Wo≈∫niak', '10000000009');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user10', '$2a$10$rUUN0rUD3Dmb1OacpLXwxuc8pEUJApxdi/Zq2/VhnYpZZrgcsZq/K', 'USER', FALSE, 'Agnieszka', 'Wo≈∫niak', '10000000010');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user11', '$2a$10$/7Vqc7iLsSa4hMlLOK6qc.1ftRGezIAWLwzkC2P/A0pDNPlsnmXX.', 'USER', FALSE, 'Agnieszka', 'Nowak', '10000000011');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user12', '$2a$10$DrjdCOEFl1p4jRQ7PKiD6eZtJ89ChOc3p5CzuxB6WMbTip/NXUyxK', 'USER', FALSE, 'Tomasz', 'Wi≈õniewski', '10000000012');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user13', '$2a$10$N5WKCe1KpuTmWbl72WnnLeCQuLggnSsiF7ns/XBPv.QzMKr47UCMC', 'USER', FALSE, 'Agnieszka', 'Zieli≈Ñski', '10000000013');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user14', '$2a$10$pFdWbG91JFHKIpDkH6CTE.WGB8in0xk96aLh4obJkLgs9D/OGipoe', 'USER', FALSE, 'Magda', 'DƒÖbrowski', '10000000014');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user15', '$2a$10$wWZ0BjtBY1zhrm6AsCAULuP.GashgN/mFP8VA4ZxDM0W6W/wnoaR.', 'USER', FALSE, 'Katarzyna', 'Wo≈∫niak', '10000000015');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user16', '$2a$10$vLts/gfZMZo/uWGuXNZmDOVZ/0Xh8n46XaeNJJnxh33pU/Chobb4G', 'USER', FALSE, 'Piotr', 'Nowak', '10000000016');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user17', '$2a$10$pUFMvRQNJ9VxoyOmgTien.kO90.uEEAhUC/mOdzXpAya/5EytmcFC', 'USER', FALSE, 'Piotr', 'Wi≈õniewski', '10000000017');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user18', '$2a$10$7rHiMtPGw.eEOur502IKxe3uwScOa7TeHh1L.SMYTK/lLF.wmetQe', 'USER', FALSE, 'Marek', 'Wo≈∫niak', '10000000018');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user19', '$2a$10$N5E7A5Xup5kgz.G12NMgXudDS/O6Qxpe4VY78k2MvmoH/4jfTbJSC', 'USER', FALSE, 'Katarzyna', 'Lewandowski', '10000000019');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user20', '$2a$10$x7DrVGNEG..Lq7DG7LrWleHie25IyuueDxr2kLGe/msvmJOvrzHi6', 'USER', FALSE, 'Agnieszka', 'Wo≈∫niak', '10000000020');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user21', '$2a$10$nU7dkq9M9yuZ20.3BC.G8edd.wdcsLpJ1P5/XF6pKHJof7pQJOtvG', 'USER', FALSE, 'Katarzyna', 'Nowak', '10000000021');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user22', '$2a$10$hbx/t4ngdAGcRciCam3MQOvLuSeTXncsl3ZDaElGAURulNxKXBMEK', 'USER', FALSE, 'Agnieszka', 'W√≥jcik', '10000000022');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user23', '$2a$10$Mpw36WNX/tT6ETZFuNs2G.w0r70IA0mR8ZtpyobNdMhtjYyYfqZjy', 'USER', FALSE, 'Tomasz', 'Lewandowski', '10000000023');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user24', '$2a$10$bLdn.mugKrdnHMuKl5VGIuFEatnKsOltxWy5BN5IwsOMXPQkdFHMm', 'USER', FALSE, 'Tomasz', 'W√≥jcik', '10000000024');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user25', '$2a$10$KkwrB4uEUl.lp3rqwJYjEOcvDXhvYcv.0TniEx5INoIVns2/oAE5q', 'USER', FALSE, 'Jan', 'Kami≈Ñski', '10000000025');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user26', '$2a$10$jLkzCGgy7We5U29sm6rmwOkODd9Ohe3OdtIIGpsLqqwQ0wCqlD6Em', 'USER', FALSE, 'Pawe≈Ç', 'Wo≈∫niak', '10000000026');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user27', '$2a$10$LQzB5KcUpsgH3STf4mc8keEruwNNy8sqyS5SlJI0lnAuA3KDA2G6i', 'USER', FALSE, 'Agnieszka', 'Lewandowski', '10000000027');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user28', '$2a$10$2ZS3M8guNnNc11gNl0QoseLG6oqV7p.UgXfMIcct3JKJWZbXqYnHm', 'USER', FALSE, 'Piotr', 'Zieli≈Ñski', '10000000028');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user29', '$2a$10$fcKJW1a3fJYeWsZfGxNlhuSdExyzTTrOdcZSqDDsyBLOR6ow/7sk2', 'USER', FALSE, 'Jan', 'W√≥jcik', '10000000029');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user30', '$2a$10$uwxDabORqbjeNuDS9KbTG.nplCIYazNZYWn6H3PaW1DZdQ3dqr/Cm', 'USER', FALSE, 'Katarzyna', 'Zieli≈Ñski', '10000000030');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user31', '$2a$10$88TtNyHUTYUAE.3N71kj2ukBMKshGJZiXd/MT0chFc3SL0CvnbUdy', 'USER', FALSE, 'Tomasz', 'Kowalski', '10000000031');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user32', '$2a$10$0chFpgSbyDUo4p7H7PVPGe.amRwvRnmpGnr/pj0MuHaodPj7Ar1XC', 'USER', FALSE, 'Jan', 'Wi≈õniewski', '10000000032');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user33', '$2a$10$hJTZUd5V7mIYEimn8xuQ9.8Is03hy63tKk1L0nsl2Zz6YCrKsG8g.', 'USER', FALSE, 'Jan', 'Wi≈õniewski', '10000000033');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user34', '$2a$10$4S/qhltwLg6VglOW.amso.2pnoDD08ARedAkFNM5slB5eXwBvIS6G', 'USER', FALSE, 'Marek', 'Wo≈∫niak', '10000000034');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user35', '$2a$10$FX62/Xf0T.yi6oaoQk6jnOhl8tIC6MNVR8Sa/3CviSrMx1Vabuuma', 'USER', FALSE, 'Tomasz', 'W√≥jcik', '10000000035');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user36', '$2a$10$QjXWEHp16B19vWjmUiF7YuhtBz154A3cjp.cd8hNTrZYkm6uOYjtm', 'USER', FALSE, 'Agnieszka', 'Wo≈∫niak', '10000000036');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user37', '$2a$10$LFiYRxMfQtr55t2YWrp8L.4QEhRIA2pvY9bJkYcwjCYi4uLYh0rzK', 'USER', FALSE, 'Tomasz', 'Wo≈∫niak', '10000000037');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user38', '$2a$10$AUD0va4N9IdiRpyoMaurUu9x.Hki1F42iq.BvwmWuAEm5iICyl4RS', 'USER', FALSE, 'Piotr', 'DƒÖbrowski', '10000000038');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user39', '$2a$10$9Tsw2X14CpYPMfuHneTXGuTwt79gGhf99LsNOAsOzTmhZBdZbyJ4S', 'USER', FALSE, 'Magda', 'Wo≈∫niak', '10000000039');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user40', '$2a$10$IrJb1jriiLjeYieqI4hAC.h9//AlizJ72d7doZJ2XQRosI66YbEpO', 'USER', FALSE, 'Monika', 'W√≥jcik', '10000000040');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user41', '$2a$10$tm3L8s/LdUWfgfxWjLb5PuecQvQok.u9oOOKoYEw2T/kN/.DPUyGe', 'USER', FALSE, 'Monika', 'Kowalski', '10000000041');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user42', '$2a$10$KubEOlRt5ALVaXFpzzrOX.eNMsGe90sYGwoyE/4Cj1gUaHJ0A/11q', 'USER', FALSE, 'Tomasz', 'Kami≈Ñski', '10000000042');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user43', '$2a$10$V0/fRnRKiLgLNUL.m/t8OeMEDkiPYHyfyIVmhVq8eIFlyTBWVsVTO', 'USER', FALSE, 'Monika', 'W√≥jcik', '10000000043');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user44', '$2a$10$bl/1DJFjrE8ZjIj2nCpmOeA9.aIeD2ultQJ/nzYhAunoECId.AZqy', 'USER', FALSE, 'Agnieszka', 'W√≥jcik', '10000000044');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user45', '$2a$10$4LA4v6s3GgrTRUfikvNF3.9RiudGLCLnbczCH3Kz9OvAFwWGs6dnK', 'USER', FALSE, 'Agnieszka', 'Lewandowski', '10000000045');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user46', '$2a$10$9pJLoakbVZUDrvBb.51eS.HtQ3C302IXetVEU8QmjTGXedawivEhe', 'USER', FALSE, 'Katarzyna', 'Wo≈∫niak', '10000000046');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user47', '$2a$10$sG7n7p/y0gc4huMUlcqviOtC3X7KLJDfcxwXh7YvvvlBKq7NXeWyi', 'USER', FALSE, 'Anna', 'Kowalski', '10000000047');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user48', '$2a$10$HxdO2KKX6bRlyBLOF7EqO.hXdmyTomhnpSZ8QFU4ETf67S7R31fUG', 'USER', FALSE, 'Anna', 'Lewandowski', '10000000048');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user49', '$2a$10$SmF5JJjFMHBv5wAwV5wa4uhRyRMY2QVSK7EO8QL/zriswO/P/4/H.', 'USER', FALSE, 'Anna', 'Kami≈Ñski', '10000000049');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel)
-VALUES ('user50', '$2a$10$BTC9Z2.MtEe4CfDPpY6DS.9DFIRjLnqaK/JCjEWFsBivhG1vXjliO', 'USER', FALSE, 'Magda', 'Szyma≈Ñski', '10000000050');
-
-INSERT INTO CANDIDATE (id, name, party, votes) VALUES (1, 'Jan Kowalski', 'Partia A', 0);
-INSERT INTO CANDIDATE (id, name, party, votes) VALUES (2, 'Anna Nowak', 'Partia B', 0);
-INSERT INTO CANDIDATE (id, name, party, votes) VALUES (3, 'Jan Tarczynski', 'Partia C', 0);
-
-
-
-åCIEØKA: target\classes\import_dynamic.sql
----------------------------------------------
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel) VALUES ('user2', '$2a$10$SQoysXqwc4PRM69B5dREiu0KyK7mSlY8Jj65Dg7jWeVqnnqaNsLt.', 'USER', false, 'Pawe≈Ç', 'Konopski', '90010254123');
-INSERT INTO USERS (username, password, role, has_voted, first_name, last_name, pesel) VALUES ('user3', '$2a$10$.GqJ9nycIrQIU8cWR3ygEe1JNsPNZ/M1ksruFfDRzB1Qa5G5G0tbm', 'USER', false, 'Alicja', 'Koralik', '90044254321');
-INSERT INTO USERS (id, username, password, role, has_voted) VALUES (2, 'user12345', '$2a$10$SvcT2pdsn5ndUfkfSvtFZ.dlYk/jnKfOz/gyq0yQdl58miFuAi23e', 'USER', false);
-INSERT INTO USERS (id, username, password, role, has_voted) VALUES (2, 'user', '$2a$10$SvcT2pdsn5ndUfkfSvtFZ.dlYk/jnKfOz/gyq0yQdl58miFuAi23e', 'USER', false);
-
-
-
-åCIEØKA: target\classes\logback.xml
---------------------------------------
-<?xml version="1.0" encoding="UTF-8"?>
-<configuration>
-    <!-- Konsola -->
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
-        </encoder>
-    </appender>
-
-    <!-- Plik -->
-    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <file>logs/application.log</file>
-        <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
-        </encoder>
-    </appender>
-
-    <!-- Poziomy logowania -->
-    <root level="DEBUG">
-        <appender-ref ref="CONSOLE"/>
-        <appender-ref ref="FILE"/>
-    </root>
-
-    <!-- Hibernate logging -->
-    <logger name="org.hibernate.SQL" level="DEBUG"/>
-    <logger name="org.hibernate.type.descriptor.sql" level="TRACE"/>
-</configuration>
-
-
-åCIEØKA: target\classes\module-info.class
---------------------------------------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]
-
-
-åCIEØKA: target\classes\com\election\HashGenerator.class
------------------------------------------------------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]
-
-
-åCIEØKA: target\classes\com\election\Main.class
---------------------------------------------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]
-
-
-åCIEØKA: target\classes\com\election\controller\AdminController$1.class
---------------------------------------------------------------------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]
-
-
-åCIEØKA: target\classes\com\election\controller\AdminController$2.class
---------------------------------------------------------------------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]
-
-
-åCIEØKA: target\classes\com\election\controller\AdminController.class
-------------------------------------------------------------------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]
-
-
-åCIEØKA: target\classes\com\election\controller\LoginController$1.class
---------------------------------------------------------------------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]
-
-
-åCIEØKA: target\classes\com\election\controller\LoginController$2.class
---------------------------------------------------------------------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]
-
-
-åCIEØKA: target\classes\com\election\controller\LoginController$3.class
---------------------------------------------------------------------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]
-
-
-åCIEØKA: target\classes\com\election\controller\LoginController.class
-------------------------------------------------------------------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]
-
-
-åCIEØKA: target\classes\com\election\controller\UserController.class
------------------------------------------------------------------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]
-
-
-åCIEØKA: target\classes\com\election\dao\CandidateDAO.class
---------------------------------------------------------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]
-
-
-åCIEØKA: target\classes\com\election\dao\ElectionResultDAO.class
--------------------------------------------------------------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]
-
-
-åCIEØKA: target\classes\com\election\dao\JPAUtil.class
----------------------------------------------------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]
-
-
-åCIEØKA: target\classes\com\election\dao\UserDAO.class
----------------------------------------------------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]
-
-
-åCIEØKA: target\classes\com\election\exception\VotingException.class
------------------------------------------------------------------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]
-
-
-åCIEØKA: target\classes\com\election\model\Candidate.class
--------------------------------------------------------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]
-
-
-åCIEØKA: target\classes\com\election\model\CandidateResult.class
--------------------------------------------------------------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]
-
-
-åCIEØKA: target\classes\com\election\model\ElectionResult.class
-------------------------------------------------------------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]
-
-
-åCIEØKA: target\classes\com\election\model\User.class
---------------------------------------------------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]
-
-
-åCIEØKA: target\classes\com\election\model\Vote.class
---------------------------------------------------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]
-
-
-åCIEØKA: target\classes\com\election\service\AuthService$AuthResult.class
-----------------------------------------------------------------------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]
-
-
-åCIEØKA: target\classes\com\election\service\AuthService$AuthStatus.class
-----------------------------------------------------------------------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]
-
-
-åCIEØKA: target\classes\com\election\service\AuthService.class
------------------------------------------------------------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]
-
-
-åCIEØKA: target\classes\com\election\service\ElectionService.class
----------------------------------------------------------------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]
-
-
-åCIEØKA: target\classes\com\election\service\ExportService.class
--------------------------------------------------------------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]
-
-
-åCIEØKA: target\classes\com\election\service\ExportServicePDF.class
-----------------------------------------------------------------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]
-
-
-åCIEØKA: target\classes\com\election\service\VotingService.class
--------------------------------------------------------------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]
-
-
-åCIEØKA: target\classes\com\election\util\DataInitializer.class
-------------------------------------------------------------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]
-
-
-åCIEØKA: target\classes\com\election\util\HibernateUtil.class
-----------------------------------------------------------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]
-
-
 åCIEØKA: target\classes\com\election\view\admin_view.fxml
 ------------------------------------------------------------
 <?xml version="1.0" encoding="UTF-8"?>
@@ -3820,6 +2472,8 @@ INSERT INTO USERS (id, username, password, role, has_voted) VALUES (2, 'user', '
 <?import javafx.scene.layout.*?>
 
 <?import java.net.URL?>
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
 <StackPane prefHeight="600" prefWidth="800" styleClass="root-style"
            xmlns="http://javafx.com/javafx/17.0.12"
            xmlns:fx="http://javafx.com/fxml/1"
@@ -3915,110 +2569,64 @@ INSERT INTO USERS (id, username, password, role, has_voted) VALUES (2, 'user', '
             </VBox>
         </Tab>
 
-        <!-- Dodaj u≈ºytkownika -->
-        <Tab text="Dodaj u≈ºytkownika">
-            <VBox spacing="10" styleClass="vbox-padding">
-                <Label styleClass="panel-title" text="Dodaj nowego u≈ºytkownika" />
-                <GridPane hgap="10" vgap="10">
-                    <Label styleClass="form-label" text="Login:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                    <TextField fx:id="usernameField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+        <!-- ZarzƒÖdzanie u≈ºytkownikami -->
+        <Tab text="ZarzƒÖdzaj u≈ºytkownikami">
+            <VBox styleClass="vbox-padding" spacing="10">
+                <Label styleClass="panel-title" text="ZarzƒÖdzanie u≈ºytkownikami" />
 
-                    <Label styleClass="form-label" text="Has≈Ço (zahashowane):" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                    <TextField fx:id="passwordField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                <!-- Wyb√≥r akcji -->
+                <HBox spacing="10">
+                    <Label styleClass="form-label" text="Wybierz akcjƒô:" />
+                    <ComboBox fx:id="actionComboBox" promptText="Wybierz...">
+                        <items>
+                            <FXCollections fx:factory="observableArrayList">
+                                <String fx:value="Dodaj u≈ºytkownika"/>
+                                <String fx:value="Edytuj u≈ºytkownika"/>
+                                <String fx:value="Usu≈Ñ u≈ºytkownika"/>
+                            </FXCollections>
+                        </items>
+                    </ComboBox>
+                </HBox>
 
-                    <Label styleClass="form-label" text="Rola:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                    <ComboBox fx:id="roleComboBox" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                <!-- Pe≈Çny formularz danych u≈ºytkownika -->
+                <GridPane fx:id="userFormGrid" hgap="10" vgap="10" visible="false">
+                    <Label styleClass="form-label" text="Imiƒô:*" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <TextField fx:id="firstNameField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                    <Label styleClass="form-hint" text="(tylko litery)" GridPane.columnIndex="2" GridPane.rowIndex="0" />
 
-                    <Label styleClass="form-label" text="Imiƒô:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                    <TextField fx:id="firstNameField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                    <Label styleClass="form-label" text="Nazwisko:*" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                    <TextField fx:id="lastNameField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                    <Label styleClass="form-hint" text="(tylko litery)" GridPane.columnIndex="2" GridPane.rowIndex="1" />
 
-                    <Label styleClass="form-label" text="Nazwisko:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-                    <TextField fx:id="lastNameField" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                    <Label styleClass="form-label" text="PESEL:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                    <TextField fx:id="peselField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
-                    <Label styleClass="form-label" text="PESEL:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
-                    <TextField fx:id="peselField" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                    <Label styleClass="form-label" text="Login:*" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                    <TextField fx:id="usernameField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                    <Label styleClass="form-hint" text="(litery, cyfry, _)" GridPane.columnIndex="2" GridPane.rowIndex="3" />
 
-                    <columnConstraints>
-                        <ColumnConstraints />
-                        <ColumnConstraints />
-                    </columnConstraints>
-                    <rowConstraints>
-                        <RowConstraints />
-                        <RowConstraints />
-                        <RowConstraints />
-                        <RowConstraints />
-                        <RowConstraints />
-                        <RowConstraints />
-                    </rowConstraints>
+                    <Label styleClass="form-label" text="Has≈Ço:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                    <PasswordField fx:id="passwordField" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+
+                    <Label styleClass="form-label" text="Rola:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                    <ComboBox fx:id="roleComboBox" GridPane.columnIndex="1" GridPane.rowIndex="5">
+                        <items>
+                            <FXCollections fx:factory="observableArrayList">
+                                <String fx:value="USER"/>
+                                <String fx:value="ADMIN"/>
+                            </FXCollections>
+                        </items>
+                    </ComboBox>
                 </GridPane>
-                <Button styleClass="button-add" onAction="#handleAddUser" text="Dodaj u≈ºytkownika" />
-                <Label fx:id="addUserStatusLabel" styleClass="status-label" />
-            </VBox>
-        </Tab>
 
-        <!-- Edytuj u≈ºytkownika -->
-        <Tab text="Edytuj u≈ºytkownika">
-            <VBox spacing="10" styleClass="vbox-padding">
-                <Label styleClass="panel-title" text="Edytuj u≈ºytkownika" />
-                <GridPane hgap="10" vgap="10">
-                    <Label styleClass="form-label" text="ID u≈ºytkownika:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                    <TextField fx:id="editUserIdField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-
-                    <Label styleClass="form-label" text="Nowy login:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                    <TextField fx:id="editUsernameField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-
-                    <Label styleClass="form-label" text="Nowe has≈Ço (zahashowane):" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                    <TextField fx:id="editPasswordField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-
-                    <Label styleClass="form-label" text="Nowa rola:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                    <ComboBox fx:id="editRoleComboBox" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-
-                    <Label styleClass="form-label" text="Nowe imiƒô:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-                    <TextField fx:id="editFirstNameField" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-
-                    <Label styleClass="form-label" text="Nowe nazwisko:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
-                    <TextField fx:id="editLastNameField" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-
-                    <Label styleClass="form-label" text="Nowy PESEL:" GridPane.columnIndex="0" GridPane.rowIndex="6" />
-                    <TextField fx:id="editPeselField" GridPane.columnIndex="1" GridPane.rowIndex="6" />
-
-                    <columnConstraints>
-                        <ColumnConstraints />
-                        <ColumnConstraints />
-                    </columnConstraints>
-                    <rowConstraints>
-                        <RowConstraints />
-                        <RowConstraints />
-                        <RowConstraints />
-                        <RowConstraints />
-                        <RowConstraints />
-                        <RowConstraints />
-                        <RowConstraints />
-                    </rowConstraints>
+                <!-- Pole identyfikatora (tylko dla edycji/usuwania) -->
+                <GridPane fx:id="identifierGrid" hgap="10" vgap="10" visible="false">
+                    <Label styleClass="form-label" text="ID lub PESEL:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <TextField fx:id="identifierField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
                 </GridPane>
-                <Button styleClass="button-save" onAction="#handleEditUser" text="Zapisz zmiany" />
-                <Label fx:id="editUserStatusLabel" styleClass="edit-status-label" />
-            </VBox>
-        </Tab>
 
-        <!-- Usu≈Ñ u≈ºytkownika -->
-        <Tab text="Usu≈Ñ u≈ºytkownika">
-            <VBox spacing="10" styleClass="vbox-padding">
-                <Label styleClass="panel-title" text="Usu≈Ñ u≈ºytkownika" />
-                <GridPane hgap="10" vgap="10">
-                    <Label styleClass="form-label" text="ID u≈ºytkownika do usuniƒôcia:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                    <TextField fx:id="deleteUserIdField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-
-                    <columnConstraints>
-                        <ColumnConstraints />
-                        <ColumnConstraints />
-                    </columnConstraints>
-                    <rowConstraints>
-                        <RowConstraints />
-                    </rowConstraints>
-                </GridPane>
-                <Button styleClass="button-delete" onAction="#handleDeleteUser" text="Usu≈Ñ u≈ºytkownika" />
-                <Label fx:id="deleteUserStatusLabel" styleClass="delete-status-label" />
+                <Button fx:id="actionButton" text="Wykonaj" onAction="#handleUserManagement" />
+                <Label fx:id="userManagementStatus" styleClass="status-label" />
             </VBox>
         </Tab>
     </TabPane>
@@ -4256,6 +2864,27 @@ INSERT INTO USERS (id, username, password, role, has_voted) VALUES (2, 'user', '
     -fx-text-fill: white;
     -fx-font-size: 30px;
 }
+.form-field {
+    -fx-pref-width: 200px;
+    -fx-font-size: 14px;
+}
+
+.form-label {
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: normal;
+}
+
+#userFormGrid {
+    -fx-padding: 15px;
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+    -fx-background-radius: 5px;
+}
+.form-hint {
+    -fx-text-fill: #bdc3c7;
+    -fx-font-size: 11px;
+    -fx-font-style: italic;
+}
 
 
 åCIEØKA: target\classes\com\election\view\user_view.fxml
@@ -4310,13 +2939,3 @@ INSERT INTO USERS (id, username, password, role, has_voted) VALUES (2, 'user', '
         </VBox>
     </top>
 </BorderPane>
-
-
-åCIEØKA: target\maven-status\maven-compiler-plugin\compile\default-compile\createdFiles.lst
-----------------------------------------------------------------------------------------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]
-
-
-åCIEØKA: target\maven-status\maven-compiler-plugin\compile\default-compile\inputFiles.lst
---------------------------------------------------------------------------------------------
-[PLIK BINARNY - POMINI TO ZAWARTOå∆]

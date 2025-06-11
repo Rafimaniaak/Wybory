@@ -173,3 +173,24 @@
     -fx-text-fill: white;
     -fx-font-size: 30px;
 }
+.form-field {
+    -fx-pref-width: 200px;
+    -fx-font-size: 14px;
+}
+
+.form-label {
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: normal;
+}
+
+#userFormGrid {
+    -fx-padding: 15px;
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+    -fx-background-radius: 5px;
+}
+.form-hint {
+    -fx-text-fill: #bdc3c7;
+    -fx-font-size: 11px;
+    -fx-font-style: italic;
+}

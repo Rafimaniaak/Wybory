@@ -1,10 +1,10 @@
 package com.election.dao;
 
+import com.election.exception.DatabaseException;
 import com.election.model.User;
 import com.election.util.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.hibernate.query.Query;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -43,7 +43,7 @@ public class UserDAO {
             System.out.println("Zaktualizowano użytkownika: " + user.getUsername());
 
             // Aktualizacja backupu
-            appendUserToSql(user);  // Możesz to zostawić lub pominąć przy aktualizacji
+            appendUserToSql(user);
 
         } catch (Exception e) {
             if (transaction != null) transaction.rollback();
@@ -63,6 +63,7 @@ public class UserDAO {
             if (transaction != null) transaction.rollback();
             System.err.println("Błąd usuwania użytkownika:");
             e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -81,7 +82,7 @@ public class UserDAO {
             if (transaction != null) {
                 transaction.rollback();
             }
-            e.printStackTrace();
+            throw new DatabaseException("Błąd zapisu użytkownika: " + user.getUsername(), e);
         }
     }
     public static void appendUserToSql(User user) {
@@ -106,13 +107,9 @@ public class UserDAO {
 
     public User findByUsername(String username) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            Query<User> query = session.createQuery("FROM User WHERE username = :username", User.class);
-            query.setParameter("username", username);
-            return query.uniqueResult();
-        } catch (Exception e) {
-            System.err.println("Błąd wyszukiwania użytkownika " + username + ":");
-            e.printStackTrace();
-            return null;
+            return session.createQuery("FROM User WHERE username = :username", User.class)
+                    .setParameter("username", username)
+                    .uniqueResult();
         }
     }
     public User findByPesel(String pesel) {

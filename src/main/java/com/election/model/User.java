@@ -1,5 +1,6 @@
 package com.election.model;
 
+import javafx.beans.property.*;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -84,8 +85,12 @@ public class User {
     }
 
     public void setPesel(String pesel) {
+        if (pesel == null || !pesel.matches("\\d{11}")) {
+            throw new IllegalArgumentException("Nieprawidłowy PESEL");
+        }
         this.pesel = pesel;
     }
 
     public User() {}
+
 }

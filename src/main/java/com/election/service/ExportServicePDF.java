@@ -2,6 +2,7 @@ package com.election.service;
 
 import com.election.model.Candidate;
 import com.lowagie.text.*;
+import com.lowagie.text.pdf.BaseFont;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 
@@ -15,7 +16,10 @@ public class ExportServicePDF {
         PdfWriter.getInstance(document, new FileOutputStream(filePath));
         document.open();
 
-        document.add(new Paragraph("Wyniki wyborów"));
+        BaseFont bf = BaseFont.createFont("c:/windows/fonts/arial.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+        Font font = new Font(bf, 12);
+
+        document.add(new Paragraph("Wyniki wyborów", font));
         document.add(new Paragraph(" "));
 
         PdfPTable table = new PdfPTable(4);

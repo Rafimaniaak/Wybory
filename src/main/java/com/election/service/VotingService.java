@@ -1,7 +1,7 @@
 package com.election.service;
 
+import com.election.exception.ServiceException;
 import com.election.model.Candidate;
-import com.election.model.ElectionResult;
 import com.election.model.User;
 import com.election.model.Vote;
 import com.election.util.HibernateUtil;
@@ -14,62 +14,55 @@ public class VotingService {
 
     public void castVote(User user, Candidate candidate) {
         Session session = HibernateUtil.getSessionFactory().openSession();
-        Transaction tx = session.beginTransaction();
+        Transaction tx = null;
 
         try {
+            tx = session.beginTransaction();
+
             if (user == null || candidate == null) {
                 throw new IllegalStateException("Nie znaleziono użytkownika lub kandydata.");
             }
 
-            if (user.isHasVoted()) {
+            // Sprawdź w bazie czy użytkownik już głosował
+            User managedUser = session.get(User.class, user.getId());
+            if (managedUser == null) {
+                throw new IllegalStateException("Użytkownik nie istnieje w bazie danych!");
+            }
+
+            if (managedUser.isHasVoted()) {
                 throw new IllegalStateException("Użytkownik już głosował.");
             }
 
             // Zwiększ liczbę głosów
-            candidate.setVotes(candidate.getVotes() + 1);
-            session.merge(candidate);
+            Candidate managedCandidate = session.get(Candidate.class, candidate.getId());
+            if (managedCandidate == null) {
+                throw new IllegalStateException("Kandydat nie istnieje w bazie danych!");
+            }
+
+            managedCandidate.setVotes(managedCandidate.getVotes() + 1);
+            session.merge(managedCandidate);
 
             // Utwórz nowy głos
             Vote vote = new Vote();
-            vote.setCandidate(candidate);
-            vote.setUser(user);
+            vote.setCandidate(managedCandidate);
+            vote.setUser(managedUser);
             vote.setVoteTime(LocalDateTime.now());
-            session.save(vote);
+            session.persist(vote);
 
             // Zaktualizuj użytkownika
-            user.setHasVoted(true);
-            session.merge(user);
-
-            // Opcjonalnie: aktualizacja wyników
-            updateElectionResults(session, candidate);
+            managedUser.setHasVoted(true);
+            session.merge(managedUser);
 
             tx.commit();
         } catch (Exception e) {
-            if (tx != null) tx.rollback();
-            e.printStackTrace();
+            if (tx != null && tx.isActive()) {
+                tx.rollback();
+            }
+            throw new ServiceException("Błąd podczas głosowania: " + e.getMessage(), e);
         } finally {
-            session.close();
+            if (session != null && session.isOpen()) {
+                session.close();
+            }
         }
-    }
-
-
-    private void updateElectionResults(Session session, Candidate candidate) {
-        ElectionResult result = session.createQuery(
-                        "FROM ElectionResult WHERE candidateName = :name",
-                        ElectionResult.class)
-                .setParameter("name", candidate.getName())
-                .uniqueResult();
-
-        if (result == null) {
-            result = new ElectionResult(candidate.getName(), 1);
-        } else {
-            result.setVotes(result.getVotes() + 1);
-        }
-
-        session.merge(result);
-    }
-
-    public boolean hasUserVoted(User user) {
-        return user.isHasVoted();
     }
 }

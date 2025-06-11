@@ -80,30 +80,7 @@ public class UserController {
 
     @FXML private Button submitButton;
     @FXML private Button logoutButton;
-    //private final ElectionService electionService = new ElectionService();
-//    @FXML
-//    private void handleVoteSubmit(ActionEvent event) {
-//        Candidate selectedCandidate = candidateComboBox.getValue();
-//
-//        if (selectedCandidate == null) {
-//            statusLabel.setText("Wybierz kandydata przed oddaniem głosu!");
-//            return;
-//        }
-//
-//        try {
-//            // Oddaj głos
-//            electionService.registerVote(selectedCandidate);
-//
-//            // Ukryj przycisk "Oddaj głos", pokaż "Wyloguj"
-//            submitButton.setVisible(false);
-//            logoutButton.setVisible(true);
-//            statusLabel.setText("Głos oddany pomyślnie! Możesz się wylogować.");
-//
-//        } catch (Exception e) {
-//            statusLabel.setText("Błąd: " + e.getMessage());
-//            submitButton.setVisible(true); // Przywróć przycisk w przypadku błędu
-//        }
-//    }
+
     @FXML
     private void handleLogout(ActionEvent event) {
         try {

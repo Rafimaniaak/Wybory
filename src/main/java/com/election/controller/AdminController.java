@@ -3,47 +3,64 @@ package com.election.controller;
 import com.election.HashGenerator;
 import com.election.dao.CandidateDAO;
 import com.election.dao.UserDAO;
+import com.election.exception.DatabaseException;
+import com.election.exception.ValidationException;
 import com.election.model.CandidateResult;
 import com.election.model.User;
 import com.election.service.ElectionService;
-import com.election.service.ExportService;
 import com.election.service.ExportServicePDF;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.scene.paint.Color;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.GridPane;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import org.mindrot.jbcrypt.BCrypt;
 
-import javax.xml.transform.Result;
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.rmi.server.ExportException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 public class AdminController {
-
     private final CandidateDAO candidateDAO = new CandidateDAO();
+    private final UserDAO userDAO = new UserDAO();
+    private final ElectionService electionService = new ElectionService();
+    private final ObservableList<CandidateResult> candidatesData = FXCollections.observableArrayList();
+    private User currentAdmin;
+    private User currentEditUser;
 
     @FXML private TableView<User> usersTable;
     @FXML private TableColumn<User, Long> idColumn;
     @FXML private TableColumn<User, String> usernameColumn;
     @FXML private TableColumn<User, String> roleColumn;
-
+    @FXML private TableColumn<User, String> firstNameColumn;
+    @FXML private TableColumn<User, String> lastNameColumn;
+    @FXML private TableColumn<User, String> peselColumn;
+    @FXML private GridPane userFormGrid;
+    @FXML private GridPane identifierGrid;
+    @FXML private TextField firstNameField;
+    @FXML private TextField lastNameField;
+    @FXML private TextField peselField;
+    @FXML private TextField usernameField;
+    @FXML private PasswordField passwordField;
+    @FXML private ComboBox<String> roleComboBox;
     @FXML private TableView<CandidateResult> resultsTable;
     @FXML private TableColumn<CandidateResult, String> candidateColumn;
     @FXML private TableColumn<CandidateResult, Number> votesColumn;
@@ -53,65 +70,245 @@ public class AdminController {
     @FXML private NumberAxis yAxis;
 
     @FXML private Label statusLabel;
+    @FXML private TextField peselSearchField;
 
-    private final UserDAO userDAO = new UserDAO();
-    private final ElectionService electionService = new ElectionService();
-    private final ObservableList<CandidateResult> candidatesData = FXCollections.observableArrayList();
-    private User currentAdmin;
+    // Pola dla uniwersalnego zarządzania użytkownikami
+    @FXML private ComboBox<String> actionComboBox;
+    @FXML private TextField identifierField;
+    @FXML private Button actionButton;
+    @FXML private Label userManagementStatus;
 
-    @FXML private TextField usernameField;
-    @FXML private TextField passwordField;
-    @FXML private ComboBox<String> roleComboBox;
-    @FXML private Label addUserStatusLabel;
-    @FXML private TextField firstNameField;
-    @FXML private TextField lastNameField;
-    @FXML private TextField peselField;
-
-    @FXML private TextField editUserIdField;
-    @FXML private TextField editUsernameField;
-    @FXML private TextField editPasswordField;
-    @FXML private ComboBox<String> editRoleComboBox;
-    @FXML private Label editUserStatusLabel;
-    @FXML private TextField editFirstNameField;
-    @FXML private TextField editLastNameField;
-    @FXML private TextField editPeselField;
-
-    @FXML private TextField deleteUserIdField;
-    @FXML private Label deleteUserStatusLabel;
-
-    @FXML private TextField searchUsernameField;
-    @FXML private TextField searchFirstNameField;
-    @FXML private TextField searchLastNameField;
-    @FXML private TextField searchPeselField;
+    private final ObservableList<User> masterUserList = FXCollections.observableArrayList();
 
     @FXML
     public void initialize() {
         configureUserTable();
         configureResultsTable();
         loadInitialData();
+
+        // Inicjalizacja ComboBox z rolami
         roleComboBox.setItems(FXCollections.observableArrayList("USER", "ADMIN"));
-        editRoleComboBox.setItems(FXCollections.observableArrayList("USER", "ADMIN"));
 
-        xAxis.setTickLabelFill(Color.WHITE);
-        xAxis.setLabel("Kandydat");
+        // Listener dla ComboBox akcji
+        actionComboBox.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal == null) return;
 
-        yAxis.setTickLabelFill(Color.WHITE);
-        yAxis.setLabel("Głosy");
+            switch (newVal) {
+                case "Dodaj użytkownika":
+                    userFormGrid.setVisible(true);
+                    identifierGrid.setVisible(false);
+                    actionButton.setText("Dodaj");
+                    clearUserForm();
+                    break;
 
-        resultsChart.setTitle("Głosy wg kandydata");
+                case "Edytuj użytkownika":
+                    userFormGrid.setVisible(true);
+                    identifierGrid.setVisible(true);
+                    actionButton.setText("Wyszukaj");
+                    clearUserForm();
+                    break;
 
-        Platform.runLater(() -> {
-            Node title = resultsChart.lookup(".chart-title");
-            if (title != null) title.setStyle("-fx-text-fill: white;");
-
-            Node xAxisLabel = xAxis.lookup(".axis-label");
-            if (xAxisLabel != null) xAxisLabel.setStyle("-fx-text-fill: white;");
-
-            Node yAxisLabel = yAxis.lookup(".axis-label");
-            if (yAxisLabel != null) yAxisLabel.setStyle("-fx-text-fill: white;");
+                case "Usuń użytkownika":
+                    userFormGrid.setVisible(false);
+                    identifierGrid.setVisible(true);
+                    actionButton.setText("Usuń");
+                    break;
+            }
         });
     }
+    private void clearUserForm() {
+        firstNameField.clear();
+        lastNameField.clear();
+        peselField.clear();
+        usernameField.clear();
+        passwordField.clear();
+        roleComboBox.getSelectionModel().clearSelection();
+        currentEditUser = null; // Resetuj przy czyszczeniu formularza
+    }
 
+    @FXML
+    private void handleUserManagement() {
+        try {
+            String action = actionComboBox.getValue();
+            switch (action) {
+                case "Dodaj użytkownika": addNewUser(); break;
+                case "Edytuj użytkownika": handleEditUserFlow(); break;
+                case "Usuń użytkownika": deleteUser(); break;
+            }
+        } catch (ValidationException | DatabaseException e) {
+            userManagementStatus.setText(e.getMessage());
+        }
+    }
+    private void handleEditUserFlow() {
+        if (actionButton.getText().equals("Wyszukaj")) {
+            findUserForEdit();
+        } else {
+            updateUser();
+        }
+    }
+
+    private void deleteUser() {
+        String identifier = identifierField.getText().trim();
+        if (identifier.isEmpty()) {
+            userManagementStatus.setText("Wprowadź ID lub PESEL!");
+            return;
+        }
+
+        try {
+            User user = findUserByIdentifier(identifier);
+            if (user == null) {
+                throw new DatabaseException("Nie znaleziono użytkownika!", null);
+            }
+
+            if (confirmDeletion(user)) {
+                userDAO.deleteUser(user);
+                masterUserList.remove(user);
+                refreshUserTable();
+                userManagementStatus.setText("Użytkownik usunięty pomyślnie!");
+            } else {
+                userManagementStatus.setText("Anulowano usuwanie.");
+            }
+        } catch (DatabaseException e) {
+            userManagementStatus.setText(e.getMessage());
+        }
+    }
+
+    private boolean confirmDeletion(User user) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Potwierdzenie usunięcia");
+        alert.setHeaderText("Czy na pewno chcesz usunąć użytkownika?");
+        alert.setContentText(user.getFirstName() + " " + user.getLastName() + " (" + user.getUsername() + ")");
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.isPresent() && result.get() == ButtonType.OK;
+    }
+    private void addNewUser() throws ValidationException, DatabaseException {
+        validateUserForm();
+
+        User newUser = createUserFromForm();
+        try {
+            userDAO.saveUser(newUser);
+            masterUserList.add(newUser);
+            refreshUserTable();
+            userManagementStatus.setText("Użytkownik dodany pomyślnie!");
+            clearUserForm();
+        } catch (Exception e) {
+            throw new DatabaseException("Błąd podczas zapisu użytkownika: " + e.getMessage(), e);
+        }
+    }
+    private User createUserFromForm() {
+        User newUser = new User();
+        newUser.setFirstName(firstNameField.getText().trim());
+        newUser.setLastName(lastNameField.getText().trim());
+        newUser.setPesel(peselField.getText().trim());
+        newUser.setUsername(usernameField.getText().trim());
+        newUser.setPassword(BCrypt.hashpw(passwordField.getText(), BCrypt.gensalt()));
+        newUser.setRole(roleComboBox.getValue());
+        newUser.setHasVoted(false);
+        return newUser;
+    }
+
+    private void findUserForEdit() {
+        String identifier = identifierField.getText().trim();
+        currentEditUser = findUserByIdentifier(identifier);
+
+        if (currentEditUser != null) {
+            // Wypełnij formularz danymi użytkownika
+            firstNameField.setText(currentEditUser.getFirstName());
+            lastNameField.setText(currentEditUser.getLastName());
+            peselField.setText(currentEditUser.getPesel());
+            usernameField.setText(currentEditUser.getUsername());
+            roleComboBox.setValue(currentEditUser.getRole());
+
+            // Przygotuj do aktualizacji
+            actionButton.setText("Zaktualizuj");
+            userManagementStatus.setText("Znaleziono użytkownika. Edytuj dane.");
+        } else {
+            userManagementStatus.setText("Nie znaleziono użytkownika!");
+        }
+    }
+
+    private void updateUser() throws ValidationException, DatabaseException {
+        String identifier = identifierField.getText().trim();
+        User user = findUserByIdentifier(identifier);
+
+        if (user == null) {
+            throw new DatabaseException("Nie znaleziono użytkownika!", null);
+        }
+
+        validateUserForm();
+        updateUserData(user);
+
+        try {
+            userDAO.updateUser(user);
+            refreshUserTable();
+            userManagementStatus.setText("Dane użytkownika zaktualizowane!");
+            actionButton.setText("Wyszukaj");
+            clearUserForm();
+        } catch (Exception e) {
+            throw new DatabaseException("Błąd aktualizacji użytkownika: " + e.getMessage(), e);
+        }
+    }
+
+    private void updateUserData(User user) {
+        user.setFirstName(firstNameField.getText().trim());
+        user.setLastName(lastNameField.getText().trim());
+        user.setPesel(peselField.getText().trim());
+        user.setUsername(usernameField.getText().trim());
+
+        if (!passwordField.getText().isEmpty()) {
+            user.setPassword(BCrypt.hashpw(passwordField.getText(), BCrypt.gensalt()));
+        }
+
+        user.setRole(roleComboBox.getValue());
+    }
+
+    private void validateUserForm() throws ValidationException {
+        if (fieldsAreEmpty()) {
+            throw new ValidationException("Wypełnij wszystkie pola!");
+        }
+
+        validatePesel();
+        validateName(firstNameField.getText().trim(), "Imię");
+        validateName(lastNameField.getText().trim(), "Nazwisko");
+        validateUsername();
+    }
+
+    private boolean fieldsAreEmpty() {
+        return firstNameField.getText().trim().isEmpty() ||
+                lastNameField.getText().trim().isEmpty() ||
+                peselField.getText().trim().isEmpty() ||
+                usernameField.getText().trim().isEmpty() ||
+                roleComboBox.getValue() == null;
+    }
+
+    private void validatePesel() throws ValidationException {
+        String pesel = peselField.getText().trim();
+        if (!pesel.matches("\\d{11}")) {
+            throw new ValidationException("PESEL musi mieć 11 cyfr!");
+        }
+
+        User existing = userDAO.findByPesel(pesel);
+        if (existing != null && (currentEditUser == null || !existing.getId().equals(currentEditUser.getId()))) {
+            throw new ValidationException("PESEL już istnieje w systemie!");
+        }
+    }
+
+    private void validateName(String name, String fieldName) throws ValidationException {
+        if (!name.matches("[\\p{L}\\s\\-]+")) {
+            throw new ValidationException(fieldName + " może zawierać tylko litery, spacje i myślniki!");
+        }
+    }
+
+    private void validateUsername() throws ValidationException {
+        String username = usernameField.getText().trim();
+        if (!username.matches("[a-zA-Z0-9_]+")) {
+            throw new ValidationException("Login może zawierać tylko litery, cyfry i podkreślniki!");
+        }
+    }
+    private void refreshUserTable() {
+        masterUserList.setAll(userDAO.getAllUsers());
+        usersTable.refresh();
+    }
     private void configureUserTable() {
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         usernameColumn.setCellValueFactory(new PropertyValueFactory<>("username"));
@@ -120,7 +317,6 @@ public class AdminController {
         lastNameColumn.setCellValueFactory(new PropertyValueFactory<>("lastName"));
         peselColumn.setCellValueFactory(new PropertyValueFactory<>("pesel"));
     }
-
 
     private void configureResultsTable() {
         candidateColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -136,9 +332,9 @@ public class AdminController {
     }
 
     private void loadInitialData() {
-        List<User> users = userDAO.getAllUsers();
-        masterUserList.setAll(users);
+        masterUserList.setAll(userDAO.getAllUsers());
         usersTable.setItems(masterUserList);
+        refreshUserTable();
         refreshElectionData();
     }
 
@@ -158,9 +354,7 @@ public class AdminController {
     }
 
     private void refreshElectionData() {
-        if (statusLabel != null) {
-            statusLabel.setText("Odświeżanie wyników...");
-        }
+        statusLabel.setText("Odświeżanie wyników...");
 
         try {
             List<CandidateResult> results = electionService.getCurrentResults();
@@ -174,24 +368,15 @@ public class AdminController {
             for (CandidateResult result : results) {
                 int votes = result.getVotes();
                 series.getData().add(new XYChart.Data<>(result.getName(), votes));
-                if (votes > maxVotes) {
-                    maxVotes = votes;
-                }
+                if (votes > maxVotes) maxVotes = votes;
             }
             resultsChart.getData().add(series);
-
             updateYAxisRange(maxVotes);
 
-            if (statusLabel != null) {
-                statusLabel.setText("Wyniki zaktualizowane: " + LocalDateTime.now()
-                        .format(DateTimeFormatter.ofPattern("HH:mm:ss")));
-            }
-
+            statusLabel.setText("Wyniki zaktualizowane: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
         } catch (Exception e) {
-            if (statusLabel != null) {
-                statusLabel.setText("Błąd podczas aktualizacji!");
-            }
-            e.printStackTrace();
+            statusLabel.setText("Błąd podczas aktualizacji!");
+            throw new DatabaseException("Błąd odświeżania wyników", e);
         }
     }
 
@@ -201,12 +386,6 @@ public class AdminController {
         yAxis.setUpperBound(maxVotes < 5 ? 5 : maxVotes + 1);
         yAxis.setTickUnit(1);
         yAxis.setMinorTickVisible(false);
-        yAxis.setTickLabelFormatter(new NumberAxis.DefaultFormatter(yAxis) {
-            @Override
-            public String toString(Number object) {
-                return String.valueOf(object.intValue());
-            }
-        });
     }
 
     @FXML
@@ -216,9 +395,8 @@ public class AdminController {
             currentStage.close();
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/election/view/login.fxml"));
-            Parent root = loader.load();
             Stage loginStage = new Stage();
-            loginStage.setScene(new Scene(root));
+            loginStage.setScene(new Scene(loader.load()));
             loginStage.setTitle("Logowanie");
             loginStage.show();
         } catch (IOException e) {
@@ -247,131 +425,28 @@ public class AdminController {
         alert.showAndWait();
     }
 
-    @FXML
-    private void handleAddUser(ActionEvent event) {
-        String username = usernameField.getText().trim();
-        String password = passwordField.getText().trim();
-        String role = roleComboBox.getValue();
-        String firstName = firstNameField.getText().trim();
-        String lastName = lastNameField.getText().trim();
-        String pesel = peselField.getText().trim();
-
-        if (username.isEmpty() || password.isEmpty() || role == null || firstName.isEmpty() || lastName.isEmpty() || pesel.isEmpty()) {
-            addUserStatusLabel.setText("Wszystkie pola są wymagane!");
-            return;
+    private User findUserByIdentifier(String identifier) throws ValidationException {
+        if (identifier == null || identifier.isEmpty()) {
+            return null;
         }
 
         try {
-            User user = new User();
-            user.setUsername(username);
-            user.setPassword(password);
-            user.setRole(role);
-            user.setHasVoted(false);
-            user.setFirstName(firstName);
-            user.setLastName(lastName);
-            user.setPesel(pesel);
-
-            userDAO.saveUser(user);
-            usersTable.getItems().add(user);
-            addUserStatusLabel.setText("Użytkownik dodany pomyślnie.");
-            clearAddUserForm();
-        } catch (Exception e) {
-            addUserStatusLabel.setText("Błąd: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    private void handleEditUser(ActionEvent event) {
-        try {
-            long id = Long.parseLong(editUserIdField.getText().trim());
-            User user = userDAO.getUserById(id);
-            if (user == null) {
-                editUserStatusLabel.setText("Nie znaleziono użytkownika.");
-                return;
+            if (identifier.matches("\\d{11}")) {
+                return userDAO.findByPesel(identifier);
+            } else if (identifier.matches("\\d+")) {
+                Long id = Long.parseLong(identifier);
+                return userDAO.getUserById(id);
+            } else {
+                throw new ValidationException("Nieprawidłowy format identyfikatora. Podaj PESEL (11 cyfr) lub ID (liczba).");
             }
-
-            String newUsername = editUsernameField.getText().trim();
-            String newPassword = editPasswordField.getText().trim();
-            String newRole = editRoleComboBox.getValue();
-            String newFirstName = editFirstNameField.getText().trim();
-            String newLastName = editLastNameField.getText().trim();
-            String newPesel = editPeselField.getText().trim();
-
-            if (!newUsername.isEmpty()) user.setUsername(newUsername);
-            if (!newPassword.isEmpty()) user.setPassword(newPassword);
-            if (newRole != null) user.setRole(newRole);
-            if (!newFirstName.isEmpty()) user.setFirstName(newFirstName);
-            if (!newLastName.isEmpty()) user.setLastName(newLastName);
-            if (!newPesel.isEmpty()) user.setPesel(newPesel);
-
-            userDAO.updateUser(user);
-            usersTable.getItems().setAll(userDAO.getAllUsers());
-            editUserStatusLabel.setText("Zmieniono dane użytkownika.");
         } catch (NumberFormatException e) {
-            editUserStatusLabel.setText("Nieprawidłowe ID.");
+            throw new ValidationException("Nieprawidłowy format ID: " + identifier);
+        } catch (DatabaseException e) {
+            throw e; // Przekazujemy dalej
         } catch (Exception e) {
-            editUserStatusLabel.setText("Błąd: " + e.getMessage());
-            e.printStackTrace();
+            throw new DatabaseException("Błąd podczas wyszukiwania użytkownika", e);
         }
     }
-
-    @FXML
-    private void handleDeleteUser(ActionEvent event) {
-        try {
-            long id = Long.parseLong(deleteUserIdField.getText().trim());
-            User user = userDAO.getUserById(id);
-            if (user == null) {
-                deleteUserStatusLabel.setText("Nie znaleziono użytkownika.");
-                return;
-            }
-
-            userDAO.deleteUser(user);
-            usersTable.getItems().removeIf(u -> u.getId() == id);
-            deleteUserStatusLabel.setText("Użytkownik usunięty.");
-        } catch (NumberFormatException e) {
-            deleteUserStatusLabel.setText("Nieprawidłowe ID.");
-        } catch (Exception e) {
-            deleteUserStatusLabel.setText("Błąd: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    private void handleSearchUsers(ActionEvent event) {
-        String username = searchUsernameField.getText().trim().toLowerCase();
-        String firstName = searchFirstNameField.getText().trim().toLowerCase();
-        String lastName = searchLastNameField.getText().trim().toLowerCase();
-        String pesel = searchPeselField.getText().trim();
-
-        List<User> allUsers = userDAO.getAllUsers();
-
-        List<User> filteredUsers = allUsers.stream()
-                .filter(user -> (username.isEmpty() || user.getUsername().toLowerCase().contains(username)) &&
-                        (firstName.isEmpty() || user.getFirstName().toLowerCase().contains(firstName)) &&
-                        (lastName.isEmpty() || user.getLastName().toLowerCase().contains(lastName)) &&
-                        (pesel.isEmpty() || user.getPesel().contains(pesel)))
-                .collect(Collectors.toList());
-
-        usersTable.setItems(FXCollections.observableArrayList(filteredUsers));
-    }
-
-    @FXML
-    private void handleClearSearch(ActionEvent event) {
-        searchUsernameField.clear();
-        searchFirstNameField.clear();
-        searchLastNameField.clear();
-        searchPeselField.clear();
-        usersTable.setItems(FXCollections.observableArrayList(userDAO.getAllUsers()));
-    }
-    @FXML
-    private TextField peselSearchField;
-
-    @FXML private TableColumn<User, String> firstNameColumn;
-    @FXML private TableColumn<User, String> lastNameColumn;
-    @FXML private TableColumn<User, String> peselColumn;
-
-    private ObservableList<User> masterUserList = FXCollections.observableArrayList();
 
     @FXML
     private void handlePeselSearch() {
@@ -387,15 +462,6 @@ public class AdminController {
         usersTable.setItems(filtered);
     }
 
-
-    private void clearAddUserForm() {
-        usernameField.clear();
-        passwordField.clear();
-        roleComboBox.getSelectionModel().clearSelection();
-        firstNameField.clear();
-        lastNameField.clear();
-        peselField.clear();
-    }
     @FXML
     private void handleShowAllUsers() {
         usersTable.setItems(masterUserList);
@@ -410,23 +476,31 @@ public class AdminController {
         File file = fileChooser.showSaveDialog(resultsTable.getScene().getWindow());
 
         if (file != null) {
-            try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
-                // Dodaj BOM — kluczowe dla poprawnego wyświetlania polskich znaków w Excelu
-                writer.write('\uFEFF');
+            try (OutputStreamWriter writer = new OutputStreamWriter(
+                    new FileOutputStream(file), StandardCharsets.UTF_8)) {
 
-                // Nagłówki
+                writer.write('\uFEFF'); // BOM dla UTF-8
                 writer.write("Kandydat;Liczba głosów\n");
 
-                // Dane
                 for (CandidateResult result : resultsTable.getItems()) {
                     writer.write(result.getName() + ";" + result.getVotes() + "\n");
                 }
 
                 writer.flush();
-
             } catch (IOException e) {
                 showError("Błąd zapisu CSV: " + e.getMessage());
             }
+        }
+    }
+
+    @FXML
+    private void handleExportToPDF() throws ExportException {
+        try {
+            ExportServicePDF.exportToPDF(candidateDAO.getAllCandidates(), "wyniki.pdf");
+            statusLabel.setText("Zapisano wyniki do PDF");
+        } catch (Exception e) {
+            statusLabel.setText("Błąd eksportu do PDF");
+            throw new ExportException("Błąd podczas eksportu do PDF", e);
         }
     }
 
@@ -437,18 +511,4 @@ public class AdminController {
         alert.setContentText(message);
         alert.showAndWait();
     }
-
-
-
-    @FXML
-    private void handleExportToPDF() {
-        try {
-            ExportServicePDF.exportToPDF(candidateDAO.getAllCandidates(), "wyniki.pdf");
-            System.out.println("Zapisano do PDF");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
 }

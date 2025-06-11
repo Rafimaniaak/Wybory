@@ -7,9 +7,10 @@ function Test-IsTextFile {
     param([string]$Path)
     
     $textExtensions = @(
-        '.txt', '.csv', '.ini', '.log', '.xml', '.json', '.js', '.css', '.html', '.htm',
-        '.ps1', '.bat', '.cmd', '.java', '.py', '.c', '.cpp', '.h', '.cs', '.md',
-        '.yml', '.yaml', '.properties', '.sql', '.php', '.asp', '.aspx', '.jsp', '.sh', '.fxml'
+        '.txt', '.csv', '.ini', '.log','.json', '.js', '.css', '.html', '.htm',
+         '.bat', '.java', '.py', '.c', '.cpp', '.h', '.cs', '.md',
+        '.yml', '.yaml', '.properties','.php', '.asp', '.aspx', '.jsp', '.sh', '.fxml'
+        #,'.sql','.ps1', '.xml'
     )
     
     $extension = [System.IO.Path]::GetExtension($Path).ToLower()
@@ -32,24 +33,21 @@ function Export-Structure {
     # Przeszukaj wszystkie pliki
     Get-ChildItem -Path $startPath -Recurse -File | ForEach-Object {
         $absolutePath = $_.FullName
-        
+
         # Pomijanie plików wykluczonych po nazwie
         if ($excludeFiles -contains $_.Name) { return }
         
         # Pomijanie pliku wyjœciowego po pe³nej œcie¿ce
         if ($absolutePath -eq (Join-Path $pwd $output)) { return }
+
+        # Pomijaj pliki binarne
+        if (-not (Test-IsTextFile -Path $absolutePath)) { return }
         
         $relativePath = $absolutePath.Substring($absoluteStart.Length).TrimStart('\')
         $separator = "-" * ($relativePath.Length + 12)
         
         Add-Content -Path $output -Value "`n`nŒCIE¯KA: $relativePath"
         Add-Content -Path $output -Value $separator
-        
-        # SprawdŸ czy to plik tekstowy
-        if (-not (Test-IsTextFile -Path $absolutePath)) {
-            Add-Content -Path $output -Value "[PLIK BINARNY - POMINIÊTO ZAWARTOŒÆ]"
-            return
-        }
         
         # Próba odczytu zawartoœci
         try {

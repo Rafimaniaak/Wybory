@@ -15,7 +15,7 @@ public class ElectionResult {
     @Column(nullable = false)
     private int votes;
 
-    // Konstruktor domyślny (wymagany przez Hibernate)
+    // Konstruktor domyĹ›lny (wymagany przez Hibernate)
     public ElectionResult() {}
 
     // Konstruktor z parametrami
