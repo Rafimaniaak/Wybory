@@ -10,8 +10,10 @@ import org.hibernate.Transaction;
 
 import java.time.LocalDateTime;
 
+// Serwis głosowania
 public class VotingService {
 
+    // Rejestruje głos użytkownika
     public void castVote(User user, Candidate candidate) {
         Session session = HibernateUtil.getSessionFactory().openSession();
         Transaction tx = null;

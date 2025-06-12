@@ -9,8 +9,10 @@ import com.lowagie.text.pdf.PdfWriter;
 import java.io.FileOutputStream;
 import java.util.List;
 
+// Serwis eksportu do PDF
 public class ExportServicePDF {
 
+    // Eksportuje wyniki do pliku PDF
     public static void exportToPDF(List<Candidate> candidates, String filePath) throws Exception {
         Document document = new Document();
         PdfWriter.getInstance(document, new FileOutputStream(filePath));

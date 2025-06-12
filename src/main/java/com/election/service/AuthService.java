@@ -4,9 +4,11 @@ import com.election.dao.UserDAO;
 import com.election.model.User;
 import org.mindrot.jbcrypt.BCrypt;
 
+// Serwis uwierzytelniania
 public class AuthService {
-    private UserDAO userDAO = new UserDAO();
+    private final UserDAO userDAO = new UserDAO();
 
+    // Weryfikuje dane logowania
     public AuthResult authenticate(String username, String password) {
         User user = userDAO.findByUsername(username);
         if (user == null) {
@@ -18,25 +20,12 @@ public class AuthService {
         return new AuthResult(user, AuthStatus.SUCCESS);
     }
 
+    // Statusy uwierzytelniania
     public enum AuthStatus {
         SUCCESS, USER_NOT_FOUND, INVALID_PASSWORD
     }
 
-    public static class AuthResult {
-        private final User user;
-        private final AuthStatus status;
-
-        public AuthResult(User user, AuthStatus status) {
-            this.user = user;
-            this.status = status;
-        }
-
-        public User getUser() {
-            return user;
-        }
-
-        public AuthStatus getStatus() {
-            return status;
-        }
+    // Klasa wyników uwierzytelniania
+        public record AuthResult(User user, AuthStatus status) {
     }
 }

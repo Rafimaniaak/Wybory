@@ -3,7 +3,6 @@ package com.election.controller;
 import com.election.dao.UserDAO;
 import com.election.model.User;
 import com.election.service.AuthService;
-import javafx.animation.PauseTransition;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -14,11 +13,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import javafx.util.Duration;
-import org.mindrot.jbcrypt.BCrypt;
 
 import java.io.IOException;
-
+// Kontroler ekranu logowania
 public class LoginController {
 
     @FXML private TextField usernameField;
@@ -29,11 +26,13 @@ public class LoginController {
     private final UserDAO userDAO = new UserDAO();
     private final AuthService authService = new AuthService();
 
+    // Inicjalizuje kontroler i ładuje dane
     @FXML
     private void initialize() {
         loadUserCountAsync();
     }
 
+    // Asynchronicznie ładuje liczbę użytkowników
     private void loadUserCountAsync() {
         Task<Integer> task = new Task<>() {
             @Override
@@ -41,23 +40,15 @@ public class LoginController {
                 return userDAO.getAllUsers().size();
             }
         };
-
-//        task.setOnSucceeded(e -> {
-//            if (task.getValue() > 0) {
-//                statusLabel.setText("Zarejestrowanych użytkowników: " + task.getValue());
-//            } else {
-//                statusLabel.setText("Brak zarejestrowanych użytkowników");
-//            }
-//        });
-
         new Thread(task).start();
     }
-
+    // Obsługuje próbę logowania
     @FXML
     private void handleLogin(ActionEvent event) {
         performLogin();
     }
 
+    // Wykonuje proces logowania
     private void performLogin() {
         String username = usernameField.getText().trim();
         String password = passwordField.getText().trim();
@@ -76,9 +67,9 @@ public class LoginController {
 
         loginTask.setOnSucceeded(e -> {
             AuthService.AuthResult result = loginTask.getValue();
-            switch (result.getStatus()) {
+            switch (result.status()) {
                 case SUCCESS:
-                    redirectUser(result.getUser());
+                    redirectUser(result.user());
                     break;
                 case USER_NOT_FOUND:
                     showError("Nieprawidłowy login!");
@@ -96,6 +87,7 @@ public class LoginController {
         new Thread(loginTask).start();
     }
 
+    // Przekierowuje użytkownika do odpowiedniego panelu
     private void redirectUser(User user) {
         try {
             String fxmlPath = user.getRole().equals("ADMIN")
@@ -123,11 +115,13 @@ public class LoginController {
         }
     }
 
+    // Wyświetla komunikat błędu
     private void showError(String message) {
         errorLabel.setText(message);
         errorLabel.setStyle("-fx-text-fill: #ff4444;");
     }
 
+    // Resetuje formularz logowania
     @FXML
     private void handleRefresh(ActionEvent event) {
         usernameField.clear();

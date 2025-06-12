@@ -13,8 +13,10 @@ import org.hibernate.Session;
 import java.net.URL;
 import java.util.Objects;
 
+// Główna klasa aplikacji
 public class Main extends Application {
 
+    // Inicjalizuje aplikację i wyświetla ekran logowania
     @Override
     public void start(Stage primaryStage) throws Exception {
         // Inicjalizacja Hibernate i danych startowych
@@ -37,6 +39,7 @@ public class Main extends Application {
         primaryStage.show();
     }
 
+    // Inicjalizuje połączenie z Hibernate
     private void initializeHibernate() {
         Session session = HibernateUtil.getSessionFactory().openSession();
         session.beginTransaction();
@@ -48,10 +51,12 @@ public class Main extends Application {
 
     }
 
+    // Punkt wejścia aplikacji
     public static void main(String[] args) {
         launch(args);
     }
 
+    // Zamyka połączenia przy wyjściu z aplikacji
     @Override
     public void stop() {
         HibernateUtil.shutdown();

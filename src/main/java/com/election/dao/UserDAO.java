@@ -1,7 +1,6 @@
 package com.election.dao;
 
 import com.election.exception.DatabaseException;
-import com.election.exception.ValidationException;
 import com.election.model.User;
 import com.election.util.HibernateUtil;
 import org.hibernate.HibernateException;
@@ -11,11 +10,12 @@ import org.hibernate.query.Query;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 
+// DAO dla użytkowników
 public class UserDAO {
 
+    // Pobiera wszystkich użytkowników
     public List<User> getAllUsers() throws DatabaseException {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             return session.createQuery("FROM User", User.class).list();
@@ -24,6 +24,7 @@ public class UserDAO {
         }
     }
 
+    // Pobiera użytkownika po ID
     public User getUserById(Long id) throws DatabaseException {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             return session.get(User.class, id);
@@ -32,6 +33,7 @@ public class UserDAO {
         }
     }
 
+    // Aktualizuje dane użytkownika
     public void updateUser(User user) throws DatabaseException {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
@@ -48,6 +50,7 @@ public class UserDAO {
         }
     }
 
+    // Usuwa użytkownika z bazy
     public void deleteUser(User user) throws DatabaseException {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
@@ -60,6 +63,7 @@ public class UserDAO {
         }
     }
 
+    // Zapisuje nowego użytkownika
     public void saveUser(User user) throws DatabaseException {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
@@ -76,6 +80,7 @@ public class UserDAO {
         }
     }
 
+    // Dodaje użytkownika do pliku SQL (backup)
     private static void appendUserToSql(User user) throws IOException {
         String filePath = "src/main/resources/import_dynamic.sql";
         String insert = String.format(
@@ -92,6 +97,7 @@ public class UserDAO {
         }
     }
 
+    // Wyszukuje użytkownika po loginie
     public User findByUsername(String username) throws DatabaseException {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Query<User> query = session.createQuery(
@@ -104,6 +110,7 @@ public class UserDAO {
         }
     }
 
+    // Wyszukuje użytkownika po numerze PESEL
     public User findByPesel(String pesel) throws DatabaseException {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Query<User> query = session.createQuery(

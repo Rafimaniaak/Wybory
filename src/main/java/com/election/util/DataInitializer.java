@@ -1,17 +1,18 @@
 package com.election.util;
 
-import com.election.model.Candidate;
-import com.election.model.User;
 import org.hibernate.Session;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.sql.Statement;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
+// Inicjalizator danych
 public class DataInitializer {
 
+    // Inicjalizuje bazę danych jeśli jest pusta
     public static void initializeIfEmpty(Session session) {
         boolean shouldImport = isDatabaseEmpty(session);
 
@@ -23,20 +24,23 @@ public class DataInitializer {
         }
     }
 
+    // Sprawdza czy baza jest pusta
     private static boolean isDatabaseEmpty(Session session) {
         List<?> users = session.createQuery("from User").setMaxResults(1).list();
         List<?> candidates = session.createQuery("from Candidate").setMaxResults(1).list();
         return users.isEmpty() && candidates.isEmpty();
     }
 
+    // Wykonuje skrypty SQL
     private static void runImportSQL(Session session) {
         runSqlFile(session, "import.sql");
         runSqlFile(session, "import_dynamic.sql");
     }
 
+    // Wykonuje pojedynczy plik SQL
     private static void runSqlFile(Session session, String fileName) {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(
-                DataInitializer.class.getClassLoader().getResourceAsStream(fileName)))) {
+                Objects.requireNonNull(DataInitializer.class.getClassLoader().getResourceAsStream(fileName))))) {
 
             String sql = reader.lines().collect(Collectors.joining("\n"));
 

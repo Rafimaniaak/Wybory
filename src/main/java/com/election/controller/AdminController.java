@@ -37,11 +37,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Kontroler panelu administracyjnego.
- * Obsługuje zarządzanie użytkownikami, wyświetlanie wyników i narzędzia.
- */
-
+// Kontroler panelu administratora
 public class AdminController {
     private final CandidateDAO candidateDAO = new CandidateDAO();
     private final UserDAO userDAO = new UserDAO();
@@ -83,7 +79,7 @@ public class AdminController {
 
     private final ObservableList<User> masterUserList = FXCollections.observableArrayList();
 
-    // Inicjalizuje komponenty UI i wczytuje początkowe dane.
+    // Konfiguruje interfejs użytkownika i ładuje dane początkowe
     @FXML
     public void initialize() {
         configureUserTable();
@@ -120,6 +116,8 @@ public class AdminController {
             }
         });
     }
+
+    // Czyści formularz użytkownika
     private void clearUserForm() {
         firstNameField.clear();
         lastNameField.clear();
@@ -130,7 +128,7 @@ public class AdminController {
         currentEditUser = null; // Resetuj przy czyszczeniu formularza
     }
 
-    // Obsługuje logikę zarządzania użytkownikami (dodawanie/edycja/usuwanie).
+    // Obsługuje główną logikę zarządzania użytkownikami
     @FXML
     private void handleUserManagement() {
         try {
@@ -144,6 +142,8 @@ public class AdminController {
             userManagementStatus.setText(e.getMessage());
         }
     }
+
+    // Zarządza przepływem edycji użytkownika
     private void handleEditUserFlow() {
         if (actionButton.getText().equals("Wyszukaj")) {
             findUserForEdit();
@@ -152,6 +152,7 @@ public class AdminController {
         }
     }
 
+    // Usuwa użytkownika z systemu
     private void deleteUser() {
         String identifier = identifierField.getText().trim();
         if (identifier.isEmpty()) {
@@ -200,6 +201,7 @@ public class AdminController {
             throw new DatabaseException("Błąd podczas zapisu użytkownika: " + e.getMessage(), e);
         }
     }
+    // Tworzy obiekt użytkownika z danych formularza
     private User createUserFromForm() {
         User newUser = new User();
         newUser.setFirstName(firstNameField.getText().trim());
@@ -212,6 +214,7 @@ public class AdminController {
         return newUser;
     }
 
+    // Wyszukuje użytkownika do edycji
     private void findUserForEdit() {
         String identifier = identifierField.getText().trim();
         currentEditUser = findUserByIdentifier(identifier);
@@ -232,6 +235,7 @@ public class AdminController {
         }
     }
 
+    // Aktualizuje dane użytkownika w systemie
     private void updateUser() throws ValidationException, DatabaseException {
         String identifier = identifierField.getText().trim();
         User user = findUserByIdentifier(identifier);
@@ -253,7 +257,7 @@ public class AdminController {
             throw new DatabaseException("Błąd aktualizacji użytkownika: " + e.getMessage(), e);
         }
     }
-
+    // Aktualizuje właściwości obiektu użytkownika
     private void updateUserData(User user) {
         user.setFirstName(firstNameField.getText().trim());
         user.setLastName(lastNameField.getText().trim());
@@ -267,6 +271,7 @@ public class AdminController {
         user.setRole(roleComboBox.getValue());
     }
 
+    // Waliduje dane w formularzu użytkownika
     private void validateUserForm() throws ValidationException {
         if (fieldsAreEmpty()) {
             throw new ValidationException("Wypełnij wszystkie pola!");
@@ -278,6 +283,7 @@ public class AdminController {
         validateUsername();
     }
 
+    // Sprawdza czy wymagane pola są wypełnione
     private boolean fieldsAreEmpty() {
         return firstNameField.getText().trim().isEmpty() ||
                 lastNameField.getText().trim().isEmpty() ||
@@ -286,6 +292,7 @@ public class AdminController {
                 roleComboBox.getValue() == null;
     }
 
+    // Waliduje numer PESEL
     private void validatePesel() throws ValidationException {
         String pesel = peselField.getText().trim();
         if (!pesel.matches("\\d{11}")) {
@@ -298,22 +305,28 @@ public class AdminController {
         }
     }
 
+    // Waliduje imię/nazwisko
     private void validateName(String name, String fieldName) throws ValidationException {
         if (!name.matches("[\\p{L}\\s\\-]+")) {
             throw new ValidationException(fieldName + " może zawierać tylko litery, spacje i myślniki!");
         }
     }
 
+    // Waliduje nazwę użytkownika
     private void validateUsername() throws ValidationException {
         String username = usernameField.getText().trim();
         if (!username.matches("[a-zA-Z0-9_]+")) {
             throw new ValidationException("Login może zawierać tylko litery, cyfry i podkreślniki!");
         }
     }
+
+    // Odświeża widok tabeli użytkowników
     private void refreshUserTable() {
         masterUserList.setAll(userDAO.getAllUsers());
         usersTable.refresh();
     }
+
+    // Konfiguruje kolumny tabeli użytkowników
     private void configureUserTable() {
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         usernameColumn.setCellValueFactory(new PropertyValueFactory<>("username"));
@@ -323,6 +336,7 @@ public class AdminController {
         peselColumn.setCellValueFactory(new PropertyValueFactory<>("pesel"));
     }
 
+    // Konfiguruje tabelę wyników
     private void configureResultsTable() {
         candidateColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         votesColumn.setCellValueFactory(new PropertyValueFactory<>("votes"));
@@ -336,6 +350,7 @@ public class AdminController {
         });
     }
 
+    // Ładuje początkowe dane do widoków
     private void loadInitialData() {
         masterUserList.setAll(userDAO.getAllUsers());
         usersTable.setItems(masterUserList);
@@ -343,21 +358,25 @@ public class AdminController {
         refreshElectionData();
     }
 
+    // Inicjalizuje kontroler z danymi zalogowanego administratora
     public void initializeWithUser(User adminUser) {
         this.currentAdmin = adminUser;
         logAdminAccess();
     }
 
+    // Loguje czas logowania administratora
     private void logAdminAccess() {
         System.out.println("Administrator " + currentAdmin.getUsername()
                 + " zalogowany o " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
     }
 
+    // Odświeża widok wyników wyborów
     @FXML
     private void refreshResults() {
         refreshElectionData();
     }
 
+    // Pobiera i aktualizuje dane wyborcze
     private void refreshElectionData() {
         statusLabel.setText("Odświeżanie wyników...");
 
@@ -385,6 +404,7 @@ public class AdminController {
         }
     }
 
+    // Aktualizuje skalę osi Y na wykresie
     private void updateYAxisRange(int maxVotes) {
         yAxis.setAutoRanging(false);
         yAxis.setLowerBound(0);
@@ -393,6 +413,7 @@ public class AdminController {
         yAxis.setMinorTickVisible(false);
     }
 
+    // Obsługuje wylogowywanie użytkownika
     @FXML
     private void handleLogout(ActionEvent event) {
         try {
@@ -409,6 +430,7 @@ public class AdminController {
         }
     }
 
+    // Otwiera generator hashów
     @FXML
     private void handleOpenHashGenerator(ActionEvent event) {
         try {
@@ -422,6 +444,7 @@ public class AdminController {
         }
     }
 
+    // Wyświetla alert błędu
     private void showErrorAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
@@ -430,6 +453,7 @@ public class AdminController {
         alert.showAndWait();
     }
 
+    // Wyszukuje użytkownika po identyfikatorze
     private User findUserByIdentifier(String identifier) throws ValidationException {
         if (identifier == null || identifier.isEmpty()) {
             return null;
@@ -453,6 +477,7 @@ public class AdminController {
         }
     }
 
+    // Filtruje użytkowników po numerze PESEL
     @FXML
     private void handlePeselSearch() {
         String pesel = peselSearchField.getText().trim();
@@ -467,12 +492,14 @@ public class AdminController {
         usersTable.setItems(filtered);
     }
 
+    // Resetuje filtr w tabeli użytkowników
     @FXML
     private void handleShowAllUsers() {
         usersTable.setItems(masterUserList);
         peselSearchField.clear();
     }
 
+    // Eksportuje wyniki do pliku CSV
     @FXML
     private void handleExportToCSV() {
         FileChooser fileChooser = new FileChooser();
@@ -498,7 +525,7 @@ public class AdminController {
         }
     }
 
-//    Eksportuje wyniki wyborów do formatu PDF. @throws ExportException w przypadku błędu eksportu
+    // Eksportuje wyniki do pliku PDF
     @FXML
     private void handleExportToPDF() throws ExportException {
         try {
@@ -510,6 +537,7 @@ public class AdminController {
         }
     }
 
+    // Wyświetla okno błędu
     private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Błąd");

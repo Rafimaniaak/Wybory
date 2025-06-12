@@ -9,9 +9,11 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.service.ServiceRegistry;
 
+// Narzędzia Hibernate
 public class HibernateUtil {
     private static final SessionFactory sessionFactory = buildSessionFactory();
 
+    // Buduje fabrykę sesji
     private static SessionFactory buildSessionFactory() {
         try {
             // Wczytaj konfigurację z hibernate.cfg.xml z classpath
@@ -35,10 +37,12 @@ public class HibernateUtil {
         }
     }
 
+    // Zwraca fabrykę sesji
     public static SessionFactory getSessionFactory() {
         return sessionFactory;
     }
 
+    // Zamyka połączenia
     public static void shutdown() {
         if (sessionFactory != null) {
             sessionFactory.close();

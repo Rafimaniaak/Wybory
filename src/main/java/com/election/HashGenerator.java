@@ -13,13 +13,16 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.mindrot.jbcrypt.BCrypt;
 
+// Klasa generująca hash BCrypt
 public class HashGenerator extends Application {
     private Stage parentStage;
 
+    // Ustawia referencję do okna rodzica
     public void setParentStage(Stage parentStage) {
         this.parentStage = parentStage;
     }
 
+    // Inicjalizuje i wyświetla interfejs generatora hashów
     @Override
     public void start(Stage stage) {
         VBox root = new VBox(20);
@@ -79,6 +82,7 @@ public class HashGenerator extends Application {
         stage.show();
     }
 
+    // Punkt wejścia dla generatora hashów
     public static void main(String[] args) {
         launch(args);
     }

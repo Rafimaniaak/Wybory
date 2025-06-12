@@ -10,8 +10,10 @@ import org.hibernate.Transaction;
 
 import java.util.List;
 
+// Serwis wyborczy
 public class ElectionService {
 
+    // Pobiera aktualne wyniki wyborów
     public List<CandidateResult> getCurrentResults() {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             String hql = "SELECT new com.election.model.CandidateResult(c.id, c.name, c.party, c.votes) FROM Candidate c";
@@ -19,12 +21,14 @@ public class ElectionService {
         }
     }
 
+    // Pobiera wszystkich kandydatów
     public List<Candidate> getAllCandidates() {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             return session.createQuery("FROM Candidate", Candidate.class).getResultList();
         }
     }
 
+    // Rejestruje głos na kandydata
     public void registerVote(Candidate candidate) throws VotingException {
         Session session = HibernateUtil.getSessionFactory().openSession();
         Transaction transaction = null;
