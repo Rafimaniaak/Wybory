@@ -6,10 +6,12 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import org.hibernate.Session;
 
 import java.net.URL;
+import java.util.Objects;
 
 public class Main extends Application {
 
@@ -17,6 +19,9 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
         // Inicjalizacja Hibernate i danych startowych
         initializeHibernate();
+
+        Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/app_icon.png")));
+        primaryStage.getIcons().add(icon);
 
         // Załaduj GUI (login.fxml)
         URL url = getClass().getResource("/com/election/view/login.fxml");
