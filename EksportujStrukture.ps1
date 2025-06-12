@@ -7,10 +7,10 @@ function Test-IsTextFile {
     param([string]$Path)
     
     $textExtensions = @(
-        '.txt', '.csv', '.ini', '.log','.json', '.js', '.css', '.html', '.htm',
-         '.bat', '.java', '.py', '.c', '.cpp', '.h', '.cs', '.md',
-        '.yml', '.yaml', '.properties','.php', '.asp', '.aspx', '.jsp', '.sh', '.fxml'
-        #,'.sql','.ps1', '.xml'
+         '.ini', '.log','.json', '.js', '.css', '.html', '.htm',
+         '.bat', '.java', '.py', '.c', '.cpp', '.h', '.cs',
+        '.yml', '.yaml', '.php', '.asp', '.aspx', '.jsp', '.sh', '.fxml'
+        #,'.sql','.ps1', '.xml', '.properties', '.md', '.txt', '.csv'
     )
     
     $extension = [System.IO.Path]::GetExtension($Path).ToLower()

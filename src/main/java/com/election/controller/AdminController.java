@@ -17,7 +17,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.chart.BarChart;
-import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
@@ -37,6 +36,11 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+
+/**
+ * Kontroler panelu administracyjnego.
+ * Obsługuje zarządzanie użytkownikami, wyświetlanie wyników i narzędzia.
+ */
 
 public class AdminController {
     private final CandidateDAO candidateDAO = new CandidateDAO();
@@ -66,7 +70,6 @@ public class AdminController {
     @FXML private TableColumn<CandidateResult, Number> votesColumn;
 
     @FXML private BarChart<String, Number> resultsChart;
-    @FXML private CategoryAxis xAxis;
     @FXML private NumberAxis yAxis;
 
     @FXML private Label statusLabel;
@@ -80,6 +83,7 @@ public class AdminController {
 
     private final ObservableList<User> masterUserList = FXCollections.observableArrayList();
 
+    // Inicjalizuje komponenty UI i wczytuje początkowe dane.
     @FXML
     public void initialize() {
         configureUserTable();
@@ -126,6 +130,7 @@ public class AdminController {
         currentEditUser = null; // Resetuj przy czyszczeniu formularza
     }
 
+    // Obsługuje logikę zarządzania użytkownikami (dodawanie/edycja/usuwanie).
     @FXML
     private void handleUserManagement() {
         try {
@@ -349,7 +354,7 @@ public class AdminController {
     }
 
     @FXML
-    private void refreshResults(ActionEvent event) {
+    private void refreshResults() {
         refreshElectionData();
     }
 
@@ -493,6 +498,7 @@ public class AdminController {
         }
     }
 
+//    Eksportuje wyniki wyborów do formatu PDF. @throws ExportException w przypadku błędu eksportu
     @FXML
     private void handleExportToPDF() throws ExportException {
         try {
