@@ -190,5 +190,43 @@
                 <Label fx:id="userManagementStatus" styleClass="status-label" />
             </VBox>
         </Tab>
+        <!-- Zakładka Kandydaci -->
+        <Tab text="Kandydaci">
+            <VBox styleClass="vbox-padding" spacing="10">
+                <Label styleClass="panel-title" text="Zarządzanie kandydatami" />
+
+                <!-- Tabela kandydatów -->
+                <TableView fx:id="candidatesTable">
+                    <columns>
+                        <TableColumn fx:id="candidateIdColumn" prefWidth="50" text="ID" />
+                        <TableColumn fx:id="candidateNameColumn" prefWidth="200" text="Imię i nazwisko" />
+                        <TableColumn fx:id="candidatePartyColumn" prefWidth="150" text="Partia" />
+                        <TableColumn fx:id="candidateVotesColumn" prefWidth="100" text="Głosy" />
+                    </columns>
+                </TableView>
+
+                <!-- Formularz -->
+                <GridPane hgap="10" vgap="10">
+                    <Label styleClass="form-label" text="Imię i nazwisko:*" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <TextField fx:id="candidateNameField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                    <Label styleClass="form-hint" text="Wymagane" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+
+                    <Label styleClass="form-label" text="Partia:*" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                    <TextField fx:id="candidatePartyField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                    <Label styleClass="form-hint" text="Wymagane" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                </GridPane>
+
+                <!-- Przyciski akcji -->
+                <HBox spacing="10">
+                    <Button text="Dodaj" onAction="#handleAddCandidate" />
+                    <Button text="Edytuj" onAction="#handleUpdateCandidate" />
+                    <Button text="Usuń" onAction="#handleDeleteCandidate" />
+                    <Button text="Odśwież" onAction="#handleRefreshCandidates" />
+                    <Button text="Wyczyść formularz" onAction="#handleClearCandidateForm" />
+                </HBox>
+
+                <Label fx:id="candidateStatusLabel" styleClass="status-label" />
+            </VBox>
+        </Tab>
     </TabPane>
 </StackPane>

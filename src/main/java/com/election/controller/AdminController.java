@@ -5,6 +5,7 @@ import com.election.dao.CandidateDAO;
 import com.election.dao.UserDAO;
 import com.election.exception.DatabaseException;
 import com.election.exception.ValidationException;
+import com.election.model.Candidate;
 import com.election.model.CandidateResult;
 import com.election.model.User;
 import com.election.service.ElectionService;
@@ -93,6 +94,17 @@ public class AdminController {
     @FXML private RadioButton peselRadioButton;
     @FXML private TextField idField;
 
+    @FXML private TableView<Candidate> candidatesTable;
+    @FXML private TableColumn<Candidate, Long> candidateIdColumn;
+    @FXML private TableColumn<Candidate, String> candidateNameColumn;
+    @FXML private TableColumn<Candidate, String> candidatePartyColumn;
+    @FXML private TableColumn<Candidate, Integer> candidateVotesColumn;
+    @FXML private TextField candidateNameField;
+    @FXML private TextField candidatePartyField;
+    @FXML private Label candidateStatusLabel;
+
+    private final ObservableList<Candidate> candidatesList = FXCollections.observableArrayList();
+
     private final ObservableList<User> masterUserList = FXCollections.observableArrayList();
 
     // Konfiguruje interfejs użytkownika i ładuje dane początkowe
@@ -101,6 +113,8 @@ public class AdminController {
         configureUserTable();
         configureResultsTable();
         //loadInitialData();
+        configureCandidatesTable();
+        refreshCandidatesTable();
 
         // Inicjalizacja ComboBox z rolami
         roleComboBox.setItems(FXCollections.observableArrayList("USER", "ADMIN"));
@@ -112,6 +126,7 @@ public class AdminController {
         idRadioButton.setToggleGroup(searchGroup);
         peselRadioButton.setToggleGroup(searchGroup);
         idRadioButton.setSelected(true);
+
         // Listener dla ComboBox akcji
         actionComboBox.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
             handleRefreshForm();
@@ -145,6 +160,20 @@ public class AdminController {
         List<User> users = userDAO.getAllUsers();
         masterUserList.setAll(users);
         usersTable.refresh();
+    }
+    private void configureCandidatesTable() {
+        candidateIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        candidateNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+        candidatePartyColumn.setCellValueFactory(new PropertyValueFactory<>("party"));
+        candidateVotesColumn.setCellValueFactory(new PropertyValueFactory<>("votes"));
+
+        candidatesTable.getSelectionModel().selectedItemProperty().addListener(
+                (obs, oldSelection, newSelection) -> {
+                    if (newSelection != null) {
+                        candidateNameField.setText(newSelection.getName());
+                        candidatePartyField.setText(newSelection.getParty());
+                    }
+                });
     }
 
     @FXML
@@ -733,4 +762,112 @@ public class AdminController {
         alert.setContentText(message);
         alert.showAndWait();
     }
+    // Metody obsługi akcji
+    // Nowe metody dla kandydatów
+    @FXML
+    private void handleAddCandidate() {
+        try {
+            validateCandidateForm();
+
+            Candidate candidate = new Candidate();
+            candidate.setName(candidateNameField.getText().trim());
+            candidate.setParty(candidatePartyField.getText().trim());
+            candidate.setVotes(0);
+
+            candidateDAO.addCandidate(candidate);
+            refreshCandidatesTable();
+            candidateStatusLabel.setText("Kandydat dodany pomyślnie!");
+            clearCandidateForm();
+        } catch (ValidationException | DatabaseException e) {
+            candidateStatusLabel.setText(e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleUpdateCandidate() {
+        Candidate selected = candidatesTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            candidateStatusLabel.setText("Wybierz kandydata do edycji");
+            return;
+        }
+
+        try {
+            validateCandidateForm();
+
+            selected.setName(candidateNameField.getText().trim());
+            selected.setParty(candidatePartyField.getText().trim());
+
+            candidateDAO.updateCandidate(selected);
+            refreshCandidatesTable();
+            candidateStatusLabel.setText("Zaktualizowano kandydata!");
+            clearCandidateForm();
+        } catch (ValidationException | DatabaseException e) {
+            candidateStatusLabel.setText(e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleDeleteCandidate() {
+        Candidate selected = candidatesTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            candidateStatusLabel.setText("Wybierz kandydata do usunięcia");
+            return;
+        }
+
+        if (selected.getVotes() > 0) {
+            candidateStatusLabel.setText("Nie można usunąć kandydata z głosami!");
+            return;
+        }
+
+        try {
+            candidateDAO.deleteCandidate(selected.getId());
+            refreshCandidatesTable();
+            candidateStatusLabel.setText("Usunięto kandydata");
+            clearCandidateForm();
+        } catch (DatabaseException e) {
+            candidateStatusLabel.setText("Błąd: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleRefreshCandidates() {
+        refreshCandidatesTable();
+    }
+
+    @FXML
+    private void handleClearCandidateForm() {
+        clearCandidateForm();
+        candidateStatusLabel.setText("");
+    }
+
+    // Walidacja formularza kandydata
+    private void validateCandidateForm() throws ValidationException {
+        String name = candidateNameField.getText().trim();
+        String party = candidatePartyField.getText().trim();
+
+        if (name.isEmpty()) {
+            throw new ValidationException("Imię i nazwisko kandydata nie może być puste!");
+        }
+
+        if (party.isEmpty()) {
+            throw new ValidationException("Nazwa partii nie może być pusta!");
+        }
+
+        if (!name.matches("[\\p{L}\\s\\-]+")) {
+            throw new ValidationException("Imię i nazwisko może zawierać tylko litery, spacje i myślniki!");
+        }
+    }
+
+    // Metody pomocnicze
+    private void refreshCandidatesTable() {
+        candidatesList.setAll(candidateDAO.getAllCandidates());
+        candidatesTable.setItems(candidatesList);
+    }
+
+    private void clearCandidateForm() {
+        candidateNameField.clear();
+        candidatePartyField.clear();
+        candidatesTable.getSelectionModel().clearSelection();
+    }
+
 }
