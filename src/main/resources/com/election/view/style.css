@@ -194,3 +194,70 @@
     -fx-font-size: 11px;
     -fx-font-style: italic;
 }
+.results-chart .axis {
+    -fx-tick-label-fill: white;
+    -fx-tick-label-font-size: 10px;
+}
+
+.results-chart .chart-horizontal-grid-lines {
+    -fx-stroke: #95a5a6;
+    -fx-stroke-width: 0.5;
+}
+
+.results-chart .chart-vertical-grid-lines {
+    -fx-stroke: #95a5a6;
+    -fx-stroke-width: 0.5;
+}
+.chart-bar {
+    -fx-bar-fill: #3498db;
+    -fx-bar-padding: 3px;
+}
+/* Styl osi X dla poziomego tekstu */
+.axis:bottom {
+    -fx-tick-label-rotation: 0;
+}
+.chart-axis-label {
+    -fx-font-size: 16px;
+    -fx-wrap-text: true;
+}
+.axis-label {
+    -fx-font-size: 16px;
+}
+.axis-tick-label {
+    -fx-text-alignment: center;
+    -fx-alignment: center;
+    -fx-wrap-text: true;
+    -fx-padding: 2px;
+}
+.axis-tick-mark {
+    -fx-visible: false;
+}
+.chart-content {
+    -fx-padding: 10px 25px 30px 25px; /* Górna, prawa, dolna, lewa */
+}
+.chart-plot-background {
+    -fx-background-color: transparent;
+}
+.radio-button {
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+}
+
+.radio-button .radio {
+    -fx-background-color: #ecf0f1;
+    -fx-border-color: #bdc3c7;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+}
+
+.radio-button:selected .radio {
+    -fx-background-color: #3498db;
+}
+
+.radio-button .dot {
+    -fx-background-color: #3498db;
+}
+.axis:bottom .axis-tick-label {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}

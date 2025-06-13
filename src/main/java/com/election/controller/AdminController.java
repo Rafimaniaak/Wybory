@@ -9,19 +9,26 @@ import com.election.model.CandidateResult;
 import com.election.model.User;
 import com.election.service.ElectionService;
 import com.election.service.ExportServicePDF;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.mindrot.jbcrypt.BCrypt;
@@ -35,6 +42,7 @@ import java.rmi.server.ExportException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 // Kontroler panelu administratora
@@ -43,6 +51,8 @@ public class AdminController {
     private final UserDAO userDAO = new UserDAO();
     private final ElectionService electionService = new ElectionService();
     private final ObservableList<CandidateResult> candidatesData = FXCollections.observableArrayList();
+    public CategoryAxis xAxis;
+    public Button refreshButton;
     private User currentAdmin;
     private User currentEditUser;
 
@@ -64,18 +74,24 @@ public class AdminController {
     @FXML private TableView<CandidateResult> resultsTable;
     @FXML private TableColumn<CandidateResult, String> candidateColumn;
     @FXML private TableColumn<CandidateResult, Number> votesColumn;
+    @FXML private TextField peselSearchField;
 
     @FXML private BarChart<String, Number> resultsChart;
     @FXML private NumberAxis yAxis;
 
     @FXML private Label statusLabel;
-    @FXML private TextField peselSearchField;
+    //@FXML private TextField peselSearchField;
+    @FXML private TextField peselIdentifierField;
 
     // Pola dla uniwersalnego zarządzania użytkownikami
     @FXML private ComboBox<String> actionComboBox;
     @FXML private TextField identifierField;
     @FXML private Button actionButton;
     @FXML private Label userManagementStatus;
+
+    @FXML private RadioButton idRadioButton;
+    @FXML private RadioButton peselRadioButton;
+    @FXML private TextField idField;
 
     private final ObservableList<User> masterUserList = FXCollections.observableArrayList();
 
@@ -84,13 +100,21 @@ public class AdminController {
     public void initialize() {
         configureUserTable();
         configureResultsTable();
-        loadInitialData();
+        //loadInitialData();
 
         // Inicjalizacja ComboBox z rolami
         roleComboBox.setItems(FXCollections.observableArrayList("USER", "ADMIN"));
-
+        roleComboBox.setValue("USER");
+        // Ustawienie odstępu między słupkami wykresu
+        resultsChart.setBarGap(5);
+        // Grupa dla przycisków radiowych
+        ToggleGroup searchGroup = new ToggleGroup();
+        idRadioButton.setToggleGroup(searchGroup);
+        peselRadioButton.setToggleGroup(searchGroup);
+        idRadioButton.setSelected(true);
         // Listener dla ComboBox akcji
         actionComboBox.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            handleRefreshForm();
             if (newVal == null) return;
 
             switch (newVal) {
@@ -117,6 +141,19 @@ public class AdminController {
         });
     }
 
+    public void refreshUserTab() {
+        List<User> users = userDAO.getAllUsers();
+        masterUserList.setAll(users);
+        usersTable.refresh();
+    }
+
+    @FXML
+    public void handleUserTabSelected(Event event) {
+        if (((Tab) event.getSource()).isSelected()) {
+            refreshUserTable();
+        }
+    }
+
     // Czyści formularz użytkownika
     private void clearUserForm() {
         firstNameField.clear();
@@ -124,7 +161,7 @@ public class AdminController {
         peselField.clear();
         usernameField.clear();
         passwordField.clear();
-        roleComboBox.getSelectionModel().clearSelection();
+        //roleComboBox.getSelectionModel().clearSelection();
         currentEditUser = null; // Resetuj przy czyszczeniu formularza
     }
 
@@ -154,11 +191,7 @@ public class AdminController {
 
     // Usuwa użytkownika z systemu
     private void deleteUser() {
-        String identifier = identifierField.getText().trim();
-        if (identifier.isEmpty()) {
-            userManagementStatus.setText("Wprowadź ID lub PESEL!");
-            return;
-        }
+        String identifier = getIdentifier();
 
         try {
             User user = findUserByIdentifier(identifier);
@@ -166,11 +199,26 @@ public class AdminController {
                 throw new DatabaseException("Nie znaleziono użytkownika!", null);
             }
 
+            // Sprawdź, czy użytkownik jest administratorem
+            if ("ADMIN".equals(user.getRole())) {
+                // Pobierz wszystkich administratorów
+                List<User> admins = userDAO.getAllUsers().stream()
+                        .filter(u -> "ADMIN".equals(u.getRole()))
+                        .toList();
+
+                // Blokuj usuwanie, jeśli jest tylko jeden admin
+                if (admins.size() <= 1) {
+                    userManagementStatus.setText("Nie można usunąć ostatniego administratora!");
+                    return;
+                }
+            }
+
             if (confirmDeletion(user)) {
                 userDAO.deleteUser(user);
                 masterUserList.remove(user);
                 refreshUserTable();
                 userManagementStatus.setText("Użytkownik usunięty pomyślnie!");
+                handleRefreshForm();
             } else {
                 userManagementStatus.setText("Anulowano usuwanie.");
             }
@@ -197,6 +245,7 @@ public class AdminController {
             refreshUserTable();
             userManagementStatus.setText("Użytkownik dodany pomyślnie!");
             clearUserForm();
+            handleRefreshForm();
         } catch (Exception e) {
             throw new DatabaseException("Błąd podczas zapisu użytkownika: " + e.getMessage(), e);
         }
@@ -214,9 +263,19 @@ public class AdminController {
         return newUser;
     }
 
+    // Nowa metoda do pobierania identyfikatora
+    private String getIdentifier() {
+        if (idRadioButton.isSelected()) {
+            return idField.getText().trim();
+        } else {
+            return peselIdentifierField.getText().trim();
+        }
+    }
+
     // Wyszukuje użytkownika do edycji
     private void findUserForEdit() {
-        String identifier = identifierField.getText().trim();
+        String identifier = getIdentifier();
+
         currentEditUser = findUserByIdentifier(identifier);
 
         if (currentEditUser != null) {
@@ -240,8 +299,15 @@ public class AdminController {
         String identifier = identifierField.getText().trim();
         User user = findUserByIdentifier(identifier);
 
-        if (user == null) {
-            throw new DatabaseException("Nie znaleziono użytkownika!", null);
+        // Sprawdź, czy zmieniamy rolę ostatniego admina
+        if ("ADMIN".equals(user.getRole()) && "USER".equals(roleComboBox.getValue())) {
+            List<User> admins = userDAO.getAllUsers().stream()
+                    .filter(u -> "ADMIN".equals(u.getRole()))
+                    .toList();
+
+            if (admins.size() <= 1) {
+                throw new ValidationException("Nie można zmienić roli ostatniego administratora!");
+            }
         }
 
         validateUserForm();
@@ -253,6 +319,7 @@ public class AdminController {
             userManagementStatus.setText("Dane użytkownika zaktualizowane!");
             actionButton.setText("Wyszukaj");
             clearUserForm();
+            handleRefreshForm();
         } catch (Exception e) {
             throw new DatabaseException("Błąd aktualizacji użytkownika: " + e.getMessage(), e);
         }
@@ -276,20 +343,36 @@ public class AdminController {
         if (fieldsAreEmpty()) {
             throw new ValidationException("Wypełnij wszystkie pola!");
         }
-
         validatePesel();
         validateName(firstNameField.getText().trim(), "Imię");
         validateName(lastNameField.getText().trim(), "Nazwisko");
         validateUsername();
+        // Walidacja hasła dla nowego użytkownika
+        if (actionComboBox.getValue().equals("Dodaj użytkownika")) {
+            if (passwordField.getText().trim().isEmpty()) {
+                throw new ValidationException("Hasło nie może być puste!");
+            }
+        }
+        // Walidacja dla edycji i usuwania
+        if (actionComboBox.getValue().equals("Edytuj użytkownika")
+                || actionComboBox.getValue().equals("Usuń użytkownika")) {
+            if (!idRadioButton.isSelected() && !peselRadioButton.isSelected()) {
+                throw new ValidationException("Wybierz metodę identyfikacji użytkownika!");
+            }
+        }
     }
 
-    // Sprawdza czy wymagane pola są wypełnione
+    // Sprawdza, czy wymagane pola są wypełnione
     private boolean fieldsAreEmpty() {
-        return firstNameField.getText().trim().isEmpty() ||
+        boolean basicFieldsEmpty = firstNameField.getText().trim().isEmpty() ||
                 lastNameField.getText().trim().isEmpty() ||
                 peselField.getText().trim().isEmpty() ||
                 usernameField.getText().trim().isEmpty() ||
                 roleComboBox.getValue() == null;
+
+        return basicFieldsEmpty ||
+                (actionComboBox.getValue().equals("Dodaj użytkownika") &&
+                        passwordField.getText().trim().isEmpty());
     }
 
     // Waliduje numer PESEL
@@ -322,8 +405,13 @@ public class AdminController {
 
     // Odświeża widok tabeli użytkowników
     private void refreshUserTable() {
-        masterUserList.setAll(userDAO.getAllUsers());
-        usersTable.refresh();
+        try {
+            List<User> users = userDAO.getAllUsers();
+            masterUserList.setAll(users);
+            usersTable.refresh();
+        } catch (DatabaseException e) {
+            userManagementStatus.setText("Błąd ładowania danych: " + e.getMessage());
+        }
     }
 
     // Konfiguruje kolumny tabeli użytkowników
@@ -334,11 +422,16 @@ public class AdminController {
         firstNameColumn.setCellValueFactory(new PropertyValueFactory<>("firstName"));
         lastNameColumn.setCellValueFactory(new PropertyValueFactory<>("lastName"));
         peselColumn.setCellValueFactory(new PropertyValueFactory<>("pesel"));
+
+        // Ustawienie źródła danych
+        usersTable.setItems(masterUserList);
     }
 
+    @FXML private TableColumn<CandidateResult, String> partyColumn;
     // Konfiguruje tabelę wyników
     private void configureResultsTable() {
         candidateColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+        partyColumn.setCellValueFactory(new PropertyValueFactory<>("party"));
         votesColumn.setCellValueFactory(new PropertyValueFactory<>("votes"));
 
         votesColumn.setCellFactory(tc -> new TableCell<>() {
@@ -362,6 +455,11 @@ public class AdminController {
     public void initializeWithUser(User adminUser) {
         this.currentAdmin = adminUser;
         logAdminAccess();
+
+        Platform.runLater(() -> {
+            refreshUserTable();  // Odśwież dane użytkowników
+            refreshElectionData();  // Odśwież wyniki wyborów
+        });
     }
 
     // Loguje czas logowania administratora
@@ -385,22 +483,79 @@ public class AdminController {
             candidatesData.setAll(results);
             resultsTable.setItems(candidatesData);
 
+            // Usuń stare dane i zresetuj wykres
             resultsChart.getData().clear();
+            resultsChart.setAnimated(false); // Wyłącz animacje dla stabilności
+            resultsChart.layout(); // Wymuś przeliczenie układu
+
             XYChart.Series<String, Number> series = new XYChart.Series<>();
             int maxVotes = 0;
 
             for (CandidateResult result : results) {
                 int votes = result.getVotes();
-                series.getData().add(new XYChart.Data<>(result.getName(), votes));
+                String party = result.getParty();
+                if (party != null && party.length() > 15) {
+                    party = party.substring(0, 12) + "...";
+                }
+                String candidateLabel = result.getName() + "\n(" + (party != null ? party : "brak") + ")";
+                XYChart.Data<String, Number> data = new XYChart.Data<>(candidateLabel, votes);
+                series.getData().add(data);
                 if (votes > maxVotes) maxVotes = votes;
             }
+
             resultsChart.getData().add(series);
             updateYAxisRange(maxVotes);
+
+            // Ustawienia osi
+            xAxis.setTickLabelRotation(0);
+            xAxis.setTickLabelFont(Font.font("System", 8));
+            resultsChart.setBarGap(10);
+
+            // Nowe: bezpośrednie ustawienie etykiet
+            Platform.runLater(() -> {
+                // Wymuś natychmiastowe przeliczenie układu
+
+                resultsChart.applyCss();
+                resultsChart.layout();
+
+                // Popraw pozycjonowanie etykiet
+                fixLabelPositions();
+            });
 
             statusLabel.setText("Wyniki zaktualizowane: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
         } catch (Exception e) {
             statusLabel.setText("Błąd podczas aktualizacji!");
             throw new DatabaseException("Błąd odświeżania wyników", e);
+        }
+    }
+
+    // Nowa metoda do poprawiania pozycji etykiet
+    private void fixLabelPositions() {
+        for (int i = 0; i < resultsChart.getData().size(); i++) {
+            XYChart.Series<String, Number> series = resultsChart.getData().get(i);
+            for (int j = 0; j < series.getData().size(); j++) {
+                XYChart.Data<String, Number> data = series.getData().get(j);
+                Node node = data.getNode();
+                if (node != null) {
+                    // Popraw pozycjonowanie słupka
+                    node.relocate(node.getLayoutX() - 5, node.getLayoutY());
+                }
+
+                // Popraw etykiety na osi
+                if (j < xAxis.getCategories().size()) {
+                    String category = xAxis.getCategories().get(j);
+                    for (Node axisNode : xAxis.getChildrenUnmodifiable()) {
+                        if (axisNode instanceof Text) {
+                            Text text = (Text) axisNode;
+                            if (category.equals(text.getText())) {
+                                text.setTextAlignment(TextAlignment.CENTER);
+                                text.setWrappingWidth(80);
+                                text.setLayoutY(text.getLayoutY() - 5); // Delikatne podniesienie
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -424,6 +579,8 @@ public class AdminController {
             Stage loginStage = new Stage();
             loginStage.setScene(new Scene(loader.load()));
             loginStage.setTitle("Logowanie");
+            Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/app_icon.png")));
+            loginStage.getIcons().add(icon);
             loginStage.show();
         } catch (IOException e) {
             showErrorAlert("Błąd logowania", e.getMessage());
@@ -460,18 +617,18 @@ public class AdminController {
         }
 
         try {
-            if (identifier.matches("\\d{11}")) {
+            if (peselRadioButton.isSelected()) {
                 return userDAO.findByPesel(identifier);
-            } else if (identifier.matches("\\d+")) {
+            } else if (idRadioButton.isSelected()) {
                 Long id = Long.parseLong(identifier);
                 return userDAO.getUserById(id);
             } else {
-                throw new ValidationException("Nieprawidłowy format identyfikatora. Podaj PESEL (11 cyfr) lub ID (liczba).");
+                throw new ValidationException("Wybierz metodę wyszukiwania!");
             }
         } catch (NumberFormatException e) {
             throw new ValidationException("Nieprawidłowy format ID: " + identifier);
         } catch (DatabaseException e) {
-            throw e; // Przekazujemy dalej
+            throw e;
         } catch (Exception e) {
             throw new DatabaseException("Błąd podczas wyszukiwania użytkownika", e);
         }
@@ -481,17 +638,36 @@ public class AdminController {
     @FXML
     private void handlePeselSearch() {
         String pesel = peselSearchField.getText().trim();
+
+        // Pobierz aktualną listę użytkowników z bazy danych
+        List<User> currentUsers = userDAO.getAllUsers();
+        ObservableList<User> currentList = FXCollections.observableArrayList(currentUsers);
+
         if (pesel.isEmpty()) {
-            usersTable.setItems(masterUserList);
+            usersTable.setItems(currentList);
             return;
         }
 
-        ObservableList<User> filtered = masterUserList.filtered(user ->
+        // Filtruj na aktualnej liście
+        ObservableList<User> filtered = currentList.filtered(user ->
                 user.getPesel() != null && user.getPesel().contains(pesel)
         );
+
         usersTable.setItems(filtered);
     }
 
+
+    @FXML
+    private void handleRefreshForm() {
+        clearUserForm();
+        clearIdentifierFields();
+        actionButton.setText("Wyszukaj");
+        userManagementStatus.setText("");
+    }
+    private void clearIdentifierFields() {
+        idField.clear();
+        peselIdentifierField.clear(); // To pole w sekcji identyfikatora
+    }
     // Resetuje filtr w tabeli użytkowników
     @FXML
     private void handleShowAllUsers() {

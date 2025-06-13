@@ -21,3 +21,12 @@ INSERT INTO USERS (id, username, password, role, has_voted) VALUES (54, 'user50'
 INSERT INTO USERS (id, username, password, role, has_voted) VALUES (61, '12345', '$2a$10$BsibPmYAZnJpM77qhBUpRuUuRQr6mmqe.oyYbCzYPb714J6WGA1o.', 'USER', false);
 INSERT INTO USERS (id, username, password, role, has_voted) VALUES (62, 'rafal123', '$2a$10$M0/5dT5NujYq.hebCp7mJu2cLn4rdHy3cUhjN5Ax5WqRqkgy0hHDe', 'USER', false);
 INSERT INTO USERS (id, username, password, role, has_voted) VALUES (1, 'admin', '$2a$10$dj9eHfuT2oAOd4H0LabcZexzBX7MS7/NgfhabawxQpXd57ZAr3nEq', 'ADMIN', false);
+INSERT INTO USERS (id, username, password, role, has_voted) VALUES (63, 'abc', '$2a$10$MosHxHC6TJ9hDD0AtLhA.eJjNOCQB/VILVmtZPhdG7UgS4jZoJfH2', 'USER', false);
+INSERT INTO USERS (id, username, password, role, has_voted) VALUES (64, 'acb123', '$2a$10$abnlPhBgEOewaCKF51YmGeldCZORCpuw9JTWfoEF7.FttLSK7njwC', 'USER', false);
+INSERT INTO USERS (id, username, password, role, has_voted) VALUES (65, 'abc2', '$2a$10$LWY10FGCGfm0KIEbPUZC0.eeS8UKwJFmGF9f23T2u5o/R10rVI..C', 'USER', false);
+INSERT INTO USERS (id, username, password, role, has_voted) VALUES (5, 'user3', '$2a$10$LN4./y9hOIu.DXEhHgYeye0290.ZeRJJUUojUFyfVaiKFLjAq3FOW', 'USER', true);
+INSERT INTO USERS (id, username, password, role, has_voted) VALUES (5, 'user3', '$2a$10$LN4./y9hOIu.DXEhHgYeye0290.ZeRJJUUojUFyfVaiKFLjAq3FOW', 'USER', true);
+INSERT INTO USERS (id, username, password, role, has_voted) VALUES (66, 'admin', '$2a$10$eP87JkbWt/UpVOl6mqinDeJRYXxN1Hs1LOohNljTY6dospwz3YS1.', 'ADMIN', false);
+INSERT INTO USERS (id, username, password, role, has_voted) VALUES (67, 'abc123', '$2a$10$Z/cY9fkMXORVNF8ke.vFzedl9b38UYegHUcDDVH.4R1TWefYXoIYq', 'ADMIN', false);
+INSERT INTO USERS (id, username, password, role, has_voted) VALUES (68, 'abc123', '$2a$10$JN.mxeeJEbm62MOLlbaN3u5wj2YgYKAMOJN69gO6Qzb/ACUi8sWyG', 'ADMIN', false);
+INSERT INTO USERS (id, username, password, role, has_voted) VALUES (66, 'admin', '$2a$10$eP87JkbWt/UpVOl6mqinDeJRYXxN1Hs1LOohNljTY6dospwz3YS1.', 'ADMIN', false);

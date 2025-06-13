@@ -20,7 +20,7 @@
     <TabPane prefHeight="600" prefWidth="800" tabClosingPolicy="UNAVAILABLE">
 
         <!-- Użytkownicy -->
-        <Tab text="Użytkownicy">
+        <Tab text="Użytkownicy" onSelectionChanged="#handleUserTabSelected">
             <VBox spacing="10" styleClass="vbox-padding">
                 <HBox spacing="10" alignment="CENTER_LEFT">
                     <Label styleClass="panel-title" text="Panel administratora" />
@@ -48,14 +48,19 @@
             <VBox spacing="10" styleClass="vbox-padding">
                 <Label styleClass="panel-title" text="Aktualne wyniki wyborów" />
                 <HBox spacing="20">
-                    <TableView fx:id="resultsTable" prefWidth="450">
+                    <TableView fx:id="resultsTable" prefWidth="500">
                         <columns>
-                            <TableColumn fx:id="candidateColumn" prefWidth="200" text="Kandydat">
+                            <TableColumn fx:id="candidateColumn" prefWidth="175" text="Kandydat">
                                 <cellValueFactory>
                                     <PropertyValueFactory property="name" />
                                 </cellValueFactory>
                             </TableColumn>
-                            <TableColumn fx:id="votesColumn" prefWidth="150" text="Liczba głosów">
+                            <TableColumn fx:id="partyColumn" prefWidth="100" text="Partia">
+                                <cellValueFactory>
+                                    <PropertyValueFactory property="party" />
+                                </cellValueFactory>
+                            </TableColumn>
+                            <TableColumn fx:id="votesColumn" prefWidth="100" text="Liczba głosów">
                                 <cellValueFactory>
                                     <PropertyValueFactory property="votes" />
                                 </cellValueFactory>
@@ -64,12 +69,14 @@
                     </TableView>
 
                     <BarChart fx:id="resultsChart" styleClass="results-chart"
-                              prefWidth="300"
-                              prefHeight="250"
                               legendVisible="false"
-                              title="Głosy wg kandydata">
+                              title="Głosy wg kandydata"
+                              minWidth="350"
+                              maxWidth="350"
+                              minHeight="400"
+                              maxHeight="450">
                         <xAxis>
-                            <CategoryAxis fx:id="xAxis" label="Kandydat" />
+                            <CategoryAxis fx:id="xAxis" label="Kandydat" side="BOTTOM" />
                         </xAxis>
                         <yAxis>
                             <NumberAxis fx:id="yAxis" label="Liczba głosów" />
@@ -125,24 +132,26 @@
                 <GridPane fx:id="userFormGrid" hgap="10" vgap="10" visible="false">
                     <Label styleClass="form-label" text="Imię:*" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                     <TextField fx:id="firstNameField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-                    <Label styleClass="form-hint" text="(tylko litery)" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                    <Label styleClass="form-hint" text="Tylko litery małe (a-z) oraz litery duże (A-Z)" GridPane.columnIndex="2" GridPane.rowIndex="0" />
 
                     <Label styleClass="form-label" text="Nazwisko:*" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                     <TextField fx:id="lastNameField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                    <Label styleClass="form-hint" text="(tylko litery)" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                    <Label styleClass="form-hint" text="Tylko litery małe (a-z) oraz litery duże (A-Z)" GridPane.columnIndex="2" GridPane.rowIndex="1" />
 
-                    <Label styleClass="form-label" text="PESEL:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                    <Label styleClass="form-label" text="PESEL:*" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                     <TextField fx:id="peselField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                    <Label styleClass="form-hint" text="11 cyfr" GridPane.columnIndex="2" GridPane.rowIndex="2" />
 
                     <Label styleClass="form-label" text="Login:*" GridPane.columnIndex="0" GridPane.rowIndex="3" />
                     <TextField fx:id="usernameField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                    <Label styleClass="form-hint" text="(litery, cyfry, _)" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                    <Label styleClass="form-hint" text="Tylko litery małe (a-z), litery duże (A-Z), cyfry (0-9) i znak (_)" GridPane.columnIndex="2" GridPane.rowIndex="3" />
 
-                    <Label styleClass="form-label" text="Hasło:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                    <Label styleClass="form-label" text="Hasło:*" GridPane.columnIndex="0" GridPane.rowIndex="4" />
                     <PasswordField fx:id="passwordField" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                    <Label styleClass="form-hint" text="Tylko litery małe (a-z), litery duże (A-Z), cyfry (0-9)" GridPane.columnIndex="2" GridPane.rowIndex="4" />
 
-                    <Label styleClass="form-label" text="Rola:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
-                    <ComboBox fx:id="roleComboBox" GridPane.columnIndex="1" GridPane.rowIndex="5">
+                    <Label styleClass="form-label" text="Rola:*" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                    <ComboBox fx:id="roleComboBox" GridPane.columnIndex="1" GridPane.rowIndex="5" value="USER">
                         <items>
                             <FXCollections fx:factory="observableArrayList">
                                 <String fx:value="USER"/>
@@ -154,11 +163,30 @@
 
                 <!-- Pole identyfikatora (tylko dla edycji/usuwania) -->
                 <GridPane fx:id="identifierGrid" hgap="10" vgap="10" visible="false">
-                    <Label styleClass="form-label" text="ID lub PESEL:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                    <TextField fx:id="identifierField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                    <Label styleClass="form-label" text="Metoda wyszukiwania:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+
+                    <HBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="10">
+                        <RadioButton fx:id="idRadioButton" text="ID" selected="true" />
+                        <RadioButton fx:id="peselRadioButton" text="PESEL" />
+                    </HBox>
+
+                    <Label styleClass="form-label" text="ID użytkownika:"
+                           visible="${idRadioButton.selected}"
+                           GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                    <TextField fx:id="idField"
+                               visible="${idRadioButton.selected}"
+                               GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                    <Label styleClass="form-label" text="PESEL użytkownika:"
+                           visible="${peselRadioButton.selected}"
+                           GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                    <TextField fx:id="peselIdentifierField"
+                               visible="${peselRadioButton.selected}"
+                               GridPane.columnIndex="1" GridPane.rowIndex="2" />
                 </GridPane>
 
                 <Button fx:id="actionButton" text="Wykonaj" onAction="#handleUserManagement" />
+                <Button fx:id="refreshButton" text="Wyczyść formularz" onAction="#handleRefreshForm" />
                 <Label fx:id="userManagementStatus" styleClass="status-label" />
             </VBox>
         </Tab>

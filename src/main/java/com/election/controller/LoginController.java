@@ -72,17 +72,17 @@ public class LoginController {
                     redirectUser(result.user());
                     break;
                 case USER_NOT_FOUND:
-                    showError("Nieprawidłowy login!");
-                    break;
                 case INVALID_PASSWORD:
-                    showError("Nieprawidłowe hasło!");
+                    // Ujednolicony komunikat dla obu przypadków
+                    showError("Nieprawidłowy login lub hasło!");
+                    break;
+                default:
+                    showError("Wystąpił nieoczekiwany błąd");
                     break;
             }
         });
 
-        loginTask.setOnFailed(e -> {
-            showError("Błąd połączenia z bazą danych");
-        });
+        loginTask.setOnFailed(e -> showError("Błąd połączenia z bazą danych"));
 
         new Thread(loginTask).start();
     }
@@ -110,12 +110,13 @@ public class LoginController {
             stage.centerOnScreen();
 
         } catch (IOException ex) {
+            //noinspection CallToPrintStackTrace
             ex.printStackTrace();
             showError("Błąd ładowania widoku");
         }
     }
 
-    // Wyświetla komunikat błędu
+    // Wyświetla komunikat o błędzie
     private void showError(String message) {
         errorLabel.setText(message);
         errorLabel.setStyle("-fx-text-fill: #ff4444;");

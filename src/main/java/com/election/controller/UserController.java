@@ -12,10 +12,12 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 // Kontroler panelu użytkownika
 public class UserController {
@@ -86,6 +88,8 @@ public class UserController {
             Stage loginStage = new Stage();
             loginStage.setScene(new Scene(root));
             loginStage.setTitle("Logowanie");
+            Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/app_icon.png")));
+            loginStage.getIcons().add(icon);
             loginStage.show();
         } catch (IOException e) {
             throw new ViewLoadingException("Błąd podczas ładowania widoku logowania", e);
