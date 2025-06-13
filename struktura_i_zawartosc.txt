@@ -1,5 +1,5 @@
 Eksport struktury katalog�w i plik�w
-Wygenerowano: 06/13/2025 17:41:47
+Wygenerowano: 06/13/2025 18:12:24
 
 
 
@@ -349,9 +349,8 @@ public class AdminController {
 
     @FXML
     public void handleUserTabSelected(Event event) {
-        Tab tab = (Tab) event.getSource();
-        if (tab.isSelected()) {
-            refreshUserTab();
+        if (((Tab) event.getSource()).isSelected()) {
+            refreshUserTable();
         }
     }
 
@@ -606,8 +605,13 @@ public class AdminController {
 
     // Odświeża widok tabeli użytkowników
     private void refreshUserTable() {
-        masterUserList.setAll(userDAO.getAllUsers());
-        usersTable.refresh();
+        try {
+            List<User> users = userDAO.getAllUsers();
+            masterUserList.setAll(users);
+            usersTable.refresh();
+        } catch (DatabaseException e) {
+            userManagementStatus.setText("Błąd ładowania danych: " + e.getMessage());
+        }
     }
 
     // Konfiguruje kolumny tabeli użytkowników
@@ -618,6 +622,9 @@ public class AdminController {
         firstNameColumn.setCellValueFactory(new PropertyValueFactory<>("firstName"));
         lastNameColumn.setCellValueFactory(new PropertyValueFactory<>("lastName"));
         peselColumn.setCellValueFactory(new PropertyValueFactory<>("pesel"));
+
+        // Ustawienie źródła danych
+        usersTable.setItems(masterUserList);
     }
 
     @FXML private TableColumn<CandidateResult, String> partyColumn;
@@ -649,7 +656,10 @@ public class AdminController {
         this.currentAdmin = adminUser;
         logAdminAccess();
 
-        Platform.runLater(this::initializeView);
+        Platform.runLater(() -> {
+            refreshUserTable();  // Odśwież dane użytkowników
+            refreshElectionData();  // Odśwież wyniki wyborów
+        });
     }
 
     // Loguje czas logowania administratora
@@ -846,10 +856,6 @@ public class AdminController {
         usersTable.setItems(filtered);
     }
 
-    public void initializeView() {
-        refreshUserTab();
-        refreshElectionData();
-    }
 
     @FXML
     private void handleRefreshForm() {
@@ -2549,7 +2555,7 @@ public class HibernateUtil {
 }
 .results-chart .axis {
     -fx-tick-label-fill: white;
-    -fx-tick-label-font-size: 8px;
+    -fx-tick-label-font-size: 10px;
 }
 
 .results-chart .chart-horizontal-grid-lines {
@@ -2570,11 +2576,11 @@ public class HibernateUtil {
     -fx-tick-label-rotation: 0;
 }
 .chart-axis-label {
-    -fx-font-size: 12px;
+    -fx-font-size: 16px;
     -fx-wrap-text: true;
 }
 .axis-label {
-    -fx-font-size: 12px;
+    -fx-font-size: 16px;
 }
 .axis-tick-label {
     -fx-text-alignment: center;
@@ -2609,6 +2615,10 @@ public class HibernateUtil {
 
 .radio-button .dot {
     -fx-background-color: #3498db;
+}
+.axis:bottom .axis-tick-label {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
 }
 
 
@@ -3115,7 +3125,7 @@ public class HibernateUtil {
 }
 .results-chart .axis {
     -fx-tick-label-fill: white;
-    -fx-tick-label-font-size: 8px;
+    -fx-tick-label-font-size: 10px;
 }
 
 .results-chart .chart-horizontal-grid-lines {
@@ -3136,11 +3146,11 @@ public class HibernateUtil {
     -fx-tick-label-rotation: 0;
 }
 .chart-axis-label {
-    -fx-font-size: 12px;
+    -fx-font-size: 16px;
     -fx-wrap-text: true;
 }
 .axis-label {
-    -fx-font-size: 12px;
+    -fx-font-size: 16px;
 }
 .axis-tick-label {
     -fx-text-alignment: center;
@@ -3175,6 +3185,10 @@ public class HibernateUtil {
 
 .radio-button .dot {
     -fx-background-color: #3498db;
+}
+.axis:bottom .axis-tick-label {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
 }
 
 

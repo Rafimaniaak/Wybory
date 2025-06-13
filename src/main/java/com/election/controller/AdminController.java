@@ -703,13 +703,25 @@ public class AdminController {
 
     // Eksportuje wyniki do pliku PDF
     @FXML
-    private void handleExportToPDF() throws ExportException {
-        try {
-            ExportServicePDF.exportToPDF(candidateDAO.getAllCandidates(), "wyniki.pdf");
-            statusLabel.setText("Zapisano wyniki do PDF");
-        } catch (Exception e) {
-            statusLabel.setText("Błąd eksportu do PDF");
-            throw new ExportException("Błąd podczas eksportu do PDF", e);
+    private void handleExportToPDF() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Zapisz plik PDF");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF files (*.pdf)", "*.pdf"));
+
+        // Ustaw domyślną nazwę pliku z datą
+        String defaultFileName = "wyniki_wyborow_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmm")) + ".pdf";
+        fileChooser.setInitialFileName(defaultFileName);
+
+        File file = fileChooser.showSaveDialog(resultsTable.getScene().getWindow());
+
+        if (file != null) {
+            try {
+                ExportServicePDF.exportToPDF(candidateDAO.getAllCandidates(), file.getAbsolutePath());
+                statusLabel.setText("Zapisano wyniki do: " + file.getName());
+            } catch (Exception e) {
+                statusLabel.setText("Błąd eksportu do PDF");
+                showError("Błąd podczas eksportu do PDF: " + e.getMessage());
+            }
         }
     }
 
