@@ -272,3 +272,57 @@
 #candidateVotesColumn {
     -fx-alignment: CENTER_RIGHT;
 }
+.button-add {
+    -fx-base: #27ae60; /* Zielony */
+}
+
+.button-save {
+    -fx-base: #3498db; /* Niebieski */
+}
+
+.button-delete {
+    -fx-base: #e74c3c; /* Czerwony */
+}
+/* Nowe style */
+.filter-field {
+    -fx-pref-width: 60px;
+    -fx-prompt-text-fill: #95a5a6;
+}
+
+.button-filter {
+    -fx-base: #3498db;
+    -fx-text-fill: white;
+}
+
+.button-clear {
+    -fx-base: #95a5a6;
+    -fx-text-fill: white;
+}
+/* Przycisk oka */
+.eye-button {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+    -fx-padding: 0 5px 0 5px;
+    -fx-cursor: hand;
+}
+
+.eye-button:hover {
+    -fx-background-color: #e0e0e0;
+    -fx-background-radius: 3px;
+}
+
+/* Ustaw ten sam styl dla obu pól */
+.password-field, .text-field {
+    /*-fx-pref-width: 200px;*/
+    -fx-font-size: 14px;
+    -fx-min-height: 25px; /* Zapobiega zmianie wysokości */
+}
+/* Ustawienia dla HBox */
+.hbox-password {
+    -fx-alignment: CENTER_LEFT;
+    -fx-spacing: 5px;
+}
+.password-changed {
+    -fx-prompt-text-fill: #27ae60;
+    -fx-font-style: italic;
+}

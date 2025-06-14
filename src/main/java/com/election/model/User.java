@@ -86,7 +86,7 @@ public class User {
 
     public void setPesel(String pesel) {
         if (pesel == null || !pesel.matches("\\d{11}")) {
-            throw new IllegalArgumentException("Nieprawidłowy PESEL");
+            throw new IllegalArgumentException("Nieprawidłowy PESEL - musi mieć 11 cyfr");
         }
         this.pesel = pesel;
     }

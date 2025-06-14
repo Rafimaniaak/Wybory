@@ -5,6 +5,7 @@ import com.election.model.Candidate;
 import com.election.util.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 
 import java.util.List;
 
@@ -59,6 +60,17 @@ public class CandidateDAO {
         } catch (Exception e) {
             if (transaction != null) transaction.rollback();
             throw new DatabaseException("Błąd aktualizacji kandydata: " + e.getMessage(), e);
+        }
+    }
+    public boolean candidateExists(String name, String party) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            String hql = "SELECT COUNT(c) FROM Candidate c WHERE c.name = :name AND c.party = :party";
+            Query<Long> query = session.createQuery(hql, Long.class);
+            query.setParameter("name", name);
+            query.setParameter("party", party);
+            return query.uniqueResult() > 0;
+        } catch (Exception e) {
+            throw new DatabaseException("Błąd podczas sprawdzania unikalności kandydata", e);
         }
     }
 //

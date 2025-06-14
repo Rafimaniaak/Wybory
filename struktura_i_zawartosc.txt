@@ -1,5 +1,5 @@
 Eksport struktury katalog�w i plik�w
-Wygenerowano: 06/13/2025 20:01:06
+Wygenerowano: 06/14/2025 05:35:22
 
 
 
@@ -205,6 +205,7 @@ import com.election.dao.CandidateDAO;
 import com.election.dao.UserDAO;
 import com.election.exception.DatabaseException;
 import com.election.exception.ValidationException;
+import com.election.model.Candidate;
 import com.election.model.CandidateResult;
 import com.election.model.User;
 import com.election.service.ElectionService;
@@ -212,6 +213,7 @@ import com.election.service.ExportServicePDF;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -225,7 +227,9 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
@@ -264,7 +268,6 @@ public class AdminController {
     @FXML private TableColumn<User, String> lastNameColumn;
     @FXML private TableColumn<User, String> peselColumn;
     @FXML private GridPane userFormGrid;
-    @FXML private GridPane identifierGrid;
     @FXML private TextField firstNameField;
     @FXML private TextField lastNameField;
     @FXML private TextField peselField;
@@ -280,71 +283,177 @@ public class AdminController {
     @FXML private NumberAxis yAxis;
 
     @FXML private Label statusLabel;
-    //@FXML private TextField peselSearchField;
-    @FXML private TextField peselIdentifierField;
-
-    // Pola dla uniwersalnego zarządzania użytkownikami
-    @FXML private ComboBox<String> actionComboBox;
-    @FXML private TextField identifierField;
-    @FXML private Button actionButton;
     @FXML private Label userManagementStatus;
 
-    @FXML private RadioButton idRadioButton;
-    @FXML private RadioButton peselRadioButton;
-    @FXML private TextField idField;
+    @FXML private TableView<Candidate> candidatesTable;
+    @FXML private TableColumn<Candidate, Long> candidateIdColumn;
+    @FXML private TableColumn<Candidate, String> candidateNameColumn;
+    @FXML private TableColumn<Candidate, String> candidatePartyColumn;
+    @FXML private TableColumn<Candidate, Integer> candidateVotesColumn;
+    @FXML private TextField candidateNameField;
+    @FXML private TextField candidatePartyField;
+    @FXML private Label candidateStatusLabel;
 
+    // Nowe pola dla filtrów
+    @FXML private TextField firstNameFilter;
+    @FXML private TextField lastNameFilter;
+    @FXML private TextField peselFilter;
+    @FXML private ComboBox<String> roleFilterComboBox;
+    @FXML private Button showPasswordButton;
+    @FXML private TextField visiblePasswordField;
+    private final Image eyeOpenImage = new Image(getClass().getResourceAsStream("/images/eye-open.png"));
+    private final Image eyeClosedImage = new Image(getClass().getResourceAsStream("/images/eye-closed.png"));
+    private final ImageView eyeIcon = new ImageView();
+    @FXML
+    private void togglePasswordVisibility() {
+        if (passwordField.isVisible()) {
+            // Pokaż hasło
+            visiblePasswordField.setText(passwordField.getText());
+            visiblePasswordField.setVisible(true);
+            visiblePasswordField.setManaged(true);
+            passwordField.setVisible(false);
+            passwordField.setManaged(false);
+
+            eyeIcon.setImage(eyeClosedImage);
+            showPasswordButton.setTooltip(new Tooltip("Ukryj hasło"));
+        } else {
+            // Ukryj hasło
+            passwordField.setText(visiblePasswordField.getText());
+            passwordField.setVisible(true);
+            passwordField.setManaged(true);
+            visiblePasswordField.setVisible(false);
+            visiblePasswordField.setManaged(false);
+
+            eyeIcon.setImage(eyeOpenImage);
+            showPasswordButton.setTooltip(new Tooltip("Pokaż hasło"));
+        }
+    }
+
+    private String getPassword() {
+        return passwordField.isVisible() ?
+                passwordField.getText() :
+                visiblePasswordField.getText();
+    }
+
+
+    private final ObservableList<Candidate> candidatesList = FXCollections.observableArrayList();
     private final ObservableList<User> masterUserList = FXCollections.observableArrayList();
+    private final FilteredList<User> filteredUsers = new FilteredList<>(masterUserList);
 
     // Konfiguruje interfejs użytkownika i ładuje dane początkowe
     @FXML
     public void initialize() {
+        // Ustawienie obrazka dla przycisku
+        eyeIcon.setImage(eyeOpenImage);
+        eyeIcon.setFitWidth(16);
+        eyeIcon.setFitHeight(16);
+        showPasswordButton.setGraphic(eyeIcon);
+        // Ustaw tooltip
+        Tooltip.install(showPasswordButton, new Tooltip("Pokaż/ukryj hasło"));
+        // Ukryj widoczne pole hasła na starcie
+        visiblePasswordField.setVisible(false);
+        visiblePasswordField.setManaged(false);
+        if (roleComboBox != null) {
+            roleComboBox.setItems(FXCollections.observableArrayList("USER", "ADMIN"));
+            roleComboBox.setValue("USER");
+        }
+
+        // Inicjalizacja filtrów
+        roleFilterComboBox.setItems(FXCollections.observableArrayList("ADMIN", "USER"));
+
         configureUserTable();
         configureResultsTable();
-        //loadInitialData();
+        configureCandidatesTable();
+        refreshCandidatesTable();
 
-        // Inicjalizacja ComboBox z rolami
-        roleComboBox.setItems(FXCollections.observableArrayList("USER", "ADMIN"));
-        roleComboBox.setValue("USER");
-        // Ustawienie odstępu między słupkami wykresu
-        resultsChart.setBarGap(5);
-        // Grupa dla przycisków radiowych
-        ToggleGroup searchGroup = new ToggleGroup();
-        idRadioButton.setToggleGroup(searchGroup);
-        peselRadioButton.setToggleGroup(searchGroup);
-        idRadioButton.setSelected(true);
-        // Listener dla ComboBox akcji
-        actionComboBox.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-            handleRefreshForm();
-            if (newVal == null) return;
+        // Ustawienie filtrowanej listy
+        usersTable.setItems(filteredUsers);
 
-            switch (newVal) {
-                case "Dodaj użytkownika":
-                    userFormGrid.setVisible(true);
-                    identifierGrid.setVisible(false);
-                    actionButton.setText("Dodaj");
-                    clearUserForm();
-                    break;
+        // Listenery do automatycznego filtrowania przy zmianie wartości
+        firstNameFilter.textProperty().addListener((obs, old, newVal) -> handleFilterUsers());
+        lastNameFilter.textProperty().addListener((obs, old, newVal) -> handleFilterUsers());
+        peselFilter.textProperty().addListener((obs, old, newVal) -> handleFilterUsers());
+        roleFilterComboBox.valueProperty().addListener((obs, old, newVal) -> handleFilterUsers());
 
-                case "Edytuj użytkownika":
-                    userFormGrid.setVisible(true);
-                    identifierGrid.setVisible(true);
-                    actionButton.setText("Wyszukaj");
-                    clearUserForm();
-                    break;
+        if (resultsChart != null) {
+            resultsChart.setBarGap(5);
+        }
 
-                case "Usuń użytkownika":
-                    userFormGrid.setVisible(false);
-                    identifierGrid.setVisible(true);
-                    actionButton.setText("Usuń");
-                    break;
-            }
-        });
+        // Ustaw podpowiedź dla pola hasła
+        passwordField.setPromptText("(niezmienione)");
+        visiblePasswordField.setPromptText("(niezmienione)");
+
+        // Ustaw tooltip
+        Tooltip.install(showPasswordButton, new Tooltip("Pokaż/ukryj hasło"));
+
+        // Upewnij się, że oba pola mają ten sam rozmiar
+        visiblePasswordField.prefWidthProperty().bind(passwordField.widthProperty());
+        visiblePasswordField.minWidthProperty().bind(passwordField.minWidthProperty());
+        visiblePasswordField.maxWidthProperty().bind(passwordField.maxWidthProperty());
+    }
+
+    @FXML
+    private void handleFilterUsers() {
+        filteredUsers.setPredicate(this::matchUser);
+    }
+
+    @FXML
+    private void handleClearFilters() {
+        firstNameFilter.clear();
+        lastNameFilter.clear();
+        peselFilter.clear();
+        roleFilterComboBox.getSelectionModel().clearSelection();
+        filteredUsers.setPredicate(null); // Resetuj filtr
+    }
+
+    // Metoda sprawdzająca, czy użytkownik spełnia kryteria filtrowania
+    private boolean matchUser(User user) {
+        // Sprawdź imię
+        if (!firstNameFilter.getText().isEmpty() &&
+                !user.getFirstName().toLowerCase().contains(firstNameFilter.getText().toLowerCase())) {
+            return false;
+        }
+
+        // Sprawdź nazwisko
+        if (!lastNameFilter.getText().isEmpty() &&
+                !user.getLastName().toLowerCase().contains(lastNameFilter.getText().toLowerCase())) {
+            return false;
+        }
+
+        // Sprawdź PESEL
+        if (!peselFilter.getText().isEmpty() &&
+                !user.getPesel().contains(peselFilter.getText())) {
+            return false;
+        }
+
+        // Sprawdź rolę
+        if (roleFilterComboBox.getValue() != null &&
+                !user.getRole().equals(roleFilterComboBox.getValue())) {
+            return false;
+        }
+
+        return true;
     }
 
     public void refreshUserTab() {
         List<User> users = userDAO.getAllUsers();
         masterUserList.setAll(users);
         usersTable.refresh();
+    }
+
+    private void configureCandidatesTable() {
+        candidateIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        candidateNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+        candidatePartyColumn.setCellValueFactory(new PropertyValueFactory<>("party"));
+        candidateVotesColumn.setCellValueFactory(new PropertyValueFactory<>("votes"));
+
+        candidatesTable.getSelectionModel().selectedItemProperty().addListener(
+                (obs, oldSelection, newSelection) -> {
+                    if (newSelection != null) {
+                        candidateNameField.setText(newSelection.getName());
+                        candidatePartyField.setText(newSelection.getParty());
+                    }
+                });
     }
 
     @FXML
@@ -361,218 +470,16 @@ public class AdminController {
         peselField.clear();
         usernameField.clear();
         passwordField.clear();
-        //roleComboBox.getSelectionModel().clearSelection();
-        currentEditUser = null; // Resetuj przy czyszczeniu formularza
+        roleComboBox.setValue("USER"); // Ustaw domyślną wartość
     }
 
-    // Obsługuje główną logikę zarządzania użytkownikami
+    // Czyści formularz i resetuje zaznaczenie
     @FXML
-    private void handleUserManagement() {
-        try {
-            String action = actionComboBox.getValue();
-            switch (action) {
-                case "Dodaj użytkownika": addNewUser(); break;
-                case "Edytuj użytkownika": handleEditUserFlow(); break;
-                case "Usuń użytkownika": deleteUser(); break;
-            }
-        } catch (ValidationException | DatabaseException e) {
-            userManagementStatus.setText(e.getMessage());
-        }
-    }
-
-    // Zarządza przepływem edycji użytkownika
-    private void handleEditUserFlow() {
-        if (actionButton.getText().equals("Wyszukaj")) {
-            findUserForEdit();
-        } else {
-            updateUser();
-        }
-    }
-
-    // Usuwa użytkownika z systemu
-    private void deleteUser() {
-        String identifier = getIdentifier();
-
-        try {
-            User user = findUserByIdentifier(identifier);
-            if (user == null) {
-                throw new DatabaseException("Nie znaleziono użytkownika!", null);
-            }
-
-            // Sprawdź, czy użytkownik jest administratorem
-            if ("ADMIN".equals(user.getRole())) {
-                // Pobierz wszystkich administratorów
-                List<User> admins = userDAO.getAllUsers().stream()
-                        .filter(u -> "ADMIN".equals(u.getRole()))
-                        .toList();
-
-                // Blokuj usuwanie, jeśli jest tylko jeden admin
-                if (admins.size() <= 1) {
-                    userManagementStatus.setText("Nie można usunąć ostatniego administratora!");
-                    return;
-                }
-            }
-
-            if (confirmDeletion(user)) {
-                userDAO.deleteUser(user);
-                masterUserList.remove(user);
-                refreshUserTable();
-                userManagementStatus.setText("Użytkownik usunięty pomyślnie!");
-                handleRefreshForm();
-            } else {
-                userManagementStatus.setText("Anulowano usuwanie.");
-            }
-        } catch (DatabaseException e) {
-            userManagementStatus.setText(e.getMessage());
-        }
-    }
-
-    private boolean confirmDeletion(User user) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Potwierdzenie usunięcia");
-        alert.setHeaderText("Czy na pewno chcesz usunąć użytkownika?");
-        alert.setContentText(user.getFirstName() + " " + user.getLastName() + " (" + user.getUsername() + ")");
-        Optional<ButtonType> result = alert.showAndWait();
-        return result.isPresent() && result.get() == ButtonType.OK;
-    }
-    private void addNewUser() throws ValidationException, DatabaseException {
-        validateUserForm();
-
-        User newUser = createUserFromForm();
-        try {
-            userDAO.saveUser(newUser);
-            masterUserList.add(newUser);
-            refreshUserTable();
-            userManagementStatus.setText("Użytkownik dodany pomyślnie!");
-            clearUserForm();
-            handleRefreshForm();
-        } catch (Exception e) {
-            throw new DatabaseException("Błąd podczas zapisu użytkownika: " + e.getMessage(), e);
-        }
-    }
-    // Tworzy obiekt użytkownika z danych formularza
-    private User createUserFromForm() {
-        User newUser = new User();
-        newUser.setFirstName(firstNameField.getText().trim());
-        newUser.setLastName(lastNameField.getText().trim());
-        newUser.setPesel(peselField.getText().trim());
-        newUser.setUsername(usernameField.getText().trim());
-        newUser.setPassword(BCrypt.hashpw(passwordField.getText(), BCrypt.gensalt()));
-        newUser.setRole(roleComboBox.getValue());
-        newUser.setHasVoted(false);
-        return newUser;
-    }
-
-    // Nowa metoda do pobierania identyfikatora
-    private String getIdentifier() {
-        if (idRadioButton.isSelected()) {
-            return idField.getText().trim();
-        } else {
-            return peselIdentifierField.getText().trim();
-        }
-    }
-
-    // Wyszukuje użytkownika do edycji
-    private void findUserForEdit() {
-        String identifier = getIdentifier();
-
-        currentEditUser = findUserByIdentifier(identifier);
-
-        if (currentEditUser != null) {
-            // Wypełnij formularz danymi użytkownika
-            firstNameField.setText(currentEditUser.getFirstName());
-            lastNameField.setText(currentEditUser.getLastName());
-            peselField.setText(currentEditUser.getPesel());
-            usernameField.setText(currentEditUser.getUsername());
-            roleComboBox.setValue(currentEditUser.getRole());
-
-            // Przygotuj do aktualizacji
-            actionButton.setText("Zaktualizuj");
-            userManagementStatus.setText("Znaleziono użytkownika. Edytuj dane.");
-        } else {
-            userManagementStatus.setText("Nie znaleziono użytkownika!");
-        }
-    }
-
-    // Aktualizuje dane użytkownika w systemie
-    private void updateUser() throws ValidationException, DatabaseException {
-        String identifier = identifierField.getText().trim();
-        User user = findUserByIdentifier(identifier);
-
-        // Sprawdź, czy zmieniamy rolę ostatniego admina
-        if ("ADMIN".equals(user.getRole()) && "USER".equals(roleComboBox.getValue())) {
-            List<User> admins = userDAO.getAllUsers().stream()
-                    .filter(u -> "ADMIN".equals(u.getRole()))
-                    .toList();
-
-            if (admins.size() <= 1) {
-                throw new ValidationException("Nie można zmienić roli ostatniego administratora!");
-            }
-        }
-
-        validateUserForm();
-        updateUserData(user);
-
-        try {
-            userDAO.updateUser(user);
-            refreshUserTable();
-            userManagementStatus.setText("Dane użytkownika zaktualizowane!");
-            actionButton.setText("Wyszukaj");
-            clearUserForm();
-            handleRefreshForm();
-        } catch (Exception e) {
-            throw new DatabaseException("Błąd aktualizacji użytkownika: " + e.getMessage(), e);
-        }
-    }
-    // Aktualizuje właściwości obiektu użytkownika
-    private void updateUserData(User user) {
-        user.setFirstName(firstNameField.getText().trim());
-        user.setLastName(lastNameField.getText().trim());
-        user.setPesel(peselField.getText().trim());
-        user.setUsername(usernameField.getText().trim());
-
-        if (!passwordField.getText().isEmpty()) {
-            user.setPassword(BCrypt.hashpw(passwordField.getText(), BCrypt.gensalt()));
-        }
-
-        user.setRole(roleComboBox.getValue());
-    }
-
-    // Waliduje dane w formularzu użytkownika
-    private void validateUserForm() throws ValidationException {
-        if (fieldsAreEmpty()) {
-            throw new ValidationException("Wypełnij wszystkie pola!");
-        }
-        validatePesel();
-        validateName(firstNameField.getText().trim(), "Imię");
-        validateName(lastNameField.getText().trim(), "Nazwisko");
-        validateUsername();
-        // Walidacja hasła dla nowego użytkownika
-        if (actionComboBox.getValue().equals("Dodaj użytkownika")) {
-            if (passwordField.getText().trim().isEmpty()) {
-                throw new ValidationException("Hasło nie może być puste!");
-            }
-        }
-        // Walidacja dla edycji i usuwania
-        if (actionComboBox.getValue().equals("Edytuj użytkownika")
-                || actionComboBox.getValue().equals("Usuń użytkownika")) {
-            if (!idRadioButton.isSelected() && !peselRadioButton.isSelected()) {
-                throw new ValidationException("Wybierz metodę identyfikacji użytkownika!");
-            }
-        }
-    }
-
-    // Sprawdza, czy wymagane pola są wypełnione
-    private boolean fieldsAreEmpty() {
-        boolean basicFieldsEmpty = firstNameField.getText().trim().isEmpty() ||
-                lastNameField.getText().trim().isEmpty() ||
-                peselField.getText().trim().isEmpty() ||
-                usernameField.getText().trim().isEmpty() ||
-                roleComboBox.getValue() == null;
-
-        return basicFieldsEmpty ||
-                (actionComboBox.getValue().equals("Dodaj użytkownika") &&
-                        passwordField.getText().trim().isEmpty());
+    private void handleClearUserForm() {
+        clearUserForm();
+        usersTable.getSelectionModel().clearSelection();
+        currentEditUser = null;
+        userManagementStatus.setText("");
     }
 
     // Waliduje numer PESEL
@@ -601,6 +508,12 @@ public class AdminController {
         if (!username.matches("[a-zA-Z0-9_]+")) {
             throw new ValidationException("Login może zawierać tylko litery, cyfry i podkreślniki!");
         }
+
+        // Sprawdź, czy login już istnieje
+        User existing = userDAO.findByUsername(username);
+        if (existing != null && (currentEditUser == null || !existing.getId().equals(currentEditUser.getId()))) {
+            throw new ValidationException("Login już istnieje w systemie!");
+        }
     }
 
     // Odświeża widok tabeli użytkowników
@@ -625,6 +538,24 @@ public class AdminController {
 
         // Ustawienie źródła danych
         usersTable.setItems(masterUserList);
+
+        // Listener do wypełniania formularza po wybraniu użytkownika
+        usersTable.getSelectionModel().selectedItemProperty().addListener(
+                (obs, oldSelection, newSelection) -> {
+                    if (newSelection != null) {
+                        fillUserForm(newSelection);
+                    }
+                });
+    }
+
+    private void fillUserForm(User user) {
+        firstNameField.setText(user.getFirstName());
+        lastNameField.setText(user.getLastName());
+        peselField.setText(user.getPesel());
+        usernameField.setText(user.getUsername());
+        roleComboBox.setValue(user.getRole());
+        passwordField.clear(); // Nie pokazujemy hasła
+        currentEditUser = user;
     }
 
     @FXML private TableColumn<CandidateResult, String> partyColumn;
@@ -634,21 +565,15 @@ public class AdminController {
         partyColumn.setCellValueFactory(new PropertyValueFactory<>("party"));
         votesColumn.setCellValueFactory(new PropertyValueFactory<>("votes"));
 
-        votesColumn.setCellFactory(tc -> new TableCell<>() {
-            @Override
-            protected void updateItem(Number value, boolean empty) {
-                super.updateItem(value, empty);
-                setText(empty || value == null ? "" : String.format("%,d", value.intValue()));
-            }
-        });
-    }
-
-    // Ładuje początkowe dane do widoków
-    private void loadInitialData() {
-        masterUserList.setAll(userDAO.getAllUsers());
-        usersTable.setItems(masterUserList);
-        refreshUserTable();
-        refreshElectionData();
+        if (votesColumn != null) {
+            votesColumn.setCellFactory(tc -> new TableCell<>() {
+                @Override
+                protected void updateItem(Number value, boolean empty) {
+                    super.updateItem(value, empty);
+                    setText(empty || value == null ? "" : String.format("%,d", value.intValue()));
+                }
+            });
+        }
     }
 
     // Inicjalizuje kontroler z danymi zalogowanego administratora
@@ -714,7 +639,6 @@ public class AdminController {
             // Nowe: bezpośrednie ustawienie etykiet
             Platform.runLater(() -> {
                 // Wymuś natychmiastowe przeliczenie układu
-
                 resultsChart.applyCss();
                 resultsChart.layout();
 
@@ -761,11 +685,13 @@ public class AdminController {
 
     // Aktualizuje skalę osi Y na wykresie
     private void updateYAxisRange(int maxVotes) {
-        yAxis.setAutoRanging(false);
-        yAxis.setLowerBound(0);
-        yAxis.setUpperBound(maxVotes < 5 ? 5 : maxVotes + 1);
-        yAxis.setTickUnit(1);
-        yAxis.setMinorTickVisible(false);
+        if (yAxis != null) {
+            yAxis.setAutoRanging(false);
+            yAxis.setLowerBound(0);
+            yAxis.setUpperBound(maxVotes < 5 ? 5 : maxVotes + 1);
+            yAxis.setTickUnit(1);
+            yAxis.setMinorTickVisible(false);
+        }
     }
 
     // Obsługuje wylogowywanie użytkownika
@@ -810,30 +736,6 @@ public class AdminController {
         alert.showAndWait();
     }
 
-    // Wyszukuje użytkownika po identyfikatorze
-    private User findUserByIdentifier(String identifier) throws ValidationException {
-        if (identifier == null || identifier.isEmpty()) {
-            return null;
-        }
-
-        try {
-            if (peselRadioButton.isSelected()) {
-                return userDAO.findByPesel(identifier);
-            } else if (idRadioButton.isSelected()) {
-                Long id = Long.parseLong(identifier);
-                return userDAO.getUserById(id);
-            } else {
-                throw new ValidationException("Wybierz metodę wyszukiwania!");
-            }
-        } catch (NumberFormatException e) {
-            throw new ValidationException("Nieprawidłowy format ID: " + identifier);
-        } catch (DatabaseException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new DatabaseException("Błąd podczas wyszukiwania użytkownika", e);
-        }
-    }
-
     // Filtruje użytkowników po numerze PESEL
     @FXML
     private void handlePeselSearch() {
@@ -844,7 +746,7 @@ public class AdminController {
         ObservableList<User> currentList = FXCollections.observableArrayList(currentUsers);
 
         if (pesel.isEmpty()) {
-            usersTable.setItems(currentList);
+            usersTable.setItems(masterUserList);
             return;
         }
 
@@ -856,18 +758,6 @@ public class AdminController {
         usersTable.setItems(filtered);
     }
 
-
-    @FXML
-    private void handleRefreshForm() {
-        clearUserForm();
-        clearIdentifierFields();
-        actionButton.setText("Wyszukaj");
-        userManagementStatus.setText("");
-    }
-    private void clearIdentifierFields() {
-        idField.clear();
-        peselIdentifierField.clear(); // To pole w sekcji identyfikatora
-    }
     // Resetuje filtr w tabeli użytkowników
     @FXML
     private void handleShowAllUsers() {
@@ -933,6 +823,279 @@ public class AdminController {
         alert.setContentText(message);
         alert.showAndWait();
     }
+
+    // Metody zarządzania użytkownikami (NOWA IMPLEMENTACJA)
+    @FXML
+    private void handleAddUser() {
+        try {
+            validateUserForm(true);
+            User newUser = createUserFromForm();
+            userDAO.saveUser(newUser);
+
+            // Dodane: odśwież tabelę i wyświetl komunikat sukcesu
+            refreshUserTable();
+            userManagementStatus.setText("Użytkownik dodany pomyślnie!");
+            clearUserForm();
+
+        } catch (ValidationException | DatabaseException e) {
+            userManagementStatus.setText(e.getMessage());
+        } catch (Exception e) {
+            userManagementStatus.setText("Nieoczekiwany błąd: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleUpdateUser() {
+        if (currentEditUser == null) {
+            userManagementStatus.setText("Wybierz użytkownika do edycji!");
+            return;
+        }
+        // Sprawdź, czy dokonano jakichkolwiek zmian
+        if (!isUserDataChanged()) {
+            userManagementStatus.setText("Nie dokonano żadnych zmian!");
+            return;
+        }
+        try {
+            validateUserForm(false);
+
+            // Walidacja zmiany ostatniego administratora
+            String newRole = roleComboBox.getValue();
+            if ("ADMIN".equals(currentEditUser.getRole()) &&
+                    !"ADMIN".equals(newRole)) {
+
+                int adminCount = userDAO.countAdmins();
+                if (adminCount <= 1) {
+                    userManagementStatus.setText(
+                            "Nie można zmienić roli ostatniego administratora!"
+                    );
+                    return;
+                }
+            }
+
+            updateUserData(currentEditUser);
+            userDAO.updateUser(currentEditUser);
+            refreshUserTable();
+            userManagementStatus.setText("Dane użytkownika zaktualizowane pomyślnie!");
+        } catch (ValidationException | DatabaseException e) {
+            userManagementStatus.setText(e.getMessage());
+        } catch (Exception e) {
+            userManagementStatus.setText("Nieoczekiwany błąd: " + e.getMessage());
+        }
+    }
+    // Sprawdza, czy dokonano jakichkolwiek zmian w formularzu
+    private boolean isUserDataChanged() {
+        // Sprawdź, czy zmieniono podstawowe dane
+        boolean nameChanged = !firstNameField.getText().equals(currentEditUser.getFirstName());
+        boolean lastNameChanged = !lastNameField.getText().equals(currentEditUser.getLastName());
+        boolean peselChanged = !peselField.getText().equals(currentEditUser.getPesel());
+        boolean usernameChanged = !usernameField.getText().equals(currentEditUser.getUsername());
+        boolean roleChanged = !roleComboBox.getValue().equals(currentEditUser.getRole());
+
+        // Sprawdź, czy zmieniono hasło (jeśli pole nie jest puste)
+        boolean passwordChanged = !passwordField.getText().isEmpty();
+
+        // Zwróć true, jeśli jakakolwiek zmiana wystąpiła
+        return nameChanged || lastNameChanged || peselChanged ||
+                usernameChanged || roleChanged || passwordChanged;
+    }
+
+    @FXML
+    private void handleDeleteUser() {
+        if (currentEditUser == null) {
+            userManagementStatus.setText("Wybierz użytkownika do usunięcia!");
+            return;
+        }
+
+        try {
+            // Walidacja ostatniego administratora
+            if ("ADMIN".equals(currentEditUser.getRole())) {
+                int adminCount = userDAO.countAdmins();
+                if (adminCount <= 1) { // Jeśli to ostatni admin
+                    userManagementStatus.setText("Nie można usunąć ostatniego administratora!");
+                    return;
+                }
+            }
+
+            if (confirmDeletion(currentEditUser)) {
+                userDAO.deleteUser(currentEditUser);
+                masterUserList.remove(currentEditUser);
+                refreshUserTable();
+                clearUserForm();
+                userManagementStatus.setText("Użytkownik usunięty pomyślnie!");
+            }
+        } catch (DatabaseException e) {
+            userManagementStatus.setText(e.getMessage());
+        }
+    }
+
+    private boolean confirmDeletion(User user) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Potwierdzenie usunięcia");
+        alert.setHeaderText("Czy na pewno chcesz usunąć użytkownika?");
+        alert.setContentText(user.getFirstName() + " " + user.getLastName() + " (" + user.getUsername() + ")");
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.isPresent() && result.get() == ButtonType.OK;
+    }
+
+    // Walidacja formularza użytkownika
+    private void validateUserForm(boolean isNewUser) throws ValidationException {
+        if (firstNameField.getText().trim().isEmpty() ||
+                lastNameField.getText().trim().isEmpty() ||
+                peselField.getText().trim().isEmpty() ||
+                usernameField.getText().trim().isEmpty() ||
+                roleComboBox.getValue() == null)
+        {
+            throw new ValidationException("Wypełnij wszystkie obowiązkowe pola!");
+        }
+
+        validatePesel();
+        validateName(firstNameField.getText().trim(), "Imię");
+        validateName(lastNameField.getText().trim(), "Nazwisko");
+        validateUsername();
+
+        // Walidacja hasła tylko dla nowego użytkownika
+        if (isNewUser && passwordField.getText().trim().isEmpty()) {
+            throw new ValidationException("Hasło nie może być puste!");
+        }
+    }
+
+    // Tworzy obiekt użytkownika z danych formularza
+    private User createUserFromForm() {
+        User newUser = new User();
+        newUser.setFirstName(firstNameField.getText().trim());
+        newUser.setLastName(lastNameField.getText().trim());
+        newUser.setPesel(peselField.getText().trim());
+        newUser.setUsername(usernameField.getText().trim());
+        newUser.setPassword(BCrypt.hashpw(passwordField.getText(), BCrypt.gensalt()));
+        newUser.setRole(roleComboBox.getValue());
+        newUser.setHasVoted(false);
+        newUser.setPassword(BCrypt.hashpw(getPassword(), BCrypt.gensalt()));
+        return newUser;
+    }
+
+    // Aktualizuje dane użytkownika
+    private void updateUserData(User user) {
+        user.setFirstName(firstNameField.getText().trim());
+        user.setLastName(lastNameField.getText().trim());
+        user.setPesel(peselField.getText().trim());
+        user.setUsername(usernameField.getText().trim());
+        user.setRole(roleComboBox.getValue());
+
+        // Aktualizuj hasło, tylko jeśli zostało zmienione
+        if (!passwordField.getText().isEmpty()) {
+            user.setPassword(BCrypt.hashpw(passwordField.getText(), BCrypt.gensalt()));
+        }
+        if (!getPassword().isEmpty()) {
+            user.setPassword(BCrypt.hashpw(getPassword(), BCrypt.gensalt()));
+        }
+    }
+
+    // Metody dla kandydatów
+    @FXML
+    private void handleAddCandidate() {
+        try {
+            validateCandidateForm();
+
+            Candidate candidate = new Candidate();
+            candidate.setName(candidateNameField.getText().trim());
+            candidate.setParty(candidatePartyField.getText().trim());
+            candidate.setVotes(0);
+
+            candidateDAO.addCandidate(candidate);
+            refreshCandidatesTable();
+            candidateStatusLabel.setText("Kandydat dodany pomyślnie!");
+            clearCandidateForm();
+        } catch (ValidationException | DatabaseException e) {
+            candidateStatusLabel.setText(e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleUpdateCandidate() {
+        Candidate selected = candidatesTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            candidateStatusLabel.setText("Wybierz kandydata do edycji");
+            return;
+        }
+
+        try {
+            validateCandidateForm();
+
+            selected.setName(candidateNameField.getText().trim());
+            selected.setParty(candidatePartyField.getText().trim());
+
+            candidateDAO.updateCandidate(selected);
+            refreshCandidatesTable();
+            candidateStatusLabel.setText("Zaktualizowano kandydata!");
+            clearCandidateForm();
+        } catch (ValidationException | DatabaseException e) {
+            candidateStatusLabel.setText(e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleDeleteCandidate() {
+        Candidate selected = candidatesTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            candidateStatusLabel.setText("Wybierz kandydata do usunięcia");
+            return;
+        }
+
+        if (selected.getVotes() > 0) {
+            candidateStatusLabel.setText("Nie można usunąć kandydata z głosami!");
+            return;
+        }
+
+        try {
+            candidateDAO.deleteCandidate(selected.getId());
+            refreshCandidatesTable();
+            candidateStatusLabel.setText("Usunięto kandydata");
+            clearCandidateForm();
+        } catch (DatabaseException e) {
+            candidateStatusLabel.setText("Błąd: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleRefreshCandidates() {
+        refreshCandidatesTable();
+    }
+
+    @FXML
+    private void handleClearCandidateForm() {
+        clearCandidateForm();
+        candidateStatusLabel.setText("");
+    }
+
+    // Walidacja formularza kandydata
+    private void validateCandidateForm() throws ValidationException {
+        String name = candidateNameField.getText().trim();
+        String party = candidatePartyField.getText().trim();
+
+        if (name.isEmpty()) {
+            throw new ValidationException("Imię i nazwisko kandydata nie może być puste!");
+        }
+
+        if (party.isEmpty()) {
+            throw new ValidationException("Nazwa partii nie może być pusta!");
+        }
+
+        if (!name.matches("[\\p{L}\\s\\-]+")) {
+            throw new ValidationException("Imię i nazwisko może zawierać tylko litery, spacje i myślniki!");
+        }
+    }
+
+    // Metody pomocnicze
+    private void refreshCandidatesTable() {
+        candidatesList.setAll(candidateDAO.getAllCandidates());
+        candidatesTable.setItems(candidatesList);
+    }
+
+    private void clearCandidateForm() {
+        candidateNameField.clear();
+        candidatePartyField.clear();
+        candidatesTable.getSelectionModel().clearSelection();
+    }
 }
 
 
@@ -949,12 +1112,14 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.Objects;
+
 // Kontroler ekranu logowania
 public class LoginController {
 
@@ -962,6 +1127,41 @@ public class LoginController {
     @FXML private PasswordField passwordField;
     @FXML private Label errorLabel;
     @FXML private Label statusLabel;
+    @FXML private Button showPasswordButton;
+    @FXML private TextField visiblePasswordField;
+    private final Image eyeOpenImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/eye-open.png")));
+    private final Image eyeClosedImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/eye-closed.png")));
+    private final ImageView eyeIcon = new ImageView();
+    @FXML
+    private void togglePasswordVisibility() {
+        if (passwordField.isVisible()) {
+            // Pokaż hasło
+            visiblePasswordField.setText(passwordField.getText());
+            visiblePasswordField.setVisible(true);
+            visiblePasswordField.setManaged(true);
+            passwordField.setVisible(false);
+            passwordField.setManaged(false);
+
+            eyeIcon.setImage(eyeClosedImage);
+            showPasswordButton.setTooltip(new Tooltip("Ukryj hasło"));
+        } else {
+            // Ukryj hasło
+            passwordField.setText(visiblePasswordField.getText());
+            passwordField.setVisible(true);
+            passwordField.setManaged(true);
+            visiblePasswordField.setVisible(false);
+            visiblePasswordField.setManaged(false);
+
+            eyeIcon.setImage(eyeOpenImage);
+            showPasswordButton.setTooltip(new Tooltip("Pokaż hasło"));
+        }
+    }
+
+    private String getPassword() {
+        return passwordField.isVisible() ?
+                passwordField.getText() :
+                visiblePasswordField.getText();
+    }
 
     private final UserDAO userDAO = new UserDAO();
     private final AuthService authService = new AuthService();
@@ -970,6 +1170,21 @@ public class LoginController {
     @FXML
     private void initialize() {
         loadUserCountAsync();
+
+        // Ustawienie obrazka dla przycisku
+        eyeIcon.setImage(eyeOpenImage);
+        eyeIcon.setFitWidth(16);
+        eyeIcon.setFitHeight(16);
+        showPasswordButton.setGraphic(eyeIcon);
+        // Ustaw tooltip
+        Tooltip.install(showPasswordButton, new Tooltip("Pokaż/ukryj hasło"));
+        // Ukryj widoczne pole hasła na starcie
+        visiblePasswordField.setVisible(false);
+        visiblePasswordField.setManaged(false);
+        // Upewnij się, że oba pola mają ten sam rozmiar
+        visiblePasswordField.prefWidthProperty().bind(passwordField.widthProperty());
+        visiblePasswordField.minWidthProperty().bind(passwordField.minWidthProperty());
+        visiblePasswordField.maxWidthProperty().bind(passwordField.maxWidthProperty());
     }
 
     // Asynchronicznie ładuje liczbę użytkowników
@@ -985,6 +1200,7 @@ public class LoginController {
     // Obsługuje próbę logowania
     @FXML
     private void handleLogin(ActionEvent event) {
+        String password = getPassword().trim();
         performLogin();
     }
 
@@ -1197,47 +1413,48 @@ public class CandidateDAO {
         }
     }
 
-//    // Dodaj nowego kandydata
-//    public void addCandidate(Candidate candidate) {
-//        Transaction transaction = null;
-//        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-//            transaction = session.beginTransaction();
-//            session.persist(candidate);
-//            transaction.commit();
-//        } catch (Exception e) {
-//            if (transaction != null) transaction.rollback();
-//            e.printStackTrace();
-//        }
-//    }
-//
-//    // Usuń kandydata po ID
-//    public void deleteCandidate(Long id) {
-//        Transaction transaction = null;
-//        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-//            transaction = session.beginTransaction();
-//            Candidate candidate = session.get(Candidate.class, id);
-//            if (candidate != null) {
-//                session.remove(candidate);
-//            }
-//            transaction.commit();
-//        } catch (Exception e) {
-//            if (transaction != null) transaction.rollback();
-//            e.printStackTrace();
-//        }
-//    }
-//
-//    // Zaktualizuj dane kandydata
-//    public void updateCandidate(Candidate candidate) {
-//        Transaction transaction = null;
-//        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-//            transaction = session.beginTransaction();
-//            session.merge(candidate);
-//            transaction.commit();
-//        } catch (Exception e) {
-//            if (transaction != null) transaction.rollback();
-//            e.printStackTrace();
-//        }
-//    }
+    public void addCandidate(Candidate candidate) throws DatabaseException {
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            session.persist(candidate);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) transaction.rollback();
+            throw new DatabaseException("Błąd dodawania kandydata: " + e.getMessage(), e);
+        }
+    }
+
+    public void deleteCandidate(Long id) throws DatabaseException {
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            Candidate candidate = session.get(Candidate.class, id);
+            if (candidate != null) {
+                // Sprawdź głosy przed usunięciem
+                if (candidate.getVotes() > 0) {
+                    throw new DatabaseException("Nie można usunąć kandydata z głosami!", null);
+                }
+                session.remove(candidate);
+            }
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) transaction.rollback();
+            throw new DatabaseException("Błąd usuwania kandydata: " + e.getMessage(), e);
+        }
+    }
+
+    public void updateCandidate(Candidate candidate) throws DatabaseException {
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            session.merge(candidate);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) transaction.rollback();
+            throw new DatabaseException("Błąd aktualizacji kandydata: " + e.getMessage(), e);
+        }
+    }
 //
 //    // Pobierz kandydata po ID
 //    public Candidate getCandidateById(Long id) {
@@ -1257,6 +1474,7 @@ public class CandidateDAO {
 package com.election.dao;
 
 import com.election.exception.DatabaseException;
+import com.election.exception.ValidationException;
 import com.election.model.User;
 import com.election.util.HibernateUtil;
 import org.hibernate.HibernateException;
@@ -1291,18 +1509,49 @@ public class UserDAO {
 
     // Aktualizuje dane użytkownika
     public void updateUser(User user) throws DatabaseException {
-        Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
-            session.merge(user); // Zamiast session.update(user)
-            transaction.commit();
+        // Najpierw walidacja w osobnej sesji
+        validateUniqueConstraints(user);
 
-            appendUserToSql(user);
-        } catch (HibernateException e) {
-            if (transaction != null) transaction.rollback();
-            throw new DatabaseException("Błąd aktualizacji użytkownika: " + user.getUsername(), e);
+        Transaction transaction = null;
+        Session session = null;
+        try {
+            session = HibernateUtil.getSessionFactory().openSession();
+            transaction = session.beginTransaction();
+
+            // Ładujemy użytkownika z bazy danych
+            User managedUser = session.get(User.class, user.getId());
+
+            // Jeśli użytkownik nie istnieje
+            if (managedUser == null) {
+                throw new DatabaseException("Użytkownik nie istnieje w systemie", null);
+            }
+
+            // Aktualizacja pól tylko jeśli użytkownik istnieje
+            managedUser.setFirstName(user.getFirstName());
+            managedUser.setLastName(user.getLastName());
+            managedUser.setPesel(user.getPesel());
+            managedUser.setUsername(user.getUsername());
+            managedUser.setRole(user.getRole());
+
+            // Aktualizacja hasła tylko jeśli zostało zmienione
+            if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+                managedUser.setPassword(user.getPassword());
+            }
+
+            session.merge(managedUser);
+            transaction.commit();
+            appendUserToSql(managedUser);
+        } catch (ValidationException | HibernateException e) {
+            if (transaction != null && transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw new DatabaseException(e.getMessage(), e);
         } catch (IOException e) {
             throw new DatabaseException("Błąd tworzenia kopii zapasowej użytkownika", e);
+        } finally {
+            if (session != null && session.isOpen()) {
+                session.close();
+            }
         }
     }
 
@@ -1319,22 +1568,56 @@ public class UserDAO {
         }
     }
 
+    // Walidacja w osobnej sesji
+    private void validateUniqueConstraints(User user) throws ValidationException {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            // Sprawdź unikalność loginu
+            Query<User> usernameQuery = session.createQuery(
+                    "FROM User WHERE username = :username AND id != :id", User.class);
+            usernameQuery.setParameter("username", user.getUsername());
+            usernameQuery.setParameter("id", user.getId() != null ? user.getId() : -1L);
+
+            if (!usernameQuery.getResultList().isEmpty()) {
+                throw new ValidationException("Login już istnieje w systemie!");
+            }
+
+            // Sprawdź unikalność PESEL
+            Query<User> peselQuery = session.createQuery(
+                    "FROM User WHERE pesel = :pesel AND id != :id", User.class);
+            peselQuery.setParameter("pesel", user.getPesel());
+            peselQuery.setParameter("id", user.getId() != null ? user.getId() : -1L);
+
+            if (!peselQuery.getResultList().isEmpty()) {
+                throw new ValidationException("PESEL już istnieje w systemie!");
+            }
+        }
+    }
+
     // Zapisuje nowego użytkownika
     public void saveUser(User user) throws DatabaseException {
         Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        Session session = null;
+        try {
+            session = HibernateUtil.getSessionFactory().openSession();
             transaction = session.beginTransaction();
-            session.persist(user); // Zamiast session.save(user)
-            transaction.commit();
 
+            // Walidacja unikalności w osobnej sesji
+            validateUniqueConstraints(user);
+
+            session.persist(user);
+            transaction.commit();
             appendUserToSql(user);
-        } catch (HibernateException e) {
+        } catch (ValidationException | HibernateException e) {
             if (transaction != null) transaction.rollback();
-            throw new DatabaseException("Błąd zapisu użytkownika: " + user.getUsername(), e);
+            throw new DatabaseException(e.getMessage(), e);
         } catch (IOException e) {
             throw new DatabaseException("Błąd tworzenia kopii zapasowej użytkownika", e);
+        } finally {
+            if (session != null) session.close();
         }
     }
+
+
 
     // Dodaje użytkownika do pliku SQL (backup)
     private static void appendUserToSql(User user) throws IOException {
@@ -1350,6 +1633,18 @@ public class UserDAO {
 
         try (FileWriter fw = new FileWriter(filePath, true)) {
             fw.write(insert);
+        }
+    }
+
+    public int countAdmins() throws DatabaseException {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Query<Long> query = session.createQuery(
+                    "SELECT COUNT(*) FROM User WHERE role = 'ADMIN'",
+                    Long.class
+            );
+            return Math.toIntExact(query.uniqueResult());
+        } catch (HibernateException e) {
+            throw new DatabaseException("Błąd podczas zliczania administratorów", e);
         }
     }
 
@@ -1703,7 +1998,7 @@ public class User {
 
     public void setPesel(String pesel) {
         if (pesel == null || !pesel.matches("\\d{11}")) {
-            throw new IllegalArgumentException("Nieprawidłowy PESEL");
+            throw new IllegalArgumentException("Nieprawidłowy PESEL - musi mieć 11 cyfr");
         }
         this.pesel = pesel;
     }
@@ -2163,12 +2458,16 @@ public class HibernateUtil {
             <VBox spacing="10" styleClass="vbox-padding">
                 <HBox spacing="10" alignment="CENTER_LEFT">
                     <Label styleClass="panel-title" text="Panel administratora" />
-                    <Label styleClass="white-text" text="Szukaj PESEL:" />
-                    <TextField fx:id="peselSearchField" promptText="Wprowadź PESEL" />
-                    <Button onAction="#handlePeselSearch" text="Szukaj" />
-                    <Button onAction="#handleShowAllUsers" text="Pokaż wszystkich" />
                 </HBox>
-
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label styleClass="form-label" text="Filtry:"/>
+                    <TextField fx:id="firstNameFilter" promptText="Imię" styleClass="filter-field"/>
+                    <TextField fx:id="lastNameFilter" promptText="Nazwisko" styleClass="filter-field"/>
+                    <TextField fx:id="peselFilter" promptText="PESEL" styleClass="filter-field"/>
+                    <ComboBox fx:id="roleFilterComboBox" promptText="Rola" styleClass="filter-field"/>
+                    <Button text="Filtruj" onAction="#handleFilterUsers" styleClass="button-filter"/>
+                    <Button text="Wyczyść filtry" onAction="#handleClearFilters" styleClass="button-clear"/>
+                </HBox>
                 <TableView fx:id="usersTable">
                     <columns>
                         <TableColumn fx:id="idColumn" prefWidth="50" text="ID" />
@@ -2179,6 +2478,51 @@ public class HibernateUtil {
                         <TableColumn fx:id="peselColumn" prefWidth="150" text="PESEL" />
                     </columns>
                 </TableView>
+
+                <GridPane fx:id="userFormGrid" hgap="10" vgap="10">
+                    <Label styleClass="form-label" text="Imię:*" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <TextField fx:id="firstNameField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                    <Label styleClass="form-hint" text="Tylko litery małe (a-z) oraz litery duże (A-Z)" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+
+                    <Label styleClass="form-label" text="Nazwisko:*" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                    <TextField fx:id="lastNameField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                    <Label styleClass="form-hint" text="Tylko litery małe (a-z) oraz litery duże (A-Z)" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+
+                    <Label styleClass="form-label" text="PESEL:*" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                    <TextField fx:id="peselField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                    <Label styleClass="form-hint" text="11 cyfr" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+
+                    <Label styleClass="form-label" text="Login:*" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                    <TextField fx:id="usernameField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                    <Label styleClass="form-hint" text="Tylko litery małe (a-z), litery duże (A-Z), cyfry (0-9) i znak (_)" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+
+                    <Label styleClass="form-label" text="Hasło:*" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                    <HBox GridPane.columnIndex="1" GridPane.rowIndex="4">
+                        <PasswordField fx:id="passwordField" HBox.hgrow="ALWAYS" />
+                        <TextField fx:id="visiblePasswordField" HBox.hgrow="ALWAYS" visible="false" managed="false" />
+                        <Button fx:id="showPasswordButton" styleClass="eye-button" onAction="#togglePasswordVisibility" />
+                    </HBox>
+<!--                    <Label styleClass="form-hint" text="Nie może być puste" GridPane.columnIndex="2" GridPane.rowIndex="4" />-->
+
+                    <Label styleClass="form-label" text="Rola:*" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                    <ComboBox fx:id="roleComboBox" GridPane.columnIndex="1" GridPane.rowIndex="5" value="USER">
+                        <items>
+                            <FXCollections fx:factory="observableArrayList">
+                                <String fx:value="USER"/>
+                                <String fx:value="ADMIN"/>
+                            </FXCollections>
+                        </items>
+                    </ComboBox>
+                </GridPane>
+
+                <HBox spacing="10" alignment="CENTER">
+                    <Button text="Dodaj nowego" onAction="#handleAddUser" styleClass="button-add" />
+                    <Button text="Zapisz zmiany" onAction="#handleUpdateUser" styleClass="button-save" />
+                    <Button text="Usuń użytkownika" onAction="#handleDeleteUser" styleClass="button-delete" />
+                    <Button text="Wyczyść formularz" onAction="#handleClearUserForm" />
+                </HBox>
+
+                <Label fx:id="userManagementStatus" styleClass="status-label" />
             </VBox>
         </Tab>
 
@@ -2248,85 +2592,123 @@ public class HibernateUtil {
             </VBox>
         </Tab>
 
-        <!-- Zarządzanie użytkownikami -->
-        <Tab text="Zarządzaj użytkownikami">
-            <VBox styleClass="vbox-padding" spacing="10">
-                <Label styleClass="panel-title" text="Zarządzanie użytkownikami" />
+<!--        &lt;!&ndash; Zarządzanie użytkownikami &ndash;&gt;-->
+<!--        <Tab text="Zarządzaj użytkownikami">-->
+<!--            <VBox styleClass="vbox-padding" spacing="10">-->
+<!--                <Label styleClass="panel-title" text="Zarządzanie użytkownikami" />-->
 
-                <!-- Wybór akcji -->
+<!--                &lt;!&ndash; Wybór akcji &ndash;&gt;-->
+<!--                <HBox spacing="10">-->
+<!--                    <Label styleClass="form-label" text="Wybierz akcję:" />-->
+<!--                    <ComboBox fx:id="actionComboBox" promptText="Wybierz...">-->
+<!--                        <items>-->
+<!--                            <FXCollections fx:factory="observableArrayList">-->
+<!--                                <String fx:value="Dodaj użytkownika"/>-->
+<!--                                <String fx:value="Edytuj użytkownika"/>-->
+<!--                                <String fx:value="Usuń użytkownika"/>-->
+<!--                            </FXCollections>-->
+<!--                        </items>-->
+<!--                    </ComboBox>-->
+<!--                </HBox>-->
+
+<!--                &lt;!&ndash; Pełny formularz danych użytkownika &ndash;&gt;-->
+<!--                <GridPane fx:id="userFormGrid" hgap="10" vgap="10" visible="false">-->
+<!--                    <Label styleClass="form-label" text="Imię:*" GridPane.columnIndex="0" GridPane.rowIndex="0" />-->
+<!--                    <TextField fx:id="firstNameField" GridPane.columnIndex="1" GridPane.rowIndex="0" />-->
+<!--                    <Label styleClass="form-hint" text="Tylko litery małe (a-z) oraz litery duże (A-Z)" GridPane.columnIndex="2" GridPane.rowIndex="0" />-->
+
+<!--                    <Label styleClass="form-label" text="Nazwisko:*" GridPane.columnIndex="0" GridPane.rowIndex="1" />-->
+<!--                    <TextField fx:id="lastNameField" GridPane.columnIndex="1" GridPane.rowIndex="1" />-->
+<!--                    <Label styleClass="form-hint" text="Tylko litery małe (a-z) oraz litery duże (A-Z)" GridPane.columnIndex="2" GridPane.rowIndex="1" />-->
+
+<!--                    <Label styleClass="form-label" text="PESEL:*" GridPane.columnIndex="0" GridPane.rowIndex="2" />-->
+<!--                    <TextField fx:id="peselField" GridPane.columnIndex="1" GridPane.rowIndex="2" />-->
+<!--                    <Label styleClass="form-hint" text="11 cyfr" GridPane.columnIndex="2" GridPane.rowIndex="2" />-->
+
+<!--                    <Label styleClass="form-label" text="Login:*" GridPane.columnIndex="0" GridPane.rowIndex="3" />-->
+<!--                    <TextField fx:id="usernameField" GridPane.columnIndex="1" GridPane.rowIndex="3" />-->
+<!--                    <Label styleClass="form-hint" text="Tylko litery małe (a-z), litery duże (A-Z), cyfry (0-9) i znak (_)" GridPane.columnIndex="2" GridPane.rowIndex="3" />-->
+
+<!--                    <Label styleClass="form-label" text="Hasło:*" GridPane.columnIndex="0" GridPane.rowIndex="4" />-->
+<!--                    <PasswordField fx:id="passwordField" GridPane.columnIndex="1" GridPane.rowIndex="4" />-->
+<!--                    <Label styleClass="form-hint" text="Tylko litery małe (a-z), litery duże (A-Z), cyfry (0-9)" GridPane.columnIndex="2" GridPane.rowIndex="4" />-->
+
+<!--                    <Label styleClass="form-label" text="Rola:*" GridPane.columnIndex="0" GridPane.rowIndex="5" />-->
+<!--                    <ComboBox fx:id="roleComboBox" GridPane.columnIndex="1" GridPane.rowIndex="5" value="USER">-->
+<!--                        <items>-->
+<!--                            <FXCollections fx:factory="observableArrayList">-->
+<!--                                <String fx:value="USER"/>-->
+<!--                                <String fx:value="ADMIN"/>-->
+<!--                            </FXCollections>-->
+<!--                        </items>-->
+<!--                    </ComboBox>-->
+<!--                </GridPane>-->
+
+<!--                &lt;!&ndash; Pole identyfikatora (tylko dla edycji/usuwania) &ndash;&gt;-->
+<!--                <GridPane fx:id="identifierGrid" hgap="10" vgap="10" visible="false">-->
+<!--                    <Label styleClass="form-label" text="Metoda wyszukiwania:" GridPane.columnIndex="0" GridPane.rowIndex="0" />-->
+
+<!--                    <HBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="10">-->
+<!--                        <RadioButton fx:id="idRadioButton" text="ID" selected="true" />-->
+<!--                        <RadioButton fx:id="peselRadioButton" text="PESEL" />-->
+<!--                    </HBox>-->
+
+<!--                    <Label styleClass="form-label" text="ID użytkownika:"-->
+<!--                           visible="${idRadioButton.selected}"-->
+<!--                           GridPane.columnIndex="0" GridPane.rowIndex="1" />-->
+<!--                    <TextField fx:id="idField"-->
+<!--                               visible="${idRadioButton.selected}"-->
+<!--                               GridPane.columnIndex="1" GridPane.rowIndex="1" />-->
+
+<!--                    <Label styleClass="form-label" text="PESEL użytkownika:"-->
+<!--                           visible="${peselRadioButton.selected}"-->
+<!--                           GridPane.columnIndex="0" GridPane.rowIndex="2" />-->
+<!--                    <TextField fx:id="peselIdentifierField"-->
+<!--                               visible="${peselRadioButton.selected}"-->
+<!--                               GridPane.columnIndex="1" GridPane.rowIndex="2" />-->
+<!--                </GridPane>-->
+
+<!--                <Button fx:id="actionButton" text="Wykonaj" onAction="#handleUserManagement" />-->
+<!--                <Button fx:id="refreshButton" text="Wyczyść formularz" onAction="#handleRefreshForm" />-->
+<!--                <Label fx:id="userManagementStatus" styleClass="status-label" />-->
+<!--            </VBox>-->
+<!--        </Tab>-->
+        <!-- Zakładka Kandydaci -->
+        <Tab text="Kandydaci">
+            <VBox styleClass="vbox-padding" spacing="10">
+                <Label styleClass="panel-title" text="Zarządzanie kandydatami" />
+
+                <!-- Tabela kandydatów -->
+                <TableView fx:id="candidatesTable">
+                    <columns>
+                        <TableColumn fx:id="candidateIdColumn" prefWidth="50" text="ID" />
+                        <TableColumn fx:id="candidateNameColumn" prefWidth="200" text="Imię i nazwisko" />
+                        <TableColumn fx:id="candidatePartyColumn" prefWidth="150" text="Partia" />
+                        <TableColumn fx:id="candidateVotesColumn" prefWidth="100" text="Głosy" />
+                    </columns>
+                </TableView>
+
+                <!-- Formularz -->
+                <GridPane hgap="10" vgap="10">
+                    <Label styleClass="form-label" text="Imię i nazwisko:*" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <TextField fx:id="candidateNameField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                    <Label styleClass="form-hint" text="Wymagane" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+
+                    <Label styleClass="form-label" text="Partia:*" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                    <TextField fx:id="candidatePartyField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                    <Label styleClass="form-hint" text="Wymagane" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                </GridPane>
+
+                <!-- Przyciski akcji -->
                 <HBox spacing="10">
-                    <Label styleClass="form-label" text="Wybierz akcję:" />
-                    <ComboBox fx:id="actionComboBox" promptText="Wybierz...">
-                        <items>
-                            <FXCollections fx:factory="observableArrayList">
-                                <String fx:value="Dodaj użytkownika"/>
-                                <String fx:value="Edytuj użytkownika"/>
-                                <String fx:value="Usuń użytkownika"/>
-                            </FXCollections>
-                        </items>
-                    </ComboBox>
+                    <Button text="Dodaj" onAction="#handleAddCandidate" />
+                    <Button text="Edytuj" onAction="#handleUpdateCandidate" />
+                    <Button text="Usuń" onAction="#handleDeleteCandidate" />
+                    <Button text="Odśwież" onAction="#handleRefreshCandidates" />
+                    <Button text="Wyczyść formularz" onAction="#handleClearCandidateForm" />
                 </HBox>
 
-                <!-- Pełny formularz danych użytkownika -->
-                <GridPane fx:id="userFormGrid" hgap="10" vgap="10" visible="false">
-                    <Label styleClass="form-label" text="Imię:*" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                    <TextField fx:id="firstNameField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-                    <Label styleClass="form-hint" text="Tylko litery małe (a-z) oraz litery duże (A-Z)" GridPane.columnIndex="2" GridPane.rowIndex="0" />
-
-                    <Label styleClass="form-label" text="Nazwisko:*" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                    <TextField fx:id="lastNameField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                    <Label styleClass="form-hint" text="Tylko litery małe (a-z) oraz litery duże (A-Z)" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-
-                    <Label styleClass="form-label" text="PESEL:*" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                    <TextField fx:id="peselField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                    <Label styleClass="form-hint" text="11 cyfr" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-
-                    <Label styleClass="form-label" text="Login:*" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                    <TextField fx:id="usernameField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                    <Label styleClass="form-hint" text="Tylko litery małe (a-z), litery duże (A-Z), cyfry (0-9) i znak (_)" GridPane.columnIndex="2" GridPane.rowIndex="3" />
-
-                    <Label styleClass="form-label" text="Hasło:*" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-                    <PasswordField fx:id="passwordField" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                    <Label styleClass="form-hint" text="Tylko litery małe (a-z), litery duże (A-Z), cyfry (0-9)" GridPane.columnIndex="2" GridPane.rowIndex="4" />
-
-                    <Label styleClass="form-label" text="Rola:*" GridPane.columnIndex="0" GridPane.rowIndex="5" />
-                    <ComboBox fx:id="roleComboBox" GridPane.columnIndex="1" GridPane.rowIndex="5" value="USER">
-                        <items>
-                            <FXCollections fx:factory="observableArrayList">
-                                <String fx:value="USER"/>
-                                <String fx:value="ADMIN"/>
-                            </FXCollections>
-                        </items>
-                    </ComboBox>
-                </GridPane>
-
-                <!-- Pole identyfikatora (tylko dla edycji/usuwania) -->
-                <GridPane fx:id="identifierGrid" hgap="10" vgap="10" visible="false">
-                    <Label styleClass="form-label" text="Metoda wyszukiwania:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-
-                    <HBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="10">
-                        <RadioButton fx:id="idRadioButton" text="ID" selected="true" />
-                        <RadioButton fx:id="peselRadioButton" text="PESEL" />
-                    </HBox>
-
-                    <Label styleClass="form-label" text="ID użytkownika:"
-                           visible="${idRadioButton.selected}"
-                           GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                    <TextField fx:id="idField"
-                               visible="${idRadioButton.selected}"
-                               GridPane.columnIndex="1" GridPane.rowIndex="1" />
-
-                    <Label styleClass="form-label" text="PESEL użytkownika:"
-                           visible="${peselRadioButton.selected}"
-                           GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                    <TextField fx:id="peselIdentifierField"
-                               visible="${peselRadioButton.selected}"
-                               GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                </GridPane>
-
-                <Button fx:id="actionButton" text="Wykonaj" onAction="#handleUserManagement" />
-                <Button fx:id="refreshButton" text="Wyczyść formularz" onAction="#handleRefreshForm" />
-                <Label fx:id="userManagementStatus" styleClass="status-label" />
+                <Label fx:id="candidateStatusLabel" styleClass="status-label" />
             </VBox>
         </Tab>
     </TabPane>
@@ -2370,7 +2752,11 @@ public class HibernateUtil {
                 <TextField fx:id="usernameField" styleClass="form-field" promptText="Wprowadź login" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
                 <Label styleClass="form-label" text="Hasło:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                <PasswordField fx:id="passwordField" styleClass="form-field" promptText="Wprowadź hasło" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                <HBox alignment="CENTER_LEFT" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                    <PasswordField fx:id="passwordField" styleClass="form-field" promptText="Wprowadź hasło" HBox.hgrow="ALWAYS" />
+                    <TextField fx:id="visiblePasswordField" styleClass="form-field" promptText="Wprowadź hasło" HBox.hgrow="ALWAYS" visible="false" managed="false" />
+                    <Button fx:id="showPasswordButton" styleClass="eye-button" onAction="#togglePasswordVisibility" />
+                </HBox>
 
                 <HBox alignment="CENTER" spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="2">
                     <Button styleClass="button-login" onAction="#handleLogin" text="Zaloguj" />
@@ -2650,6 +3036,67 @@ public class HibernateUtil {
     -fx-font-size: 16px;
     -fx-font-weight: bold;
 }
+#candidatesTable {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+    -fx-padding: 10px;
+}
+#candidatesTable .table-cell {
+    -fx-alignment: CENTER;
+}
+
+#candidateVotesColumn {
+    -fx-alignment: CENTER_RIGHT;
+}
+.button-add {
+    -fx-base: #27ae60; /* Zielony */
+}
+
+.button-save {
+    -fx-base: #3498db; /* Niebieski */
+}
+
+.button-delete {
+    -fx-base: #e74c3c; /* Czerwony */
+}
+/* Nowe style */
+.filter-field {
+    -fx-pref-width: 120px;
+    -fx-prompt-text-fill: #95a5a6;
+}
+
+.button-filter {
+    -fx-base: #3498db;
+    -fx-text-fill: white;
+}
+
+.button-clear {
+    -fx-base: #95a5a6;
+    -fx-text-fill: white;
+}
+/* Przycisk oka */
+.eye-button {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+    -fx-padding: 0 5px 0 5px;
+    -fx-cursor: hand;
+}
+
+.eye-button:hover {
+    -fx-background-color: #e0e0e0;
+    -fx-background-radius: 3px;
+}
+
+/* Ustaw ten sam styl dla obu pól */
+.password-field, .text-field {
+    -fx-pref-width: 200px;
+    -fx-font-size: 14px;
+    -fx-min-height: 25px; /* Zapobiega zmianie wysokości */
+}
+/* Ustawienia dla HBox */
+.hbox-password {
+    -fx-alignment: CENTER_LEFT;
+    -fx-spacing: 5px;
+}
 
 
 �CIE�KA: src\main\resources\com\election\view\user_view.fxml
@@ -2733,12 +3180,16 @@ public class HibernateUtil {
             <VBox spacing="10" styleClass="vbox-padding">
                 <HBox spacing="10" alignment="CENTER_LEFT">
                     <Label styleClass="panel-title" text="Panel administratora" />
-                    <Label styleClass="white-text" text="Szukaj PESEL:" />
-                    <TextField fx:id="peselSearchField" promptText="Wprowadź PESEL" />
-                    <Button onAction="#handlePeselSearch" text="Szukaj" />
-                    <Button onAction="#handleShowAllUsers" text="Pokaż wszystkich" />
                 </HBox>
-
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label styleClass="form-label" text="Filtry:"/>
+                    <TextField fx:id="firstNameFilter" promptText="Imię" styleClass="filter-field"/>
+                    <TextField fx:id="lastNameFilter" promptText="Nazwisko" styleClass="filter-field"/>
+                    <TextField fx:id="peselFilter" promptText="PESEL" styleClass="filter-field"/>
+                    <ComboBox fx:id="roleFilterComboBox" promptText="Rola" styleClass="filter-field"/>
+                    <Button text="Filtruj" onAction="#handleFilterUsers" styleClass="button-filter"/>
+                    <Button text="Wyczyść filtry" onAction="#handleClearFilters" styleClass="button-clear"/>
+                </HBox>
                 <TableView fx:id="usersTable">
                     <columns>
                         <TableColumn fx:id="idColumn" prefWidth="50" text="ID" />
@@ -2749,6 +3200,51 @@ public class HibernateUtil {
                         <TableColumn fx:id="peselColumn" prefWidth="150" text="PESEL" />
                     </columns>
                 </TableView>
+
+                <GridPane fx:id="userFormGrid" hgap="10" vgap="10">
+                    <Label styleClass="form-label" text="Imię:*" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <TextField fx:id="firstNameField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                    <Label styleClass="form-hint" text="Tylko litery małe (a-z) oraz litery duże (A-Z)" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+
+                    <Label styleClass="form-label" text="Nazwisko:*" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                    <TextField fx:id="lastNameField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                    <Label styleClass="form-hint" text="Tylko litery małe (a-z) oraz litery duże (A-Z)" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+
+                    <Label styleClass="form-label" text="PESEL:*" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                    <TextField fx:id="peselField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                    <Label styleClass="form-hint" text="11 cyfr" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+
+                    <Label styleClass="form-label" text="Login:*" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                    <TextField fx:id="usernameField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                    <Label styleClass="form-hint" text="Tylko litery małe (a-z), litery duże (A-Z), cyfry (0-9) i znak (_)" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+
+                    <Label styleClass="form-label" text="Hasło:*" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                    <HBox GridPane.columnIndex="1" GridPane.rowIndex="4">
+                        <PasswordField fx:id="passwordField" HBox.hgrow="ALWAYS" />
+                        <TextField fx:id="visiblePasswordField" HBox.hgrow="ALWAYS" visible="false" managed="false" />
+                        <Button fx:id="showPasswordButton" styleClass="eye-button" onAction="#togglePasswordVisibility" />
+                    </HBox>
+<!--                    <Label styleClass="form-hint" text="Nie może być puste" GridPane.columnIndex="2" GridPane.rowIndex="4" />-->
+
+                    <Label styleClass="form-label" text="Rola:*" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                    <ComboBox fx:id="roleComboBox" GridPane.columnIndex="1" GridPane.rowIndex="5" value="USER">
+                        <items>
+                            <FXCollections fx:factory="observableArrayList">
+                                <String fx:value="USER"/>
+                                <String fx:value="ADMIN"/>
+                            </FXCollections>
+                        </items>
+                    </ComboBox>
+                </GridPane>
+
+                <HBox spacing="10" alignment="CENTER">
+                    <Button text="Dodaj nowego" onAction="#handleAddUser" styleClass="button-add" />
+                    <Button text="Zapisz zmiany" onAction="#handleUpdateUser" styleClass="button-save" />
+                    <Button text="Usuń użytkownika" onAction="#handleDeleteUser" styleClass="button-delete" />
+                    <Button text="Wyczyść formularz" onAction="#handleClearUserForm" />
+                </HBox>
+
+                <Label fx:id="userManagementStatus" styleClass="status-label" />
             </VBox>
         </Tab>
 
@@ -2818,85 +3314,123 @@ public class HibernateUtil {
             </VBox>
         </Tab>
 
-        <!-- Zarządzanie użytkownikami -->
-        <Tab text="Zarządzaj użytkownikami">
-            <VBox styleClass="vbox-padding" spacing="10">
-                <Label styleClass="panel-title" text="Zarządzanie użytkownikami" />
+<!--        &lt;!&ndash; Zarządzanie użytkownikami &ndash;&gt;-->
+<!--        <Tab text="Zarządzaj użytkownikami">-->
+<!--            <VBox styleClass="vbox-padding" spacing="10">-->
+<!--                <Label styleClass="panel-title" text="Zarządzanie użytkownikami" />-->
 
-                <!-- Wybór akcji -->
+<!--                &lt;!&ndash; Wybór akcji &ndash;&gt;-->
+<!--                <HBox spacing="10">-->
+<!--                    <Label styleClass="form-label" text="Wybierz akcję:" />-->
+<!--                    <ComboBox fx:id="actionComboBox" promptText="Wybierz...">-->
+<!--                        <items>-->
+<!--                            <FXCollections fx:factory="observableArrayList">-->
+<!--                                <String fx:value="Dodaj użytkownika"/>-->
+<!--                                <String fx:value="Edytuj użytkownika"/>-->
+<!--                                <String fx:value="Usuń użytkownika"/>-->
+<!--                            </FXCollections>-->
+<!--                        </items>-->
+<!--                    </ComboBox>-->
+<!--                </HBox>-->
+
+<!--                &lt;!&ndash; Pełny formularz danych użytkownika &ndash;&gt;-->
+<!--                <GridPane fx:id="userFormGrid" hgap="10" vgap="10" visible="false">-->
+<!--                    <Label styleClass="form-label" text="Imię:*" GridPane.columnIndex="0" GridPane.rowIndex="0" />-->
+<!--                    <TextField fx:id="firstNameField" GridPane.columnIndex="1" GridPane.rowIndex="0" />-->
+<!--                    <Label styleClass="form-hint" text="Tylko litery małe (a-z) oraz litery duże (A-Z)" GridPane.columnIndex="2" GridPane.rowIndex="0" />-->
+
+<!--                    <Label styleClass="form-label" text="Nazwisko:*" GridPane.columnIndex="0" GridPane.rowIndex="1" />-->
+<!--                    <TextField fx:id="lastNameField" GridPane.columnIndex="1" GridPane.rowIndex="1" />-->
+<!--                    <Label styleClass="form-hint" text="Tylko litery małe (a-z) oraz litery duże (A-Z)" GridPane.columnIndex="2" GridPane.rowIndex="1" />-->
+
+<!--                    <Label styleClass="form-label" text="PESEL:*" GridPane.columnIndex="0" GridPane.rowIndex="2" />-->
+<!--                    <TextField fx:id="peselField" GridPane.columnIndex="1" GridPane.rowIndex="2" />-->
+<!--                    <Label styleClass="form-hint" text="11 cyfr" GridPane.columnIndex="2" GridPane.rowIndex="2" />-->
+
+<!--                    <Label styleClass="form-label" text="Login:*" GridPane.columnIndex="0" GridPane.rowIndex="3" />-->
+<!--                    <TextField fx:id="usernameField" GridPane.columnIndex="1" GridPane.rowIndex="3" />-->
+<!--                    <Label styleClass="form-hint" text="Tylko litery małe (a-z), litery duże (A-Z), cyfry (0-9) i znak (_)" GridPane.columnIndex="2" GridPane.rowIndex="3" />-->
+
+<!--                    <Label styleClass="form-label" text="Hasło:*" GridPane.columnIndex="0" GridPane.rowIndex="4" />-->
+<!--                    <PasswordField fx:id="passwordField" GridPane.columnIndex="1" GridPane.rowIndex="4" />-->
+<!--                    <Label styleClass="form-hint" text="Tylko litery małe (a-z), litery duże (A-Z), cyfry (0-9)" GridPane.columnIndex="2" GridPane.rowIndex="4" />-->
+
+<!--                    <Label styleClass="form-label" text="Rola:*" GridPane.columnIndex="0" GridPane.rowIndex="5" />-->
+<!--                    <ComboBox fx:id="roleComboBox" GridPane.columnIndex="1" GridPane.rowIndex="5" value="USER">-->
+<!--                        <items>-->
+<!--                            <FXCollections fx:factory="observableArrayList">-->
+<!--                                <String fx:value="USER"/>-->
+<!--                                <String fx:value="ADMIN"/>-->
+<!--                            </FXCollections>-->
+<!--                        </items>-->
+<!--                    </ComboBox>-->
+<!--                </GridPane>-->
+
+<!--                &lt;!&ndash; Pole identyfikatora (tylko dla edycji/usuwania) &ndash;&gt;-->
+<!--                <GridPane fx:id="identifierGrid" hgap="10" vgap="10" visible="false">-->
+<!--                    <Label styleClass="form-label" text="Metoda wyszukiwania:" GridPane.columnIndex="0" GridPane.rowIndex="0" />-->
+
+<!--                    <HBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="10">-->
+<!--                        <RadioButton fx:id="idRadioButton" text="ID" selected="true" />-->
+<!--                        <RadioButton fx:id="peselRadioButton" text="PESEL" />-->
+<!--                    </HBox>-->
+
+<!--                    <Label styleClass="form-label" text="ID użytkownika:"-->
+<!--                           visible="${idRadioButton.selected}"-->
+<!--                           GridPane.columnIndex="0" GridPane.rowIndex="1" />-->
+<!--                    <TextField fx:id="idField"-->
+<!--                               visible="${idRadioButton.selected}"-->
+<!--                               GridPane.columnIndex="1" GridPane.rowIndex="1" />-->
+
+<!--                    <Label styleClass="form-label" text="PESEL użytkownika:"-->
+<!--                           visible="${peselRadioButton.selected}"-->
+<!--                           GridPane.columnIndex="0" GridPane.rowIndex="2" />-->
+<!--                    <TextField fx:id="peselIdentifierField"-->
+<!--                               visible="${peselRadioButton.selected}"-->
+<!--                               GridPane.columnIndex="1" GridPane.rowIndex="2" />-->
+<!--                </GridPane>-->
+
+<!--                <Button fx:id="actionButton" text="Wykonaj" onAction="#handleUserManagement" />-->
+<!--                <Button fx:id="refreshButton" text="Wyczyść formularz" onAction="#handleRefreshForm" />-->
+<!--                <Label fx:id="userManagementStatus" styleClass="status-label" />-->
+<!--            </VBox>-->
+<!--        </Tab>-->
+        <!-- Zakładka Kandydaci -->
+        <Tab text="Kandydaci">
+            <VBox styleClass="vbox-padding" spacing="10">
+                <Label styleClass="panel-title" text="Zarządzanie kandydatami" />
+
+                <!-- Tabela kandydatów -->
+                <TableView fx:id="candidatesTable">
+                    <columns>
+                        <TableColumn fx:id="candidateIdColumn" prefWidth="50" text="ID" />
+                        <TableColumn fx:id="candidateNameColumn" prefWidth="200" text="Imię i nazwisko" />
+                        <TableColumn fx:id="candidatePartyColumn" prefWidth="150" text="Partia" />
+                        <TableColumn fx:id="candidateVotesColumn" prefWidth="100" text="Głosy" />
+                    </columns>
+                </TableView>
+
+                <!-- Formularz -->
+                <GridPane hgap="10" vgap="10">
+                    <Label styleClass="form-label" text="Imię i nazwisko:*" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <TextField fx:id="candidateNameField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                    <Label styleClass="form-hint" text="Wymagane" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+
+                    <Label styleClass="form-label" text="Partia:*" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                    <TextField fx:id="candidatePartyField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                    <Label styleClass="form-hint" text="Wymagane" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                </GridPane>
+
+                <!-- Przyciski akcji -->
                 <HBox spacing="10">
-                    <Label styleClass="form-label" text="Wybierz akcję:" />
-                    <ComboBox fx:id="actionComboBox" promptText="Wybierz...">
-                        <items>
-                            <FXCollections fx:factory="observableArrayList">
-                                <String fx:value="Dodaj użytkownika"/>
-                                <String fx:value="Edytuj użytkownika"/>
-                                <String fx:value="Usuń użytkownika"/>
-                            </FXCollections>
-                        </items>
-                    </ComboBox>
+                    <Button text="Dodaj" onAction="#handleAddCandidate" />
+                    <Button text="Edytuj" onAction="#handleUpdateCandidate" />
+                    <Button text="Usuń" onAction="#handleDeleteCandidate" />
+                    <Button text="Odśwież" onAction="#handleRefreshCandidates" />
+                    <Button text="Wyczyść formularz" onAction="#handleClearCandidateForm" />
                 </HBox>
 
-                <!-- Pełny formularz danych użytkownika -->
-                <GridPane fx:id="userFormGrid" hgap="10" vgap="10" visible="false">
-                    <Label styleClass="form-label" text="Imię:*" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                    <TextField fx:id="firstNameField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-                    <Label styleClass="form-hint" text="Tylko litery małe (a-z) oraz litery duże (A-Z)" GridPane.columnIndex="2" GridPane.rowIndex="0" />
-
-                    <Label styleClass="form-label" text="Nazwisko:*" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                    <TextField fx:id="lastNameField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                    <Label styleClass="form-hint" text="Tylko litery małe (a-z) oraz litery duże (A-Z)" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-
-                    <Label styleClass="form-label" text="PESEL:*" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                    <TextField fx:id="peselField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                    <Label styleClass="form-hint" text="11 cyfr" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-
-                    <Label styleClass="form-label" text="Login:*" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                    <TextField fx:id="usernameField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                    <Label styleClass="form-hint" text="Tylko litery małe (a-z), litery duże (A-Z), cyfry (0-9) i znak (_)" GridPane.columnIndex="2" GridPane.rowIndex="3" />
-
-                    <Label styleClass="form-label" text="Hasło:*" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-                    <PasswordField fx:id="passwordField" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                    <Label styleClass="form-hint" text="Tylko litery małe (a-z), litery duże (A-Z), cyfry (0-9)" GridPane.columnIndex="2" GridPane.rowIndex="4" />
-
-                    <Label styleClass="form-label" text="Rola:*" GridPane.columnIndex="0" GridPane.rowIndex="5" />
-                    <ComboBox fx:id="roleComboBox" GridPane.columnIndex="1" GridPane.rowIndex="5" value="USER">
-                        <items>
-                            <FXCollections fx:factory="observableArrayList">
-                                <String fx:value="USER"/>
-                                <String fx:value="ADMIN"/>
-                            </FXCollections>
-                        </items>
-                    </ComboBox>
-                </GridPane>
-
-                <!-- Pole identyfikatora (tylko dla edycji/usuwania) -->
-                <GridPane fx:id="identifierGrid" hgap="10" vgap="10" visible="false">
-                    <Label styleClass="form-label" text="Metoda wyszukiwania:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-
-                    <HBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="10">
-                        <RadioButton fx:id="idRadioButton" text="ID" selected="true" />
-                        <RadioButton fx:id="peselRadioButton" text="PESEL" />
-                    </HBox>
-
-                    <Label styleClass="form-label" text="ID użytkownika:"
-                           visible="${idRadioButton.selected}"
-                           GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                    <TextField fx:id="idField"
-                               visible="${idRadioButton.selected}"
-                               GridPane.columnIndex="1" GridPane.rowIndex="1" />
-
-                    <Label styleClass="form-label" text="PESEL użytkownika:"
-                           visible="${peselRadioButton.selected}"
-                           GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                    <TextField fx:id="peselIdentifierField"
-                               visible="${peselRadioButton.selected}"
-                               GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                </GridPane>
-
-                <Button fx:id="actionButton" text="Wykonaj" onAction="#handleUserManagement" />
-                <Button fx:id="refreshButton" text="Wyczyść formularz" onAction="#handleRefreshForm" />
-                <Label fx:id="userManagementStatus" styleClass="status-label" />
+                <Label fx:id="candidateStatusLabel" styleClass="status-label" />
             </VBox>
         </Tab>
     </TabPane>
@@ -2940,7 +3474,11 @@ public class HibernateUtil {
                 <TextField fx:id="usernameField" styleClass="form-field" promptText="Wprowadź login" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
                 <Label styleClass="form-label" text="Hasło:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                <PasswordField fx:id="passwordField" styleClass="form-field" promptText="Wprowadź hasło" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                <HBox alignment="CENTER_LEFT" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                    <PasswordField fx:id="passwordField" styleClass="form-field" promptText="Wprowadź hasło" HBox.hgrow="ALWAYS" />
+                    <TextField fx:id="visiblePasswordField" styleClass="form-field" promptText="Wprowadź hasło" HBox.hgrow="ALWAYS" visible="false" managed="false" />
+                    <Button fx:id="showPasswordButton" styleClass="eye-button" onAction="#togglePasswordVisibility" />
+                </HBox>
 
                 <HBox alignment="CENTER" spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="2">
                     <Button styleClass="button-login" onAction="#handleLogin" text="Zaloguj" />
@@ -3219,6 +3757,67 @@ public class HibernateUtil {
 .axis:bottom .axis-tick-label {
     -fx-font-size: 16px;
     -fx-font-weight: bold;
+}
+#candidatesTable {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+    -fx-padding: 10px;
+}
+#candidatesTable .table-cell {
+    -fx-alignment: CENTER;
+}
+
+#candidateVotesColumn {
+    -fx-alignment: CENTER_RIGHT;
+}
+.button-add {
+    -fx-base: #27ae60; /* Zielony */
+}
+
+.button-save {
+    -fx-base: #3498db; /* Niebieski */
+}
+
+.button-delete {
+    -fx-base: #e74c3c; /* Czerwony */
+}
+/* Nowe style */
+.filter-field {
+    -fx-pref-width: 120px;
+    -fx-prompt-text-fill: #95a5a6;
+}
+
+.button-filter {
+    -fx-base: #3498db;
+    -fx-text-fill: white;
+}
+
+.button-clear {
+    -fx-base: #95a5a6;
+    -fx-text-fill: white;
+}
+/* Przycisk oka */
+.eye-button {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+    -fx-padding: 0 5px 0 5px;
+    -fx-cursor: hand;
+}
+
+.eye-button:hover {
+    -fx-background-color: #e0e0e0;
+    -fx-background-radius: 3px;
+}
+
+/* Ustaw ten sam styl dla obu pól */
+.password-field, .text-field {
+    -fx-pref-width: 200px;
+    -fx-font-size: 14px;
+    -fx-min-height: 25px; /* Zapobiega zmianie wysokości */
+}
+/* Ustawienia dla HBox */
+.hbox-password {
+    -fx-alignment: CENTER_LEFT;
+    -fx-spacing: 5px;
 }
 
 

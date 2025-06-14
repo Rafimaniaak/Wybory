@@ -33,7 +33,11 @@
                 <TextField fx:id="usernameField" styleClass="form-field" promptText="Wprowadź login" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
                 <Label styleClass="form-label" text="Hasło:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                <PasswordField fx:id="passwordField" styleClass="form-field" promptText="Wprowadź hasło" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                <HBox alignment="CENTER_LEFT" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                    <PasswordField fx:id="passwordField" styleClass="form-field" promptText="Wprowadź hasło" HBox.hgrow="ALWAYS" />
+                    <TextField fx:id="visiblePasswordField" styleClass="form-field" promptText="Wprowadź hasło" HBox.hgrow="ALWAYS" visible="false" managed="false" />
+                    <Button fx:id="showPasswordButton" styleClass="eye-button" onAction="#togglePasswordVisibility" />
+                </HBox>
 
                 <HBox alignment="CENTER" spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="2">
                     <Button styleClass="button-login" onAction="#handleLogin" text="Zaloguj" />

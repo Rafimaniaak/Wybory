@@ -24,12 +24,16 @@
             <VBox spacing="10" styleClass="vbox-padding">
                 <HBox spacing="10" alignment="CENTER_LEFT">
                     <Label styleClass="panel-title" text="Panel administratora" />
-                    <Label styleClass="white-text" text="Szukaj PESEL:" />
-                    <TextField fx:id="peselSearchField" promptText="Wprowadź PESEL" />
-                    <Button onAction="#handlePeselSearch" text="Szukaj" />
-                    <Button onAction="#handleShowAllUsers" text="Pokaż wszystkich" />
                 </HBox>
-
+                <HBox spacing="5" alignment="CENTER_LEFT"> <!-- Zmniejszony spacing -->
+                    <Label styleClass="form-label" text="Filtry:"/>
+                    <TextField fx:id="firstNameFilter" prefWidth="100" promptText="Imię"/>
+                    <TextField fx:id="lastNameFilter" prefWidth="100" promptText="Nazwisko"/>
+                    <TextField fx:id="peselFilter" prefWidth="120" promptText="PESEL"/>
+                    <ComboBox fx:id="roleFilterComboBox" prefWidth="80" promptText="Rola"/>
+                    <Button text="Filtruj" prefWidth="80" onAction="#handleFilterUsers"/>
+                    <Button text="Wyczyść" prefWidth="80" onAction="#handleClearFilters"/>
+                </HBox>
                 <TableView fx:id="usersTable">
                     <columns>
                         <TableColumn fx:id="idColumn" prefWidth="50" text="ID" />
@@ -40,6 +44,51 @@
                         <TableColumn fx:id="peselColumn" prefWidth="150" text="PESEL" />
                     </columns>
                 </TableView>
+
+                <GridPane fx:id="userFormGrid" hgap="10" vgap="10">
+                    <Label styleClass="form-label" text="Imię:*" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <TextField fx:id="firstNameField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                    <Label styleClass="form-hint" text="Tylko litery małe (a-z) oraz litery duże (A-Z)" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+
+                    <Label styleClass="form-label" text="Nazwisko:*" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                    <TextField fx:id="lastNameField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                    <Label styleClass="form-hint" text="Tylko litery małe (a-z) oraz litery duże (A-Z)" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+
+                    <Label styleClass="form-label" text="PESEL:*" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                    <TextField fx:id="peselField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                    <Label styleClass="form-hint" text="11 cyfr" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+
+                    <Label styleClass="form-label" text="Login:*" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                    <TextField fx:id="usernameField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                    <Label styleClass="form-hint" text="Tylko litery małe (a-z), litery duże (A-Z), cyfry (0-9) i znak (_)" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+
+                    <Label styleClass="form-label" text="Hasło:*" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                    <HBox GridPane.columnIndex="1" GridPane.rowIndex="4">
+                        <PasswordField fx:id="passwordField" HBox.hgrow="ALWAYS" />
+                        <TextField fx:id="visiblePasswordField" HBox.hgrow="ALWAYS" visible="false" managed="false" />
+                        <Button fx:id="showPasswordButton" styleClass="eye-button" onAction="#togglePasswordVisibility" />
+                    </HBox>
+<!--                    <Label styleClass="form-hint" text="Nie może być puste" GridPane.columnIndex="2" GridPane.rowIndex="4" />-->
+
+                    <Label styleClass="form-label" text="Rola:*" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                    <ComboBox fx:id="roleComboBox" GridPane.columnIndex="1" GridPane.rowIndex="5" value="USER">
+                        <items>
+                            <FXCollections fx:factory="observableArrayList">
+                                <String fx:value="USER"/>
+                                <String fx:value="ADMIN"/>
+                            </FXCollections>
+                        </items>
+                    </ComboBox>
+                </GridPane>
+
+                <HBox spacing="10" alignment="CENTER">
+                    <Button text="Dodaj nowego" onAction="#handleAddUser" styleClass="button-add" />
+                    <Button text="Zapisz zmiany" onAction="#handleUpdateUser" styleClass="button-save" />
+                    <Button text="Usuń użytkownika" onAction="#handleDeleteUser" styleClass="button-delete" />
+                    <Button text="Wyczyść formularz" onAction="#handleClearUserForm" />
+                </HBox>
+
+                <Label fx:id="userManagementStatus" styleClass="status-label" />
             </VBox>
         </Tab>
 
@@ -109,87 +158,87 @@
             </VBox>
         </Tab>
 
-        <!-- Zarządzanie użytkownikami -->
-        <Tab text="Zarządzaj użytkownikami">
-            <VBox styleClass="vbox-padding" spacing="10">
-                <Label styleClass="panel-title" text="Zarządzanie użytkownikami" />
+<!--        &lt;!&ndash; Zarządzanie użytkownikami &ndash;&gt;-->
+<!--        <Tab text="Zarządzaj użytkownikami">-->
+<!--            <VBox styleClass="vbox-padding" spacing="10">-->
+<!--                <Label styleClass="panel-title" text="Zarządzanie użytkownikami" />-->
 
-                <!-- Wybór akcji -->
-                <HBox spacing="10">
-                    <Label styleClass="form-label" text="Wybierz akcję:" />
-                    <ComboBox fx:id="actionComboBox" promptText="Wybierz...">
-                        <items>
-                            <FXCollections fx:factory="observableArrayList">
-                                <String fx:value="Dodaj użytkownika"/>
-                                <String fx:value="Edytuj użytkownika"/>
-                                <String fx:value="Usuń użytkownika"/>
-                            </FXCollections>
-                        </items>
-                    </ComboBox>
-                </HBox>
+<!--                &lt;!&ndash; Wybór akcji &ndash;&gt;-->
+<!--                <HBox spacing="10">-->
+<!--                    <Label styleClass="form-label" text="Wybierz akcję:" />-->
+<!--                    <ComboBox fx:id="actionComboBox" promptText="Wybierz...">-->
+<!--                        <items>-->
+<!--                            <FXCollections fx:factory="observableArrayList">-->
+<!--                                <String fx:value="Dodaj użytkownika"/>-->
+<!--                                <String fx:value="Edytuj użytkownika"/>-->
+<!--                                <String fx:value="Usuń użytkownika"/>-->
+<!--                            </FXCollections>-->
+<!--                        </items>-->
+<!--                    </ComboBox>-->
+<!--                </HBox>-->
 
-                <!-- Pełny formularz danych użytkownika -->
-                <GridPane fx:id="userFormGrid" hgap="10" vgap="10" visible="false">
-                    <Label styleClass="form-label" text="Imię:*" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                    <TextField fx:id="firstNameField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-                    <Label styleClass="form-hint" text="Tylko litery małe (a-z) oraz litery duże (A-Z)" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+<!--                &lt;!&ndash; Pełny formularz danych użytkownika &ndash;&gt;-->
+<!--                <GridPane fx:id="userFormGrid" hgap="10" vgap="10" visible="false">-->
+<!--                    <Label styleClass="form-label" text="Imię:*" GridPane.columnIndex="0" GridPane.rowIndex="0" />-->
+<!--                    <TextField fx:id="firstNameField" GridPane.columnIndex="1" GridPane.rowIndex="0" />-->
+<!--                    <Label styleClass="form-hint" text="Tylko litery małe (a-z) oraz litery duże (A-Z)" GridPane.columnIndex="2" GridPane.rowIndex="0" />-->
 
-                    <Label styleClass="form-label" text="Nazwisko:*" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                    <TextField fx:id="lastNameField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                    <Label styleClass="form-hint" text="Tylko litery małe (a-z) oraz litery duże (A-Z)" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+<!--                    <Label styleClass="form-label" text="Nazwisko:*" GridPane.columnIndex="0" GridPane.rowIndex="1" />-->
+<!--                    <TextField fx:id="lastNameField" GridPane.columnIndex="1" GridPane.rowIndex="1" />-->
+<!--                    <Label styleClass="form-hint" text="Tylko litery małe (a-z) oraz litery duże (A-Z)" GridPane.columnIndex="2" GridPane.rowIndex="1" />-->
 
-                    <Label styleClass="form-label" text="PESEL:*" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                    <TextField fx:id="peselField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                    <Label styleClass="form-hint" text="11 cyfr" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+<!--                    <Label styleClass="form-label" text="PESEL:*" GridPane.columnIndex="0" GridPane.rowIndex="2" />-->
+<!--                    <TextField fx:id="peselField" GridPane.columnIndex="1" GridPane.rowIndex="2" />-->
+<!--                    <Label styleClass="form-hint" text="11 cyfr" GridPane.columnIndex="2" GridPane.rowIndex="2" />-->
 
-                    <Label styleClass="form-label" text="Login:*" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                    <TextField fx:id="usernameField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                    <Label styleClass="form-hint" text="Tylko litery małe (a-z), litery duże (A-Z), cyfry (0-9) i znak (_)" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+<!--                    <Label styleClass="form-label" text="Login:*" GridPane.columnIndex="0" GridPane.rowIndex="3" />-->
+<!--                    <TextField fx:id="usernameField" GridPane.columnIndex="1" GridPane.rowIndex="3" />-->
+<!--                    <Label styleClass="form-hint" text="Tylko litery małe (a-z), litery duże (A-Z), cyfry (0-9) i znak (_)" GridPane.columnIndex="2" GridPane.rowIndex="3" />-->
 
-                    <Label styleClass="form-label" text="Hasło:*" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-                    <PasswordField fx:id="passwordField" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                    <Label styleClass="form-hint" text="Tylko litery małe (a-z), litery duże (A-Z), cyfry (0-9)" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+<!--                    <Label styleClass="form-label" text="Hasło:*" GridPane.columnIndex="0" GridPane.rowIndex="4" />-->
+<!--                    <PasswordField fx:id="passwordField" GridPane.columnIndex="1" GridPane.rowIndex="4" />-->
+<!--                    <Label styleClass="form-hint" text="Tylko litery małe (a-z), litery duże (A-Z), cyfry (0-9)" GridPane.columnIndex="2" GridPane.rowIndex="4" />-->
 
-                    <Label styleClass="form-label" text="Rola:*" GridPane.columnIndex="0" GridPane.rowIndex="5" />
-                    <ComboBox fx:id="roleComboBox" GridPane.columnIndex="1" GridPane.rowIndex="5" value="USER">
-                        <items>
-                            <FXCollections fx:factory="observableArrayList">
-                                <String fx:value="USER"/>
-                                <String fx:value="ADMIN"/>
-                            </FXCollections>
-                        </items>
-                    </ComboBox>
-                </GridPane>
+<!--                    <Label styleClass="form-label" text="Rola:*" GridPane.columnIndex="0" GridPane.rowIndex="5" />-->
+<!--                    <ComboBox fx:id="roleComboBox" GridPane.columnIndex="1" GridPane.rowIndex="5" value="USER">-->
+<!--                        <items>-->
+<!--                            <FXCollections fx:factory="observableArrayList">-->
+<!--                                <String fx:value="USER"/>-->
+<!--                                <String fx:value="ADMIN"/>-->
+<!--                            </FXCollections>-->
+<!--                        </items>-->
+<!--                    </ComboBox>-->
+<!--                </GridPane>-->
 
-                <!-- Pole identyfikatora (tylko dla edycji/usuwania) -->
-                <GridPane fx:id="identifierGrid" hgap="10" vgap="10" visible="false">
-                    <Label styleClass="form-label" text="Metoda wyszukiwania:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+<!--                &lt;!&ndash; Pole identyfikatora (tylko dla edycji/usuwania) &ndash;&gt;-->
+<!--                <GridPane fx:id="identifierGrid" hgap="10" vgap="10" visible="false">-->
+<!--                    <Label styleClass="form-label" text="Metoda wyszukiwania:" GridPane.columnIndex="0" GridPane.rowIndex="0" />-->
 
-                    <HBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="10">
-                        <RadioButton fx:id="idRadioButton" text="ID" selected="true" />
-                        <RadioButton fx:id="peselRadioButton" text="PESEL" />
-                    </HBox>
+<!--                    <HBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="10">-->
+<!--                        <RadioButton fx:id="idRadioButton" text="ID" selected="true" />-->
+<!--                        <RadioButton fx:id="peselRadioButton" text="PESEL" />-->
+<!--                    </HBox>-->
 
-                    <Label styleClass="form-label" text="ID użytkownika:"
-                           visible="${idRadioButton.selected}"
-                           GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                    <TextField fx:id="idField"
-                               visible="${idRadioButton.selected}"
-                               GridPane.columnIndex="1" GridPane.rowIndex="1" />
+<!--                    <Label styleClass="form-label" text="ID użytkownika:"-->
+<!--                           visible="${idRadioButton.selected}"-->
+<!--                           GridPane.columnIndex="0" GridPane.rowIndex="1" />-->
+<!--                    <TextField fx:id="idField"-->
+<!--                               visible="${idRadioButton.selected}"-->
+<!--                               GridPane.columnIndex="1" GridPane.rowIndex="1" />-->
 
-                    <Label styleClass="form-label" text="PESEL użytkownika:"
-                           visible="${peselRadioButton.selected}"
-                           GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                    <TextField fx:id="peselIdentifierField"
-                               visible="${peselRadioButton.selected}"
-                               GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                </GridPane>
+<!--                    <Label styleClass="form-label" text="PESEL użytkownika:"-->
+<!--                           visible="${peselRadioButton.selected}"-->
+<!--                           GridPane.columnIndex="0" GridPane.rowIndex="2" />-->
+<!--                    <TextField fx:id="peselIdentifierField"-->
+<!--                               visible="${peselRadioButton.selected}"-->
+<!--                               GridPane.columnIndex="1" GridPane.rowIndex="2" />-->
+<!--                </GridPane>-->
 
-                <Button fx:id="actionButton" text="Wykonaj" onAction="#handleUserManagement" />
-                <Button fx:id="refreshButton" text="Wyczyść formularz" onAction="#handleRefreshForm" />
-                <Label fx:id="userManagementStatus" styleClass="status-label" />
-            </VBox>
-        </Tab>
+<!--                <Button fx:id="actionButton" text="Wykonaj" onAction="#handleUserManagement" />-->
+<!--                <Button fx:id="refreshButton" text="Wyczyść formularz" onAction="#handleRefreshForm" />-->
+<!--                <Label fx:id="userManagementStatus" styleClass="status-label" />-->
+<!--            </VBox>-->
+<!--        </Tab>-->
         <!-- Zakładka Kandydaci -->
         <Tab text="Kandydaci">
             <VBox styleClass="vbox-padding" spacing="10">

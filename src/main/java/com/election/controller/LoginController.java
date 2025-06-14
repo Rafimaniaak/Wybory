@@ -9,12 +9,14 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.Objects;
+
 // Kontroler ekranu logowania
 public class LoginController {
 
@@ -22,6 +24,41 @@ public class LoginController {
     @FXML private PasswordField passwordField;
     @FXML private Label errorLabel;
     @FXML private Label statusLabel;
+    @FXML private Button showPasswordButton;
+    @FXML private TextField visiblePasswordField;
+    private final Image eyeOpenImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/eye-open.png")));
+    private final Image eyeClosedImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/eye-closed.png")));
+    private final ImageView eyeIcon = new ImageView();
+    @FXML
+    private void togglePasswordVisibility() {
+        if (passwordField.isVisible()) {
+            // Pokaż hasło
+            visiblePasswordField.setText(passwordField.getText());
+            visiblePasswordField.setVisible(true);
+            visiblePasswordField.setManaged(true);
+            passwordField.setVisible(false);
+            passwordField.setManaged(false);
+
+            eyeIcon.setImage(eyeClosedImage);
+            showPasswordButton.setTooltip(new Tooltip("Ukryj hasło"));
+        } else {
+            // Ukryj hasło
+            passwordField.setText(visiblePasswordField.getText());
+            passwordField.setVisible(true);
+            passwordField.setManaged(true);
+            visiblePasswordField.setVisible(false);
+            visiblePasswordField.setManaged(false);
+
+            eyeIcon.setImage(eyeOpenImage);
+            showPasswordButton.setTooltip(new Tooltip("Pokaż hasło"));
+        }
+    }
+
+    private String getPassword() {
+        return passwordField.isVisible() ?
+                passwordField.getText() :
+                visiblePasswordField.getText();
+    }
 
     private final UserDAO userDAO = new UserDAO();
     private final AuthService authService = new AuthService();
@@ -30,6 +67,21 @@ public class LoginController {
     @FXML
     private void initialize() {
         loadUserCountAsync();
+
+        // Ustawienie obrazka dla przycisku
+        eyeIcon.setImage(eyeOpenImage);
+        eyeIcon.setFitWidth(16);
+        eyeIcon.setFitHeight(16);
+        showPasswordButton.setGraphic(eyeIcon);
+        // Ustaw tooltip
+        Tooltip.install(showPasswordButton, new Tooltip("Pokaż/ukryj hasło"));
+        // Ukryj widoczne pole hasła na starcie
+        visiblePasswordField.setVisible(false);
+        visiblePasswordField.setManaged(false);
+        // Upewnij się, że oba pola mają ten sam rozmiar
+        visiblePasswordField.prefWidthProperty().bind(passwordField.widthProperty());
+        visiblePasswordField.minWidthProperty().bind(passwordField.minWidthProperty());
+        visiblePasswordField.maxWidthProperty().bind(passwordField.maxWidthProperty());
     }
 
     // Asynchronicznie ładuje liczbę użytkowników
@@ -45,6 +97,7 @@ public class LoginController {
     // Obsługuje próbę logowania
     @FXML
     private void handleLogin(ActionEvent event) {
+        String password = getPassword().trim();
         performLogin();
     }
 

@@ -11,8 +11,10 @@ import com.election.model.User;
 import com.election.service.ElectionService;
 import com.election.service.ExportServicePDF;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -26,6 +28,7 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -39,7 +42,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
-import java.rmi.server.ExportException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -56,6 +58,7 @@ public class AdminController {
     public Button refreshButton;
     private User currentAdmin;
     private User currentEditUser;
+    private boolean passwordChanged = false; // Flaga śledząca zmianę hasła
 
     @FXML private TableView<User> usersTable;
     @FXML private TableColumn<User, Long> idColumn;
@@ -65,7 +68,6 @@ public class AdminController {
     @FXML private TableColumn<User, String> lastNameColumn;
     @FXML private TableColumn<User, String> peselColumn;
     @FXML private GridPane userFormGrid;
-    @FXML private GridPane identifierGrid;
     @FXML private TextField firstNameField;
     @FXML private TextField lastNameField;
     @FXML private TextField peselField;
@@ -81,18 +83,7 @@ public class AdminController {
     @FXML private NumberAxis yAxis;
 
     @FXML private Label statusLabel;
-    //@FXML private TextField peselSearchField;
-    @FXML private TextField peselIdentifierField;
-
-    // Pola dla uniwersalnego zarządzania użytkownikami
-    @FXML private ComboBox<String> actionComboBox;
-    @FXML private TextField identifierField;
-    @FXML private Button actionButton;
     @FXML private Label userManagementStatus;
-
-    @FXML private RadioButton idRadioButton;
-    @FXML private RadioButton peselRadioButton;
-    @FXML private TextField idField;
 
     @FXML private TableView<Candidate> candidatesTable;
     @FXML private TableColumn<Candidate, Long> candidateIdColumn;
@@ -103,57 +94,165 @@ public class AdminController {
     @FXML private TextField candidatePartyField;
     @FXML private Label candidateStatusLabel;
 
-    private final ObservableList<Candidate> candidatesList = FXCollections.observableArrayList();
+    // Nowe pola dla filtrów
+    @FXML private TextField firstNameFilter;
+    @FXML private TextField lastNameFilter;
+    @FXML private TextField peselFilter;
+    @FXML private ComboBox<String> roleFilterComboBox;
+    @FXML private Button showPasswordButton;
+    @FXML private TextField visiblePasswordField;
+    private final Image eyeOpenImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/eye-open.png")));
+    private final Image eyeClosedImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/eye-closed.png")));
+    private final ImageView eyeIcon = new ImageView();
 
+    @FXML
+    private void togglePasswordVisibility() {
+        if (passwordField.isVisible()) {
+            // Pokaż hasło
+            visiblePasswordField.setText(passwordField.getText());
+            visiblePasswordField.setVisible(true);
+            visiblePasswordField.setManaged(true);
+            passwordField.setVisible(false);
+            passwordField.setManaged(false);
+
+            eyeIcon.setImage(eyeClosedImage);
+            showPasswordButton.setTooltip(new Tooltip("Ukryj hasło"));
+        } else {
+            // Ukryj hasło
+            passwordField.setText(visiblePasswordField.getText());
+            passwordField.setVisible(true);
+            passwordField.setManaged(true);
+            visiblePasswordField.setVisible(false);
+            visiblePasswordField.setManaged(false);
+
+            eyeIcon.setImage(eyeOpenImage);
+            showPasswordButton.setTooltip(new Tooltip("Pokaż hasło"));
+        }
+
+        // Oznacza, że hasło mogło zostać zmienione (jeśli nie jest puste)
+        if (!getPassword().isEmpty()) {
+            passwordChanged = true;
+        }
+    }
+
+    private String getPassword() {
+        return passwordField.isVisible() ?
+                passwordField.getText() :
+                visiblePasswordField.getText();
+    }
+
+    private final ObservableList<Candidate> candidatesList = FXCollections.observableArrayList();
     private final ObservableList<User> masterUserList = FXCollections.observableArrayList();
+    private final FilteredList<User> filteredUsers = new FilteredList<>(masterUserList);
 
     // Konfiguruje interfejs użytkownika i ładuje dane początkowe
     @FXML
     public void initialize() {
+        // Ustawienie obrazka dla przycisku
+        eyeIcon.setImage(eyeOpenImage);
+        eyeIcon.setFitWidth(16);
+        eyeIcon.setFitHeight(16);
+        showPasswordButton.setGraphic(eyeIcon);
+        // Ustaw tooltip
+        Tooltip.install(showPasswordButton, new Tooltip("Pokaż/ukryj hasło"));
+        // Ukryj widoczne pole hasła na starcie
+        visiblePasswordField.setVisible(false);
+        visiblePasswordField.setManaged(false);
+        if (roleComboBox != null) {
+            roleComboBox.setItems(FXCollections.observableArrayList("USER", "ADMIN"));
+            roleComboBox.setValue("USER");
+        }
+
+        // Inicjalizacja filtrów
+        roleFilterComboBox.setItems(FXCollections.observableArrayList("ADMIN", "USER"));
+
         configureUserTable();
         configureResultsTable();
-        //loadInitialData();
         configureCandidatesTable();
         refreshCandidatesTable();
 
-        // Inicjalizacja ComboBox z rolami
-        roleComboBox.setItems(FXCollections.observableArrayList("USER", "ADMIN"));
-        roleComboBox.setValue("USER");
-        // Ustawienie odstępu między słupkami wykresu
-        resultsChart.setBarGap(5);
-        // Grupa dla przycisków radiowych
-        ToggleGroup searchGroup = new ToggleGroup();
-        idRadioButton.setToggleGroup(searchGroup);
-        peselRadioButton.setToggleGroup(searchGroup);
-        idRadioButton.setSelected(true);
+        // Ustawienie filtrowanej listy
+        usersTable.setItems(filteredUsers);
 
-        // Listener dla ComboBox akcji
-        actionComboBox.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-            handleRefreshForm();
-            if (newVal == null) return;
+        // Listenery do automatycznego filtrowania przy zmianie wartości
+        firstNameFilter.textProperty().addListener((obs, old, newVal) -> handleFilterUsers());
+        lastNameFilter.textProperty().addListener((obs, old, newVal) -> handleFilterUsers());
+        peselFilter.textProperty().addListener((obs, old, newVal) -> handleFilterUsers());
+        roleFilterComboBox.valueProperty().addListener((obs, old, newVal) -> handleFilterUsers());
 
-            switch (newVal) {
-                case "Dodaj użytkownika":
-                    userFormGrid.setVisible(true);
-                    identifierGrid.setVisible(false);
-                    actionButton.setText("Dodaj");
-                    clearUserForm();
-                    break;
+        if (resultsChart != null) {
+            resultsChart.setBarGap(5);
+        }
 
-                case "Edytuj użytkownika":
-                    userFormGrid.setVisible(true);
-                    identifierGrid.setVisible(true);
-                    actionButton.setText("Wyszukaj");
-                    clearUserForm();
-                    break;
+        // Ustaw podpowiedź dla pola hasła tylko wtedy, gdy użytkownik jest wybrany
+        passwordField.setPromptText(null);
+        visiblePasswordField.setPromptText(null);
 
-                case "Usuń użytkownika":
-                    userFormGrid.setVisible(false);
-                    identifierGrid.setVisible(true);
-                    actionButton.setText("Usuń");
-                    break;
+        // Ustaw tooltip
+        Tooltip.install(showPasswordButton, new Tooltip("Pokaż/ukryj hasło"));
+
+        // Upewnij się, że oba pola mają ten sam rozmiar
+        visiblePasswordField.prefWidthProperty().bind(passwordField.widthProperty());
+        visiblePasswordField.minWidthProperty().bind(passwordField.minWidthProperty());
+        visiblePasswordField.maxWidthProperty().bind(passwordField.maxWidthProperty());
+
+        // Dodaj nasłuchiwanie zmian w polach hasła
+        addPasswordListeners();
+    }
+
+    private void addPasswordListeners() {
+        // Nasłuchuj zmian w polach hasła
+        ChangeListener<String> passwordChangeListener = (obs, oldVal, newVal) -> {
+            if (!newVal.isEmpty()) {
+                passwordChanged = true;
             }
-        });
+        };
+
+        passwordField.textProperty().addListener(passwordChangeListener);
+        visiblePasswordField.textProperty().addListener(passwordChangeListener);
+    }
+
+    @FXML
+    private void handleFilterUsers() {
+        filteredUsers.setPredicate(this::matchUser);
+    }
+
+    @FXML
+    private void handleClearFilters() {
+        firstNameFilter.clear();
+        lastNameFilter.clear();
+        peselFilter.clear();
+        roleFilterComboBox.getSelectionModel().clearSelection();
+        filteredUsers.setPredicate(null); // Resetuj filtr
+    }
+
+    // Metoda sprawdzająca, czy użytkownik spełnia kryteria filtrowania
+    private boolean matchUser(User user) {
+        // Sprawdź imię
+        if (!firstNameFilter.getText().isEmpty() &&
+                !user.getFirstName().toLowerCase().contains(firstNameFilter.getText().toLowerCase())) {
+            return false;
+        }
+
+        // Sprawdź nazwisko
+        if (!lastNameFilter.getText().isEmpty() &&
+                !user.getLastName().toLowerCase().contains(lastNameFilter.getText().toLowerCase())) {
+            return false;
+        }
+
+        // Sprawdź PESEL
+        if (!peselFilter.getText().isEmpty() &&
+                !user.getPesel().contains(peselFilter.getText())) {
+            return false;
+        }
+
+        // Sprawdź rolę
+        if (roleFilterComboBox.getValue() != null &&
+                !user.getRole().equals(roleFilterComboBox.getValue())) {
+            return false;
+        }
+
+        return true;
     }
 
     public void refreshUserTab() {
@@ -161,6 +260,7 @@ public class AdminController {
         masterUserList.setAll(users);
         usersTable.refresh();
     }
+
     private void configureCandidatesTable() {
         candidateIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         candidateNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -190,218 +290,22 @@ public class AdminController {
         peselField.clear();
         usernameField.clear();
         passwordField.clear();
-        //roleComboBox.getSelectionModel().clearSelection();
-        currentEditUser = null; // Resetuj przy czyszczeniu formularza
+        visiblePasswordField.clear();
+        roleComboBox.setValue("USER"); // Ustaw domyślną wartość
+
+        // Usuń podpowiedzi
+        passwordField.setPromptText(null);
+        visiblePasswordField.setPromptText(null);
     }
 
-    // Obsługuje główną logikę zarządzania użytkownikami
+    // Czyści formularz i resetuje zaznaczenie
     @FXML
-    private void handleUserManagement() {
-        try {
-            String action = actionComboBox.getValue();
-            switch (action) {
-                case "Dodaj użytkownika": addNewUser(); break;
-                case "Edytuj użytkownika": handleEditUserFlow(); break;
-                case "Usuń użytkownika": deleteUser(); break;
-            }
-        } catch (ValidationException | DatabaseException e) {
-            userManagementStatus.setText(e.getMessage());
-        }
-    }
-
-    // Zarządza przepływem edycji użytkownika
-    private void handleEditUserFlow() {
-        if (actionButton.getText().equals("Wyszukaj")) {
-            findUserForEdit();
-        } else {
-            updateUser();
-        }
-    }
-
-    // Usuwa użytkownika z systemu
-    private void deleteUser() {
-        String identifier = getIdentifier();
-
-        try {
-            User user = findUserByIdentifier(identifier);
-            if (user == null) {
-                throw new DatabaseException("Nie znaleziono użytkownika!", null);
-            }
-
-            // Sprawdź, czy użytkownik jest administratorem
-            if ("ADMIN".equals(user.getRole())) {
-                // Pobierz wszystkich administratorów
-                List<User> admins = userDAO.getAllUsers().stream()
-                        .filter(u -> "ADMIN".equals(u.getRole()))
-                        .toList();
-
-                // Blokuj usuwanie, jeśli jest tylko jeden admin
-                if (admins.size() <= 1) {
-                    userManagementStatus.setText("Nie można usunąć ostatniego administratora!");
-                    return;
-                }
-            }
-
-            if (confirmDeletion(user)) {
-                userDAO.deleteUser(user);
-                masterUserList.remove(user);
-                refreshUserTable();
-                userManagementStatus.setText("Użytkownik usunięty pomyślnie!");
-                handleRefreshForm();
-            } else {
-                userManagementStatus.setText("Anulowano usuwanie.");
-            }
-        } catch (DatabaseException e) {
-            userManagementStatus.setText(e.getMessage());
-        }
-    }
-
-    private boolean confirmDeletion(User user) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Potwierdzenie usunięcia");
-        alert.setHeaderText("Czy na pewno chcesz usunąć użytkownika?");
-        alert.setContentText(user.getFirstName() + " " + user.getLastName() + " (" + user.getUsername() + ")");
-        Optional<ButtonType> result = alert.showAndWait();
-        return result.isPresent() && result.get() == ButtonType.OK;
-    }
-    private void addNewUser() throws ValidationException, DatabaseException {
-        validateUserForm();
-
-        User newUser = createUserFromForm();
-        try {
-            userDAO.saveUser(newUser);
-            masterUserList.add(newUser);
-            refreshUserTable();
-            userManagementStatus.setText("Użytkownik dodany pomyślnie!");
-            clearUserForm();
-            handleRefreshForm();
-        } catch (Exception e) {
-            throw new DatabaseException("Błąd podczas zapisu użytkownika: " + e.getMessage(), e);
-        }
-    }
-    // Tworzy obiekt użytkownika z danych formularza
-    private User createUserFromForm() {
-        User newUser = new User();
-        newUser.setFirstName(firstNameField.getText().trim());
-        newUser.setLastName(lastNameField.getText().trim());
-        newUser.setPesel(peselField.getText().trim());
-        newUser.setUsername(usernameField.getText().trim());
-        newUser.setPassword(BCrypt.hashpw(passwordField.getText(), BCrypt.gensalt()));
-        newUser.setRole(roleComboBox.getValue());
-        newUser.setHasVoted(false);
-        return newUser;
-    }
-
-    // Nowa metoda do pobierania identyfikatora
-    private String getIdentifier() {
-        if (idRadioButton.isSelected()) {
-            return idField.getText().trim();
-        } else {
-            return peselIdentifierField.getText().trim();
-        }
-    }
-
-    // Wyszukuje użytkownika do edycji
-    private void findUserForEdit() {
-        String identifier = getIdentifier();
-
-        currentEditUser = findUserByIdentifier(identifier);
-
-        if (currentEditUser != null) {
-            // Wypełnij formularz danymi użytkownika
-            firstNameField.setText(currentEditUser.getFirstName());
-            lastNameField.setText(currentEditUser.getLastName());
-            peselField.setText(currentEditUser.getPesel());
-            usernameField.setText(currentEditUser.getUsername());
-            roleComboBox.setValue(currentEditUser.getRole());
-
-            // Przygotuj do aktualizacji
-            actionButton.setText("Zaktualizuj");
-            userManagementStatus.setText("Znaleziono użytkownika. Edytuj dane.");
-        } else {
-            userManagementStatus.setText("Nie znaleziono użytkownika!");
-        }
-    }
-
-    // Aktualizuje dane użytkownika w systemie
-    private void updateUser() throws ValidationException, DatabaseException {
-        String identifier = identifierField.getText().trim();
-        User user = findUserByIdentifier(identifier);
-
-        // Sprawdź, czy zmieniamy rolę ostatniego admina
-        if ("ADMIN".equals(user.getRole()) && "USER".equals(roleComboBox.getValue())) {
-            List<User> admins = userDAO.getAllUsers().stream()
-                    .filter(u -> "ADMIN".equals(u.getRole()))
-                    .toList();
-
-            if (admins.size() <= 1) {
-                throw new ValidationException("Nie można zmienić roli ostatniego administratora!");
-            }
-        }
-
-        validateUserForm();
-        updateUserData(user);
-
-        try {
-            userDAO.updateUser(user);
-            refreshUserTable();
-            userManagementStatus.setText("Dane użytkownika zaktualizowane!");
-            actionButton.setText("Wyszukaj");
-            clearUserForm();
-            handleRefreshForm();
-        } catch (Exception e) {
-            throw new DatabaseException("Błąd aktualizacji użytkownika: " + e.getMessage(), e);
-        }
-    }
-    // Aktualizuje właściwości obiektu użytkownika
-    private void updateUserData(User user) {
-        user.setFirstName(firstNameField.getText().trim());
-        user.setLastName(lastNameField.getText().trim());
-        user.setPesel(peselField.getText().trim());
-        user.setUsername(usernameField.getText().trim());
-
-        if (!passwordField.getText().isEmpty()) {
-            user.setPassword(BCrypt.hashpw(passwordField.getText(), BCrypt.gensalt()));
-        }
-
-        user.setRole(roleComboBox.getValue());
-    }
-
-    // Waliduje dane w formularzu użytkownika
-    private void validateUserForm() throws ValidationException {
-        if (fieldsAreEmpty()) {
-            throw new ValidationException("Wypełnij wszystkie pola!");
-        }
-        validatePesel();
-        validateName(firstNameField.getText().trim(), "Imię");
-        validateName(lastNameField.getText().trim(), "Nazwisko");
-        validateUsername();
-        // Walidacja hasła dla nowego użytkownika
-        if (actionComboBox.getValue().equals("Dodaj użytkownika")) {
-            if (passwordField.getText().trim().isEmpty()) {
-                throw new ValidationException("Hasło nie może być puste!");
-            }
-        }
-        // Walidacja dla edycji i usuwania
-        if (actionComboBox.getValue().equals("Edytuj użytkownika")
-                || actionComboBox.getValue().equals("Usuń użytkownika")) {
-            if (!idRadioButton.isSelected() && !peselRadioButton.isSelected()) {
-                throw new ValidationException("Wybierz metodę identyfikacji użytkownika!");
-            }
-        }
-    }
-
-    // Sprawdza, czy wymagane pola są wypełnione
-    private boolean fieldsAreEmpty() {
-        boolean basicFieldsEmpty = firstNameField.getText().trim().isEmpty() ||
-                lastNameField.getText().trim().isEmpty() ||
-                peselField.getText().trim().isEmpty() ||
-                usernameField.getText().trim().isEmpty() ||
-                roleComboBox.getValue() == null;
-
-        return basicFieldsEmpty ||
-                (actionComboBox.getValue().equals("Dodaj użytkownika") &&
-                        passwordField.getText().trim().isEmpty());
+    private void handleClearUserForm() {
+        clearUserForm();
+        usersTable.getSelectionModel().clearSelection();
+        currentEditUser = null;
+        passwordChanged = false; // Resetuj flagę zmiany hasła
+        userManagementStatus.setText("");
     }
 
     // Waliduje numer PESEL
@@ -430,6 +334,12 @@ public class AdminController {
         if (!username.matches("[a-zA-Z0-9_]+")) {
             throw new ValidationException("Login może zawierać tylko litery, cyfry i podkreślniki!");
         }
+
+        // Sprawdź, czy login już istnieje
+        User existing = userDAO.findByUsername(username);
+        if (existing != null && (currentEditUser == null || !existing.getId().equals(currentEditUser.getId()))) {
+            throw new ValidationException("Login już istnieje w systemie!");
+        }
     }
 
     // Odświeża widok tabeli użytkowników
@@ -454,6 +364,31 @@ public class AdminController {
 
         // Ustawienie źródła danych
         usersTable.setItems(masterUserList);
+
+        // Listener do wypełniania formularza po wybraniu użytkownika
+        usersTable.getSelectionModel().selectedItemProperty().addListener(
+                (obs, oldSelection, newSelection) -> {
+                    if (newSelection != null) {
+                        fillUserForm(newSelection);
+                    }
+                });
+    }
+
+    private void fillUserForm(User user) {
+        firstNameField.setText(user.getFirstName());
+        lastNameField.setText(user.getLastName());
+        peselField.setText(user.getPesel());
+        usernameField.setText(user.getUsername());
+        roleComboBox.setValue(user.getRole());
+        passwordField.clear(); // Nie pokazujemy hasła
+        visiblePasswordField.clear();
+        passwordChanged = false; // Resetuj flagę zmiany hasła
+
+        // Ustaw podpowiedź dla hasła
+        passwordField.setPromptText("(wpisz aby zmienić)");
+        visiblePasswordField.setPromptText("(wpisz aby zmienić)");
+
+        currentEditUser = user;
     }
 
     @FXML private TableColumn<CandidateResult, String> partyColumn;
@@ -463,21 +398,15 @@ public class AdminController {
         partyColumn.setCellValueFactory(new PropertyValueFactory<>("party"));
         votesColumn.setCellValueFactory(new PropertyValueFactory<>("votes"));
 
-        votesColumn.setCellFactory(tc -> new TableCell<>() {
-            @Override
-            protected void updateItem(Number value, boolean empty) {
-                super.updateItem(value, empty);
-                setText(empty || value == null ? "" : String.format("%,d", value.intValue()));
-            }
-        });
-    }
-
-    // Ładuje początkowe dane do widoków
-    private void loadInitialData() {
-        masterUserList.setAll(userDAO.getAllUsers());
-        usersTable.setItems(masterUserList);
-        refreshUserTable();
-        refreshElectionData();
+        if (votesColumn != null) {
+            votesColumn.setCellFactory(tc -> new TableCell<>() {
+                @Override
+                protected void updateItem(Number value, boolean empty) {
+                    super.updateItem(value, empty);
+                    setText(empty || value == null ? "" : String.format("%,d", value.intValue()));
+                }
+            });
+        }
     }
 
     // Inicjalizuje kontroler z danymi zalogowanego administratora
@@ -543,7 +472,6 @@ public class AdminController {
             // Nowe: bezpośrednie ustawienie etykiet
             Platform.runLater(() -> {
                 // Wymuś natychmiastowe przeliczenie układu
-
                 resultsChart.applyCss();
                 resultsChart.layout();
 
@@ -574,8 +502,7 @@ public class AdminController {
                 if (j < xAxis.getCategories().size()) {
                     String category = xAxis.getCategories().get(j);
                     for (Node axisNode : xAxis.getChildrenUnmodifiable()) {
-                        if (axisNode instanceof Text) {
-                            Text text = (Text) axisNode;
+                        if (axisNode instanceof Text text) {
                             if (category.equals(text.getText())) {
                                 text.setTextAlignment(TextAlignment.CENTER);
                                 text.setWrappingWidth(80);
@@ -590,11 +517,13 @@ public class AdminController {
 
     // Aktualizuje skalę osi Y na wykresie
     private void updateYAxisRange(int maxVotes) {
-        yAxis.setAutoRanging(false);
-        yAxis.setLowerBound(0);
-        yAxis.setUpperBound(maxVotes < 5 ? 5 : maxVotes + 1);
-        yAxis.setTickUnit(1);
-        yAxis.setMinorTickVisible(false);
+        if (yAxis != null) {
+            yAxis.setAutoRanging(false);
+            yAxis.setLowerBound(0);
+            yAxis.setUpperBound(maxVotes < 5 ? 5 : maxVotes + 1);
+            yAxis.setTickUnit(1);
+            yAxis.setMinorTickVisible(false);
+        }
     }
 
     // Obsługuje wylogowywanie użytkownika
@@ -639,30 +568,6 @@ public class AdminController {
         alert.showAndWait();
     }
 
-    // Wyszukuje użytkownika po identyfikatorze
-    private User findUserByIdentifier(String identifier) throws ValidationException {
-        if (identifier == null || identifier.isEmpty()) {
-            return null;
-        }
-
-        try {
-            if (peselRadioButton.isSelected()) {
-                return userDAO.findByPesel(identifier);
-            } else if (idRadioButton.isSelected()) {
-                Long id = Long.parseLong(identifier);
-                return userDAO.getUserById(id);
-            } else {
-                throw new ValidationException("Wybierz metodę wyszukiwania!");
-            }
-        } catch (NumberFormatException e) {
-            throw new ValidationException("Nieprawidłowy format ID: " + identifier);
-        } catch (DatabaseException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new DatabaseException("Błąd podczas wyszukiwania użytkownika", e);
-        }
-    }
-
     // Filtruje użytkowników po numerze PESEL
     @FXML
     private void handlePeselSearch() {
@@ -673,7 +578,7 @@ public class AdminController {
         ObservableList<User> currentList = FXCollections.observableArrayList(currentUsers);
 
         if (pesel.isEmpty()) {
-            usersTable.setItems(currentList);
+            usersTable.setItems(masterUserList);
             return;
         }
 
@@ -685,18 +590,6 @@ public class AdminController {
         usersTable.setItems(filtered);
     }
 
-
-    @FXML
-    private void handleRefreshForm() {
-        clearUserForm();
-        clearIdentifierFields();
-        actionButton.setText("Wyszukaj");
-        userManagementStatus.setText("");
-    }
-    private void clearIdentifierFields() {
-        idField.clear();
-        peselIdentifierField.clear(); // To pole w sekcji identyfikatora
-    }
     // Resetuje filtr w tabeli użytkowników
     @FXML
     private void handleShowAllUsers() {
@@ -762,16 +655,197 @@ public class AdminController {
         alert.setContentText(message);
         alert.showAndWait();
     }
-    // Metody obsługi akcji
-    // Nowe metody dla kandydatów
+
+    // Metody zarządzania użytkownikami
+    @FXML
+    private void handleAddUser() {
+        try {
+            validateUserForm(true);
+            User newUser = createUserFromForm();
+            userDAO.saveUser(newUser);
+
+            // Dodane: odśwież tabelę i wyświetl komunikat sukcesu
+            refreshUserTable();
+            userManagementStatus.setText("Użytkownik dodany pomyślnie!");
+            clearUserForm();
+
+        } catch (ValidationException | DatabaseException e) {
+            userManagementStatus.setText(e.getMessage());
+        } catch (Exception e) {
+            userManagementStatus.setText("Nieoczekiwany błąd: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleUpdateUser() {
+        if (currentEditUser == null) {
+            userManagementStatus.setText("Wybierz użytkownika do edycji!");
+            return;
+        }
+
+        // Sprawdź, czy dokonano jakichkolwiek zmian
+        boolean changesDetected = isChangesDetected();
+
+        if (!changesDetected) {
+            userManagementStatus.setText("Nie dokonano żadnych zmian!");
+            return;
+        }
+
+        try {
+            validateUserForm(false);
+
+            // Walidacja zmiany ostatniego administratora
+            String newRole = roleComboBox.getValue();
+            if ("ADMIN".equals(currentEditUser.getRole()) &&
+                    !"ADMIN".equals(newRole)) {
+
+                int adminCount = userDAO.countAdmins();
+                if (adminCount <= 1) {
+                    userManagementStatus.setText(
+                            "Nie można zmienić roli ostatniego administratora!"
+                    );
+                    return;
+                }
+            }
+
+            updateUserData(currentEditUser);
+            userDAO.updateUser(currentEditUser);
+            refreshUserTable();
+            userManagementStatus.setText("Dane użytkownika zaktualizowane pomyślnie!");
+
+            // Wyczyść formularz po aktualizacji
+            handleClearUserForm();
+        } catch (ValidationException | DatabaseException e) {
+            userManagementStatus.setText(e.getMessage());
+        } catch (Exception e) {
+            userManagementStatus.setText("Nieoczekiwany błąd: " + e.getMessage());
+        }
+    }
+
+    private boolean isChangesDetected() {
+        boolean changesDetected = !firstNameField.getText().equals(currentEditUser.getFirstName());
+        if (!lastNameField.getText().equals(currentEditUser.getLastName())) {
+            changesDetected = true;
+        }
+        if (!peselField.getText().equals(currentEditUser.getPesel())) {
+            changesDetected = true;
+        }
+        if (!usernameField.getText().equals(currentEditUser.getUsername())) {
+            changesDetected = true;
+        }
+        if (!roleComboBox.getValue().equals(currentEditUser.getRole())) {
+            changesDetected = true;
+        }
+
+        // Sprawdź zmianę hasła (jeśli użytkownik wpisał coś w pole hasła)
+        if (passwordChanged || !getPassword().isEmpty()) {
+            changesDetected = true;
+        }
+        return changesDetected;
+    }
+
+    @FXML
+    private void handleDeleteUser() {
+        if (currentEditUser == null) {
+            userManagementStatus.setText("Wybierz użytkownika do usunięcia!");
+            return;
+        }
+
+        try {
+            // Walidacja ostatniego administratora
+            if ("ADMIN".equals(currentEditUser.getRole())) {
+                int adminCount = userDAO.countAdmins();
+                if (adminCount <= 1) { // Jeśli to ostatni admin
+                    userManagementStatus.setText("Nie można usunąć ostatniego administratora!");
+                    return;
+                }
+            }
+
+            if (confirmDeletion(currentEditUser)) {
+                userDAO.deleteUser(currentEditUser);
+                masterUserList.remove(currentEditUser);
+                refreshUserTable();
+                clearUserForm();
+                userManagementStatus.setText("Użytkownik usunięty pomyślnie!");
+            }
+        } catch (DatabaseException e) {
+            userManagementStatus.setText(e.getMessage());
+        }
+    }
+
+    private boolean confirmDeletion(User user) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Potwierdzenie usunięcia");
+        alert.setHeaderText("Czy na pewno chcesz usunąć użytkownika?");
+        alert.setContentText(user.getFirstName() + " " + user.getLastName() + " (" + user.getUsername() + ")");
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.isPresent() && result.get() == ButtonType.OK;
+    }
+
+    // Walidacja formularza użytkownika
+    private void validateUserForm(boolean isNewUser) throws ValidationException {
+        if (firstNameField.getText().trim().isEmpty() ||
+                lastNameField.getText().trim().isEmpty() ||
+                peselField.getText().trim().isEmpty() ||
+                usernameField.getText().trim().isEmpty() ||
+                roleComboBox.getValue() == null)
+        {
+            throw new ValidationException("Wypełnij wszystkie obowiązkowe pola!");
+        }
+
+        validatePesel();
+        validateName(firstNameField.getText().trim(), "Imię");
+        validateName(lastNameField.getText().trim(), "Nazwisko");
+        validateUsername();
+
+        // Walidacja hasła tylko dla nowego użytkownika
+        if (isNewUser && getPassword().isEmpty()) {
+            throw new ValidationException("Hasło nie może być puste!");
+        }
+    }
+
+    // Tworzy obiekt użytkownika z danych formularza
+    private User createUserFromForm() {
+        User newUser = new User();
+        newUser.setFirstName(firstNameField.getText().trim());
+        newUser.setLastName(lastNameField.getText().trim());
+        newUser.setPesel(peselField.getText().trim());
+        newUser.setUsername(usernameField.getText().trim());
+        newUser.setPassword(BCrypt.hashpw(getPassword(), BCrypt.gensalt()));
+        newUser.setRole(roleComboBox.getValue());
+        newUser.setHasVoted(false);
+        return newUser;
+    }
+
+    // Aktualizuje dane użytkownika
+    private void updateUserData(User user) {
+        user.setFirstName(firstNameField.getText().trim());
+        user.setLastName(lastNameField.getText().trim());
+        user.setPesel(peselField.getText().trim());
+        user.setUsername(usernameField.getText().trim());
+        user.setRole(roleComboBox.getValue());
+
+        // Aktualizuj hasło, tylko jeżeli zostało zmienione i nie jest puste
+        if (passwordChanged && !getPassword().isEmpty()) {
+            user.setPassword(BCrypt.hashpw(getPassword(), BCrypt.gensalt()));
+        }
+    }
+
+    // Metody dla kandydatów
     @FXML
     private void handleAddCandidate() {
         try {
             validateCandidateForm();
 
+            String name = candidateNameField.getText().trim();
+            String party = candidatePartyField.getText().trim();
+
+            // Walidacja unikalności
+            validateCandidateUniqueness(name, party);
+
             Candidate candidate = new Candidate();
-            candidate.setName(candidateNameField.getText().trim());
-            candidate.setParty(candidatePartyField.getText().trim());
+            candidate.setName(name);
+            candidate.setParty(party);
             candidate.setVotes(0);
 
             candidateDAO.addCandidate(candidate);
@@ -780,6 +854,12 @@ public class AdminController {
             clearCandidateForm();
         } catch (ValidationException | DatabaseException e) {
             candidateStatusLabel.setText(e.getMessage());
+        }
+    }
+
+    private void validateCandidateUniqueness(String name, String party) throws ValidationException {
+        if (candidateDAO.candidateExists(name, party)) {
+            throw new ValidationException("Kandydat o podanym imieniu, nazwisku i partii już istnieje!");
         }
     }
 
@@ -794,8 +874,20 @@ public class AdminController {
         try {
             validateCandidateForm();
 
-            selected.setName(candidateNameField.getText().trim());
-            selected.setParty(candidatePartyField.getText().trim());
+            String newName = candidateNameField.getText().trim();
+            String newParty = candidatePartyField.getText().trim();
+
+            // Sprawdź, czy dane się zmieniły
+            boolean nameChanged = !newName.equals(selected.getName());
+            boolean partyChanged = !newParty.equals(selected.getParty());
+
+            if (nameChanged || partyChanged) {
+                // Walidacja unikalności, tylko jeśli dane się zmieniły
+                validateCandidateUniqueness(newName, newParty);
+            }
+
+            selected.setName(newName);
+            selected.setParty(newParty);
 
             candidateDAO.updateCandidate(selected);
             refreshCandidatesTable();
@@ -869,5 +961,4 @@ public class AdminController {
         candidatePartyField.clear();
         candidatesTable.getSelectionModel().clearSelection();
     }
-
 }
