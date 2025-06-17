@@ -67,7 +67,10 @@
 .button-login {
     -fx-font-size: 20px;
     -fx-pref-height: 44px;
-    -fx-pref-width: 202px;
+    -fx-min-width: 250px; /* Dodajemy minimalną szerokość */
+    -fx-max-width: Infinity; /* Rozciąga się do dostępnej przestrzeni */
+    -fx-pref-width: 250px; /* Domyślna szerokość pasująca do pól */
+    -fx-padding: 0 20px; /* 0 góra/dół, 20px lewo/prawo */
 }
 
 .button-vote {
@@ -130,7 +133,8 @@
 
 /* FORMULARZE */
 .form-field {
-    -fx-pref-width: 200px;
+    -fx-pref-width: 250px;
+    -fx-min-width: 250px;
     -fx-font-size: 20px;
 }
 
@@ -172,10 +176,6 @@
 .footer-text {
     -fx-text-fill: white;
     -fx-font-size: 30px;
-}
-.form-field {
-    -fx-pref-width: 200px;
-    -fx-font-size: 14px;
 }
 
 .form-label {
@@ -304,6 +304,7 @@
     -fx-border-width: 0;
     -fx-padding: 0 5px 0 5px;
     -fx-cursor: hand;
+    -fx-alignment: CENTER;
 }
 
 .eye-button:hover {
@@ -321,8 +322,77 @@
 .hbox-password {
     -fx-alignment: CENTER_LEFT;
     -fx-spacing: 5px;
+    -fx-pref-width: 250px;
+    -fx-min-width: 250px;
+    -fx-max-width: 250px;
 }
 .password-changed {
     -fx-prompt-text-fill: #27ae60;
     -fx-font-style: italic;
+}
+.column-header-label {
+    -fx-font-size: 12px;
+    -fx-alignment: CENTER;
+    -fx-text-alignment: CENTER;
+    -fx-padding: 0;
+    -fx-font-weight: bold;
+}
+/* Zmniejsz wewnętrzny padding wykresu */
+.chart-content {
+    -fx-padding: 10px 5px 30px 5px; /* Zmiana: 25px -> 5px po bokach */
+}
+
+/* Przesuń etykiety na osi X w prawo */
+.axis:bottom {
+    -fx-tick-label-rotation: 0;
+    -fx-tick-label-gap: 5; /* Zmniejsz odstęp między etykietami */
+}
+/* Zawijanie tekstu w etykietach osi X */
+.axis:bottom .axis-tick-label {
+    -fx-wrap-text: true;
+    -fx-text-alignment: center;
+    -fx-alignment: center;
+    -fx-pref-width: 80px;
+    -fx-max-width: 80px;
+    -fx-pref-height: 40px;
+}
+
+/* Zmniejsz odstępy między słupkami */
+.chart-bar {
+    -fx-bar-padding: 1px;
+}
+
+/* Zwiększ dół wykresu dla etykiet */
+.chart-content {
+    -fx-padding: 10px 5px 90px 5px; /* Zmienione z 50px na 90px */
+}
+/* Zwiększenie przestrzeni na etykiety */
+.results-chart .chart-content {
+    -fx-padding: 10px 5px 100px 5px; /* Zwiększono dół do 100px */
+}
+
+/* Mniejsza czcionka dla etykiet */
+.axis:bottom .axis-tick-label {
+    -fx-font-size: 12px; /* Zmniejszona czcionka */
+    -fx-pref-height: 50px; /* Więcej miejsca w pionie */
+    -fx-alignment: center;
+}
+
+/* Przesunięcie etykiety osi X */
+.axis-label {
+    -fx-padding: 20px 0 0 0; /* Dodano padding na górze */
+}
+.chart-bar > .stack-pane > .label {
+    -fx-padding: 0;
+    -fx-alignment: center;
+}
+/* Zmniejszenie paddingu wykresu */
+.chart-content {
+    -fx-padding: 5px 5px 80px 5px;
+}
+
+/* Zwiększenie minimalnej szerokości słupków */
+.chart-bar {
+    -fx-min-width: 50px;
+    -fx-min-height: 20px;
 }

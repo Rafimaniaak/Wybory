@@ -1,8 +1,8 @@
-# Konfiguracja
+Ôªø# Konfiguracja
 $outputFile = "struktura_i_zawartosc.txt"
 $excludeFiles = @($outputFile, $MyInvocation.MyCommand.Name)
 
-# Funkcja sprawdzajπca czy plik jest tekstowy (na podstawie rozszerzenia)
+# Funkcja sprawdzajƒÖca czy plik jest tekstowy (na podstawie rozszerzenia)
 function Test-IsTextFile {
     param([string]$Path)
     
@@ -17,27 +17,27 @@ function Test-IsTextFile {
     return $textExtensions -contains $extension
 }
 
-# G≥Ûwna funkcja eksportujπca
+# G≈Ç√≥wna funkcja eksportujƒÖca
 function Export-Structure {
     param(
         [string]$startPath = ".",
         [string]$output = "output.txt"
     )
     
-    # UtwÛrz plik wyjúciowy (lub wyczyúÊ jeúli istnieje)
-    Set-Content -Path $output -Value "Eksport struktury katalogÛw i plikÛw`nWygenerowano: $(Get-Date)`n" -Force
+    # Utw√≥rz plik wyj≈õciowy (lub wyczy≈õƒá je≈õli istnieje)
+    Set-Content -Path $output -Value "Eksport struktury katalog√≥w i plik√≥w`nWygenerowano: $(Get-Date)`n" -Force
     
-    # Uzyskaj pe≥nπ úcieøkÍ startowπ
+    # Uzyskaj pe≈ÇnƒÖ ≈õcie≈ºkƒô startowƒÖ
     $absoluteStart = (Get-Item $startPath).FullName
     
     # Przeszukaj wszystkie pliki
     Get-ChildItem -Path $startPath -Recurse -File | ForEach-Object {
         $absolutePath = $_.FullName
 
-        # Pomijanie plikÛw wykluczonych po nazwie
+        # Pomijanie plik√≥w wykluczonych po nazwie
         if ($excludeFiles -contains $_.Name) { return }
         
-        # Pomijanie pliku wyjúciowego po pe≥nej úcieøce
+        # Pomijanie pliku wyj≈õciowego po pe≈Çnej ≈õcie≈ºce
         if ($absolutePath -eq (Join-Path $pwd $output)) { return }
 
         # Pomijaj pliki binarne
@@ -46,10 +46,10 @@ function Export-Structure {
         $relativePath = $absolutePath.Substring($absoluteStart.Length).TrimStart('\')
         $separator = "-" * ($relativePath.Length + 12)
         
-        Add-Content -Path $output -Value "`n`nåCIEØKA: $relativePath"
+        Add-Content -Path $output -Value "`n`n≈öCIE≈ªKA: $relativePath"
         Add-Content -Path $output -Value $separator
         
-        # PrÛba odczytu zawartoúci
+        # Pr√≥ba odczytu zawarto≈õci
         try {
             $content = Get-Content -Path $absolutePath -Raw -ErrorAction Stop
             
@@ -61,10 +61,10 @@ function Export-Structure {
             }
         }
         catch [System.UnauthorizedAccessException] {
-            Add-Content -Path $output -Value "[BRAK UPRAWNIE— - NIE MOØNA ODCZYTA∆]"
+            Add-Content -Path $output -Value "[BRAK UPRAWNIE≈É - NIE MO≈ªNA ODCZYTAƒÜ]"
         }
         catch {
-            Add-Content -Path $output -Value "[B£•D ODCZYTU: $($_.Exception.Message)]"
+            Add-Content -Path $output -Value "[B≈ÅƒÑD ODCZYTU: $($_.Exception.Message)]"
         }
     }
 }
@@ -72,9 +72,9 @@ function Export-Structure {
 # Uruchomienie eksportu
 Export-Structure -output $outputFile
 
-# Komunikat koÒcowy
+# Komunikat ko≈Ñcowy
 $outputPath = Join-Path (Get-Location) $outputFile
-Write-Host "`nOperacja zakoÒczona pomyúlnie!"
-Write-Host "Plik wyjúciowy: $outputPath"
-Write-Host "`nNaciúnij dowolny klawisz, aby kontynuowaÊ..."
+Write-Host "`nOperacja zako≈Ñczona pomy≈õlnie!"
+Write-Host "Plik wyj≈õciowy: $outputPath"
+Write-Host "`nNaci≈õnij dowolny klawisz, aby kontynuowaƒá..."
 [Console]::ReadKey($true) | Out-Null

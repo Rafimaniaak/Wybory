@@ -8,6 +8,7 @@
 <?import java.net.URL?>
 <?import javafx.collections.FXCollections?>
 <?import java.lang.String?>
+<?import javafx.geometry.Insets?>
 <StackPane prefHeight="600" prefWidth="800" styleClass="root-style"
            xmlns="http://javafx.com/javafx/17.0.12"
            xmlns:fx="http://javafx.com/fxml/1"
@@ -94,26 +95,33 @@
 
         <!-- Wyniki wyborów -->
         <Tab text="Wyniki wyborów">
-            <VBox spacing="10" styleClass="vbox-padding">
+            <VBox spacing="5" styleClass="vbox-padding">
                 <Label styleClass="panel-title" text="Aktualne wyniki wyborów" />
-                <HBox spacing="20">
-                    <TableView fx:id="resultsTable" prefWidth="500">
+                <HBox spacing="3">
+                    <TableView fx:id="resultsTable" prefWidth="400">
                         <columns>
-                            <TableColumn fx:id="candidateColumn" prefWidth="175" text="Kandydat">
+                            <TableColumn fx:id="candidateColumn" prefWidth="135" text="Kandydat">
                                 <cellValueFactory>
                                     <PropertyValueFactory property="name" />
                                 </cellValueFactory>
                             </TableColumn>
-                            <TableColumn fx:id="partyColumn" prefWidth="100" text="Partia">
+                            <TableColumn fx:id="partyColumn" prefWidth="90" text="Partia">
                                 <cellValueFactory>
                                     <PropertyValueFactory property="party" />
                                 </cellValueFactory>
                             </TableColumn>
-                            <TableColumn fx:id="votesColumn" prefWidth="100" text="Liczba głosów">
+                            <TableColumn fx:id="votesColumn" prefWidth="70">
+                                <graphic>
+                                    <VBox alignment="CENTER">
+                                        <Label text="Liczba" styleClass="column-header-label"/>
+                                        <Label text="głosów" styleClass="column-header-label"/>
+                                    </VBox>
+                                </graphic>
                                 <cellValueFactory>
                                     <PropertyValueFactory property="votes" />
                                 </cellValueFactory>
                             </TableColumn>
+                            <TableColumn fx:id="percentColumn" prefWidth="65" text="Procent"/>
                         </columns>
                     </TableView>
 
@@ -122,10 +130,13 @@
                               title="Głosy wg kandydata"
                               minWidth="350"
                               maxWidth="350"
-                              minHeight="400"
-                              maxHeight="450">
+                              minHeight="380"
+                              maxHeight="380">
+                        <HBox.margin>
+                            <Insets left="10.0" />
+                        </HBox.margin>
                         <xAxis>
-                            <CategoryAxis fx:id="xAxis" label="Kandydat" side="BOTTOM" />
+                            <CategoryAxis fx:id="xAxis" side="BOTTOM" />
                         </xAxis>
                         <yAxis>
                             <NumberAxis fx:id="yAxis" label="Liczba głosów" />
@@ -158,87 +169,6 @@
             </VBox>
         </Tab>
 
-<!--        &lt;!&ndash; Zarządzanie użytkownikami &ndash;&gt;-->
-<!--        <Tab text="Zarządzaj użytkownikami">-->
-<!--            <VBox styleClass="vbox-padding" spacing="10">-->
-<!--                <Label styleClass="panel-title" text="Zarządzanie użytkownikami" />-->
-
-<!--                &lt;!&ndash; Wybór akcji &ndash;&gt;-->
-<!--                <HBox spacing="10">-->
-<!--                    <Label styleClass="form-label" text="Wybierz akcję:" />-->
-<!--                    <ComboBox fx:id="actionComboBox" promptText="Wybierz...">-->
-<!--                        <items>-->
-<!--                            <FXCollections fx:factory="observableArrayList">-->
-<!--                                <String fx:value="Dodaj użytkownika"/>-->
-<!--                                <String fx:value="Edytuj użytkownika"/>-->
-<!--                                <String fx:value="Usuń użytkownika"/>-->
-<!--                            </FXCollections>-->
-<!--                        </items>-->
-<!--                    </ComboBox>-->
-<!--                </HBox>-->
-
-<!--                &lt;!&ndash; Pełny formularz danych użytkownika &ndash;&gt;-->
-<!--                <GridPane fx:id="userFormGrid" hgap="10" vgap="10" visible="false">-->
-<!--                    <Label styleClass="form-label" text="Imię:*" GridPane.columnIndex="0" GridPane.rowIndex="0" />-->
-<!--                    <TextField fx:id="firstNameField" GridPane.columnIndex="1" GridPane.rowIndex="0" />-->
-<!--                    <Label styleClass="form-hint" text="Tylko litery małe (a-z) oraz litery duże (A-Z)" GridPane.columnIndex="2" GridPane.rowIndex="0" />-->
-
-<!--                    <Label styleClass="form-label" text="Nazwisko:*" GridPane.columnIndex="0" GridPane.rowIndex="1" />-->
-<!--                    <TextField fx:id="lastNameField" GridPane.columnIndex="1" GridPane.rowIndex="1" />-->
-<!--                    <Label styleClass="form-hint" text="Tylko litery małe (a-z) oraz litery duże (A-Z)" GridPane.columnIndex="2" GridPane.rowIndex="1" />-->
-
-<!--                    <Label styleClass="form-label" text="PESEL:*" GridPane.columnIndex="0" GridPane.rowIndex="2" />-->
-<!--                    <TextField fx:id="peselField" GridPane.columnIndex="1" GridPane.rowIndex="2" />-->
-<!--                    <Label styleClass="form-hint" text="11 cyfr" GridPane.columnIndex="2" GridPane.rowIndex="2" />-->
-
-<!--                    <Label styleClass="form-label" text="Login:*" GridPane.columnIndex="0" GridPane.rowIndex="3" />-->
-<!--                    <TextField fx:id="usernameField" GridPane.columnIndex="1" GridPane.rowIndex="3" />-->
-<!--                    <Label styleClass="form-hint" text="Tylko litery małe (a-z), litery duże (A-Z), cyfry (0-9) i znak (_)" GridPane.columnIndex="2" GridPane.rowIndex="3" />-->
-
-<!--                    <Label styleClass="form-label" text="Hasło:*" GridPane.columnIndex="0" GridPane.rowIndex="4" />-->
-<!--                    <PasswordField fx:id="passwordField" GridPane.columnIndex="1" GridPane.rowIndex="4" />-->
-<!--                    <Label styleClass="form-hint" text="Tylko litery małe (a-z), litery duże (A-Z), cyfry (0-9)" GridPane.columnIndex="2" GridPane.rowIndex="4" />-->
-
-<!--                    <Label styleClass="form-label" text="Rola:*" GridPane.columnIndex="0" GridPane.rowIndex="5" />-->
-<!--                    <ComboBox fx:id="roleComboBox" GridPane.columnIndex="1" GridPane.rowIndex="5" value="USER">-->
-<!--                        <items>-->
-<!--                            <FXCollections fx:factory="observableArrayList">-->
-<!--                                <String fx:value="USER"/>-->
-<!--                                <String fx:value="ADMIN"/>-->
-<!--                            </FXCollections>-->
-<!--                        </items>-->
-<!--                    </ComboBox>-->
-<!--                </GridPane>-->
-
-<!--                &lt;!&ndash; Pole identyfikatora (tylko dla edycji/usuwania) &ndash;&gt;-->
-<!--                <GridPane fx:id="identifierGrid" hgap="10" vgap="10" visible="false">-->
-<!--                    <Label styleClass="form-label" text="Metoda wyszukiwania:" GridPane.columnIndex="0" GridPane.rowIndex="0" />-->
-
-<!--                    <HBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="10">-->
-<!--                        <RadioButton fx:id="idRadioButton" text="ID" selected="true" />-->
-<!--                        <RadioButton fx:id="peselRadioButton" text="PESEL" />-->
-<!--                    </HBox>-->
-
-<!--                    <Label styleClass="form-label" text="ID użytkownika:"-->
-<!--                           visible="${idRadioButton.selected}"-->
-<!--                           GridPane.columnIndex="0" GridPane.rowIndex="1" />-->
-<!--                    <TextField fx:id="idField"-->
-<!--                               visible="${idRadioButton.selected}"-->
-<!--                               GridPane.columnIndex="1" GridPane.rowIndex="1" />-->
-
-<!--                    <Label styleClass="form-label" text="PESEL użytkownika:"-->
-<!--                           visible="${peselRadioButton.selected}"-->
-<!--                           GridPane.columnIndex="0" GridPane.rowIndex="2" />-->
-<!--                    <TextField fx:id="peselIdentifierField"-->
-<!--                               visible="${peselRadioButton.selected}"-->
-<!--                               GridPane.columnIndex="1" GridPane.rowIndex="2" />-->
-<!--                </GridPane>-->
-
-<!--                <Button fx:id="actionButton" text="Wykonaj" onAction="#handleUserManagement" />-->
-<!--                <Button fx:id="refreshButton" text="Wyczyść formularz" onAction="#handleRefreshForm" />-->
-<!--                <Label fx:id="userManagementStatus" styleClass="status-label" />-->
-<!--            </VBox>-->
-<!--        </Tab>-->
         <!-- Zakładka Kandydaci -->
         <Tab text="Kandydaci">
             <VBox styleClass="vbox-padding" spacing="10">

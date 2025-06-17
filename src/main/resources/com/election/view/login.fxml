@@ -39,9 +39,11 @@
                     <Button fx:id="showPasswordButton" styleClass="eye-button" onAction="#togglePasswordVisibility" />
                 </HBox>
 
-                <HBox alignment="CENTER" spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="2">
-                    <Button styleClass="button-login" onAction="#handleLogin" text="Zaloguj" />
-                </HBox>
+                <VBox alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                    <!-- Dodajemy min-width i max-width -->
+                    <Button styleClass="button-login" onAction="#handleLogin" text="Zaloguj"
+                            minWidth="250" maxWidth="Infinity" />
+                </VBox>
             </GridPane>
 
             <VBox alignment="CENTER" spacing="10">

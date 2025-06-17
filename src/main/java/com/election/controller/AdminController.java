@@ -11,6 +11,7 @@ import com.election.model.User;
 import com.election.service.ElectionService;
 import com.election.service.ExportServicePDF;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -19,6 +20,8 @@ import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.chart.BarChart;
@@ -30,6 +33,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
@@ -60,6 +65,7 @@ public class AdminController {
     private User currentEditUser;
     private boolean passwordChanged = false; // Flaga śledząca zmianę hasła
 
+    @FXML private TableColumn<CandidateResult, String> percentColumn;
     @FXML private TableView<User> usersTable;
     @FXML private TableColumn<User, Long> idColumn;
     @FXML private TableColumn<User, String> usernameColumn;
@@ -181,7 +187,7 @@ public class AdminController {
         roleFilterComboBox.valueProperty().addListener((obs, old, newVal) -> handleFilterUsers());
 
         if (resultsChart != null) {
-            resultsChart.setBarGap(5);
+            resultsChart.setBarGap(1);
         }
 
         // Ustaw podpowiedź dla pola hasła tylko wtedy, gdy użytkownik jest wybrany
@@ -407,6 +413,23 @@ public class AdminController {
                 }
             });
         }
+        // Dodajemy kolumnę z procentami
+        percentColumn.setCellValueFactory(cellData -> {
+            CandidateResult candidate = cellData.getValue();
+            int totalVotes = candidatesData.stream().mapToInt(CandidateResult::getVotes).sum();
+            double percent = totalVotes > 0 ? (candidate.getVotes() * 100.0) / totalVotes : 0;
+            return new SimpleStringProperty(String.format("%.1f%%", percent));
+        });
+
+        // Formatowanie komórek
+        percentColumn.setCellFactory(tc -> new TableCell<>() {
+            @Override
+            protected void updateItem(String value, boolean empty) {
+                super.updateItem(value, empty);
+                setText(empty ? null : value);
+                setAlignment(Pos.CENTER);
+            }
+        });
     }
 
     // Inicjalizuje kontroler z danymi zalogowanego administratora
@@ -437,28 +460,55 @@ public class AdminController {
         statusLabel.setText("Odświeżanie wyników...");
 
         try {
+            // Pobierz i posortuj wyniki malejąco
             List<CandidateResult> results = electionService.getCurrentResults();
+            results.sort((r1, r2) -> r2.getVotes() - r1.getVotes());
             candidatesData.setAll(results);
             resultsTable.setItems(candidatesData);
+
+            // Oblicz sumę głosów
+            int totalVotes = results.stream().mapToInt(CandidateResult::getVotes).sum();
 
             // Usuń stare dane i zresetuj wykres
             resultsChart.getData().clear();
             resultsChart.setAnimated(false); // Wyłącz animacje dla stabilności
             resultsChart.layout(); // Wymuś przeliczenie układu
 
+
             XYChart.Series<String, Number> series = new XYChart.Series<>();
             int maxVotes = 0;
 
-            for (CandidateResult result : results) {
+            // Ustal paletę kolorów dla słupków
+            String[] colors = {"#3498db", "#2ecc71", "#e74c3c", "#9b59b6", "#f1c40f", "#1abc9c", "#34495e"};
+
+            for (int i = 0; i < results.size(); i++) {
+                CandidateResult result = results.get(i);
                 int votes = result.getVotes();
                 String party = result.getParty();
+
+                // Skróć długie nazwy partii
                 if (party != null && party.length() > 15) {
                     party = party.substring(0, 12) + "...";
                 }
-                String candidateLabel = result.getName() + "\n(" + (party != null ? party : "brak") + ")";
+
+                // Formatuj etykietę kandydata
+                String[] nameParts = result.getName().split(" ", 2);
+                String formattedName = nameParts.length > 1
+                        ? nameParts[0] + "\n" + nameParts[1]
+                        : result.getName();
+                String candidateLabel = formattedName + "\n(" + (party != null ? party : "brak") + ")";
                 XYChart.Data<String, Number> data = new XYChart.Data<>(candidateLabel, votes);
                 series.getData().add(data);
+
                 if (votes > maxVotes) maxVotes = votes;
+
+                // Ustaw kolor słupka
+                final String color = colors[i % colors.length];
+                data.nodeProperty().addListener((obs, oldNode, newNode) -> {
+                    if (newNode != null) {
+                        newNode.setStyle("-fx-bar-fill: " + color + "; -fx-bar-padding: 5px;");
+                    }
+                });
             }
 
             resultsChart.getData().add(series);
@@ -466,23 +516,84 @@ public class AdminController {
 
             // Ustawienia osi
             xAxis.setTickLabelRotation(0);
-            xAxis.setTickLabelFont(Font.font("System", 8));
+            xAxis.setTickLabelFont(Font.font("System", 10));
+            xAxis.setMinHeight(Region.USE_PREF_SIZE);
+            xAxis.setPrefHeight(50); // Zwiększ wysokość osi X
             resultsChart.setBarGap(10);
+            resultsChart.setCategoryGap(5); // Zwiększ odstęp między słupkami
+            // Zmniejszenie paddingu wykresu (dolny padding zwiększony dla etykiet)
+            resultsChart.setPadding(new Insets(0, 0, 10, 0)); // Zmieniony padding
 
-            // Nowe: bezpośrednie ustawienie etykiet
-            Platform.runLater(() -> {
-                // Wymuś natychmiastowe przeliczenie układu
-                resultsChart.applyCss();
-                resultsChart.layout();
+            // Dodaj etykiety na słupkach
+            for (XYChart.Data<String, Number> data : series.getData()) {
+                Node node = data.getNode();
+                int votes = data.getYValue().intValue();
+                double percent = totalVotes > 0 ? (votes * 100.0) / totalVotes : 0;
+                // Zwiększ minimalną wysokość dla krótkich słupków
+                double barHeight = Math.max(votes * 1.0, 5); // Minimalna wysokość 5
 
-                // Popraw pozycjonowanie etykiet
-                fixLabelPositions();
-            });
+                // Oblicz pozycję etykiety - 50% wysokości słupka
+                double labelPosition = barHeight / 2;
 
-            statusLabel.setText("Wyniki zaktualizowane: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
+
+                Label label = new Label(String.format("%.1f%%", percent));
+                label.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12px;");
+
+                // Ustaw pozycję etykiety w środku słupka
+                StackPane.setAlignment(label, Pos.CENTER);
+                StackPane.setMargin(label, new Insets(-labelPosition, 0, 0, 0));
+                label.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 10px;"); // Mniejsza czcionka
+
+                if (node != null) {
+                    ((StackPane) node).getChildren().add(label);
+                }
+
+                // Dodaj tooltip z pełną informacją
+                Tooltip tooltip = new Tooltip(
+                        "Kandydat: " + data.getXValue().split("\n")[0] +
+                                "\nPartia: " + data.getXValue().split("\n")[1].replaceAll("[()]", "") +
+                                "\nGłosy: " + votes +
+                                "\nProcent: " + String.format("%.1f%%", percent)
+                );
+                Tooltip.install(node, tooltip);
+
+                // Obsługa kliknięcia
+                node.setOnMouseClicked(event -> {
+                    String candidateName = data.getXValue().split("\n")[0];
+                    statusLabel.setText("Kliknięto na: " + candidateName);
+                });
+            }
+
+            // Aktualizuj status z sumą głosów
+            statusLabel.setText(String.format(
+                    "Wyniki zaktualizowane: %s | Suma głosów: %d",
+                    LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")),
+                    totalVotes
+            ));
         } catch (Exception e) {
             statusLabel.setText("Błąd podczas aktualizacji!");
             throw new DatabaseException("Błąd odświeżania wyników", e);
+        }
+    }
+
+    // Pomocnicza metoda do aktualizacji osi Y
+    private void updateYAxisRange(int maxVotes) {
+        if (yAxis != null) {
+            yAxis.setAutoRanging(false);
+            yAxis.setLowerBound(0);
+            yAxis.setUpperBound(maxVotes < 5 ? 5 : maxVotes + 2); // Dodajemy margines
+            yAxis.setTickUnit(maxVotes < 10 ? 1 : Math.max(1, maxVotes / 10));
+            yAxis.setMinorTickVisible(false);
+            xAxis.setPrefWidth(candidatesData.size() * 70);
+
+            // Przesunięcie etykiety osi X
+            Platform.runLater(() -> {
+                for (Node node : xAxis.getChildrenUnmodifiable()) {
+                    if (node instanceof Text text && "Kandydat".equals(text.getText())) {
+                        text.setTranslateY(20); // Przesuń w dół
+                    }
+                }
+            });
         }
     }
 
@@ -516,15 +627,15 @@ public class AdminController {
     }
 
     // Aktualizuje skalę osi Y na wykresie
-    private void updateYAxisRange(int maxVotes) {
-        if (yAxis != null) {
-            yAxis.setAutoRanging(false);
-            yAxis.setLowerBound(0);
-            yAxis.setUpperBound(maxVotes < 5 ? 5 : maxVotes + 1);
-            yAxis.setTickUnit(1);
-            yAxis.setMinorTickVisible(false);
-        }
-    }
+//    private void updateYAxisRange(int maxVotes) {
+//        if (yAxis != null) {
+//            yAxis.setAutoRanging(false);
+//            yAxis.setLowerBound(0);
+//            yAxis.setUpperBound(maxVotes < 5 ? 5 : maxVotes + 1);
+//            yAxis.setTickUnit(1);
+//            yAxis.setMinorTickVisible(false);
+//        }
+//    }
 
     // Obsługuje wylogowywanie użytkownika
     @FXML
@@ -877,12 +988,16 @@ public class AdminController {
             String newName = candidateNameField.getText().trim();
             String newParty = candidatePartyField.getText().trim();
 
-            // Sprawdź, czy dane się zmieniły
+            // Sprawdzenie czy wprowadzono zmiany
             boolean nameChanged = !newName.equals(selected.getName());
             boolean partyChanged = !newParty.equals(selected.getParty());
 
+            if (!nameChanged && !partyChanged) {
+                candidateStatusLabel.setText("Nie dokonano żadnych zmian!");
+                return;
+            }
+
             if (nameChanged || partyChanged) {
-                // Walidacja unikalności, tylko jeśli dane się zmieniły
                 validateCandidateUniqueness(newName, newParty);
             }
 
@@ -929,7 +1044,7 @@ public class AdminController {
     @FXML
     private void handleClearCandidateForm() {
         clearCandidateForm();
-        candidateStatusLabel.setText("");
+        candidateStatusLabel.setText("Formularz wyczyszczony");
     }
 
     // Walidacja formularza kandydata
@@ -947,6 +1062,10 @@ public class AdminController {
 
         if (!name.matches("[\\p{L}\\s\\-]+")) {
             throw new ValidationException("Imię i nazwisko może zawierać tylko litery, spacje i myślniki!");
+        }
+
+        if (name.length() < 3) {
+            throw new ValidationException("Imię i nazwisko musi mieć co najmniej 3 znaki!");
         }
     }
 
