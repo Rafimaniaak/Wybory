@@ -15,7 +15,8 @@
            fx:controller="com.election.controller.AdminController">
 
     <stylesheets>
-        <URL value="@style.css" />
+        <URL value="@../css/common-styles.css" />
+        <URL value="@../css/admin-styles.css" />
     </stylesheets>
 
     <TabPane prefHeight="600" prefWidth="800" tabClosingPolicy="UNAVAILABLE">
@@ -26,7 +27,7 @@
                 <HBox spacing="10" alignment="CENTER_LEFT">
                     <Label styleClass="panel-title" text="Panel administratora" />
                 </HBox>
-                <HBox spacing="5" alignment="CENTER_LEFT"> <!-- Zmniejszony spacing -->
+                <HBox spacing="5" alignment="CENTER_LEFT">
                     <Label styleClass="form-label" text="Filtry:"/>
                     <TextField fx:id="firstNameFilter" prefWidth="100" promptText="Imię"/>
                     <TextField fx:id="lastNameFilter" prefWidth="100" promptText="Nazwisko"/>
@@ -35,18 +36,19 @@
                     <Button text="Filtruj" prefWidth="80" onAction="#handleFilterUsers"/>
                     <Button text="Wyczyść" prefWidth="80" onAction="#handleClearFilters"/>
                 </HBox>
-                <TableView fx:id="usersTable">
+
+                <TableView fx:id="usersTable" maxHeight="80" styleClass="compact-table">
                     <columns>
-                        <TableColumn fx:id="idColumn" prefWidth="50" text="ID" />
-                        <TableColumn fx:id="usernameColumn" prefWidth="100" text="Login" />
-                        <TableColumn fx:id="roleColumn" prefWidth="100" text="Rola" />
-                        <TableColumn fx:id="firstNameColumn" prefWidth="120" text="Imię" />
-                        <TableColumn fx:id="lastNameColumn" prefWidth="120" text="Nazwisko" />
-                        <TableColumn fx:id="peselColumn" prefWidth="150" text="PESEL" />
+                        <TableColumn fx:id="idColumn" prefWidth="30" text="ID" /> <!-- Mniejsza szerokość -->
+                        <TableColumn fx:id="usernameColumn" prefWidth="70" text="Login" /> <!-- Mniejsza szerokość -->
+                        <TableColumn fx:id="roleColumn" prefWidth="50" text="Rola" /> <!-- Mniejsza szerokość -->
+                        <TableColumn fx:id="firstNameColumn" prefWidth="80" text="Imię" /> <!-- Mniejsza szerokość -->
+                        <TableColumn fx:id="lastNameColumn" prefWidth="80" text="Nazwisko" /> <!-- Mniejsza szerokość -->
+                        <TableColumn fx:id="peselColumn" prefWidth="100" text="PESEL" /> <!-- Mniejsza szerokość -->
                     </columns>
                 </TableView>
 
-                <GridPane fx:id="userFormGrid" hgap="10" vgap="10">
+                <GridPane fx:id="userFormGrid" hgap="5" vgap="5">
                     <Label styleClass="form-label" text="Imię:*" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                     <TextField fx:id="firstNameField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
                     <Label styleClass="form-hint" text="Tylko litery małe (a-z) oraz litery duże (A-Z)" GridPane.columnIndex="2" GridPane.rowIndex="0" />
@@ -92,90 +94,13 @@
                 <Label fx:id="userManagementStatus" styleClass="status-label" />
             </VBox>
         </Tab>
-
-        <!-- Wyniki wyborów -->
-        <Tab text="Wyniki wyborów">
-            <VBox spacing="5" styleClass="vbox-padding">
-                <Label styleClass="panel-title" text="Aktualne wyniki wyborów" />
-                <HBox spacing="3">
-                    <TableView fx:id="resultsTable" prefWidth="400">
-                        <columns>
-                            <TableColumn fx:id="candidateColumn" prefWidth="135" text="Kandydat">
-                                <cellValueFactory>
-                                    <PropertyValueFactory property="name" />
-                                </cellValueFactory>
-                            </TableColumn>
-                            <TableColumn fx:id="partyColumn" prefWidth="90" text="Partia">
-                                <cellValueFactory>
-                                    <PropertyValueFactory property="party" />
-                                </cellValueFactory>
-                            </TableColumn>
-                            <TableColumn fx:id="votesColumn" prefWidth="70">
-                                <graphic>
-                                    <VBox alignment="CENTER">
-                                        <Label text="Liczba" styleClass="column-header-label"/>
-                                        <Label text="głosów" styleClass="column-header-label"/>
-                                    </VBox>
-                                </graphic>
-                                <cellValueFactory>
-                                    <PropertyValueFactory property="votes" />
-                                </cellValueFactory>
-                            </TableColumn>
-                            <TableColumn fx:id="percentColumn" prefWidth="65" text="Procent"/>
-                        </columns>
-                    </TableView>
-
-                    <BarChart fx:id="resultsChart" styleClass="results-chart"
-                              legendVisible="false"
-                              title="Głosy wg kandydata"
-                              minWidth="350"
-                              maxWidth="350"
-                              minHeight="380"
-                              maxHeight="380">
-                        <HBox.margin>
-                            <Insets left="10.0" />
-                        </HBox.margin>
-                        <xAxis>
-                            <CategoryAxis fx:id="xAxis" side="BOTTOM" />
-                        </xAxis>
-                        <yAxis>
-                            <NumberAxis fx:id="yAxis" label="Liczba głosów" />
-                        </yAxis>
-                    </BarChart>
-                </HBox>
-
-                <HBox spacing="10" alignment="CENTER_LEFT">
-                    <Button styleClass="button-refresh" onAction="#refreshResults" text="Odśwież wyniki" />
-                    <Button styleClass="button-logout" onAction="#handleLogout" text="Wyloguj" />
-                    <Label fx:id="statusLabel" styleClass="status-label" />
-                </HBox>
-
-                <!-- Przyciski eksportu -->
-                <HBox spacing="10" alignment="CENTER_LEFT">
-                    <Button styleClass="button-export" onAction="#handleExportToCSV" text="Eksportuj do CSV" />
-                    <Button styleClass="button-export" onAction="#handleExportToPDF" text="Eksportuj do PDF" />
-                </HBox>
-            </VBox>
-        </Tab>
-
-        <!-- Narzędzia -->
-        <Tab text="Narzędzia">
-            <VBox spacing="10" styleClass="vbox-padding">
-                <Label styleClass="panel-title" text="Narzędzia administratora" />
-                <VBox alignment="CENTER" spacing="15" styleClass="tools-container">
-                    <Button styleClass="button-generate" onAction="#handleOpenHashGenerator" text="Otwórz Generator Hashy" />
-                    <Button styleClass="button-logout" onAction="#handleLogout" text="Wyloguj" />
-                </VBox>
-            </VBox>
-        </Tab>
-
         <!-- Zakładka Kandydaci -->
         <Tab text="Kandydaci">
             <VBox styleClass="vbox-padding" spacing="10">
                 <Label styleClass="panel-title" text="Zarządzanie kandydatami" />
 
                 <!-- Tabela kandydatów -->
-                <TableView fx:id="candidatesTable">
+                <TableView fx:id="candidatesTable" prefHeight="200">
                     <columns>
                         <TableColumn fx:id="candidateIdColumn" prefWidth="50" text="ID" />
                         <TableColumn fx:id="candidateNameColumn" prefWidth="200" text="Imię i nazwisko" />
@@ -185,7 +110,7 @@
                 </TableView>
 
                 <!-- Formularz -->
-                <GridPane hgap="10" vgap="10">
+                <GridPane hgap="15" vgap="15" prefHeight="100">
                     <Label styleClass="form-label" text="Imię i nazwisko:*" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                     <TextField fx:id="candidateNameField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
                     <Label styleClass="form-hint" text="Wymagane" GridPane.columnIndex="2" GridPane.rowIndex="0" />
@@ -196,7 +121,7 @@
                 </GridPane>
 
                 <!-- Przyciski akcji -->
-                <HBox spacing="10">
+                <HBox spacing="20" prefHeight="40">
                     <Button text="Dodaj" onAction="#handleAddCandidate" />
                     <Button text="Edytuj" onAction="#handleUpdateCandidate" />
                     <Button text="Usuń" onAction="#handleDeleteCandidate" />
@@ -205,6 +130,79 @@
                 </HBox>
 
                 <Label fx:id="candidateStatusLabel" styleClass="status-label" />
+            </VBox>
+        </Tab>
+        <!-- Wyniki wyborów -->
+        <Tab text="Wyniki wyborów">
+            <VBox spacing="5" styleClass="vbox-padding root-style">
+                <Label styleClass="panel-title" text="Aktualne wyniki wyborów" />
+
+                <!-- SplitPane z tłem -->
+                <SplitPane dividerPositions="0.5" orientation="HORIZONTAL" prefHeight="400" styleClass="split-pane-bg">
+                    <!-- Tabela z minimalną szerokością -->
+                    <TableView fx:id="resultsTable" prefHeight="400" styleClass="results-table" minWidth="350.0">
+                        <columns>
+                            <TableColumn fx:id="candidateColumn" prefWidth="145" minWidth="120" text="Kandydat">
+                                <cellValueFactory>
+                                    <PropertyValueFactory property="name" />
+                                </cellValueFactory>
+                            </TableColumn>
+                            <TableColumn fx:id="partyColumn" prefWidth="90" minWidth="80" text="Partia">
+                                <cellValueFactory>
+                                    <PropertyValueFactory property="party" />
+                                </cellValueFactory>
+                            </TableColumn>
+                            <TableColumn fx:id="votesColumn" prefWidth="70" minWidth="70">
+                                <graphic>
+                                    <VBox alignment="CENTER" spacing="-15">
+                                        <Label text="Liczba" styleClass="column-header-label"/>
+                                        <Label text="głosów" styleClass="column-header-label"/>
+                                    </VBox>
+                                </graphic>
+                                <cellValueFactory>
+                                    <PropertyValueFactory property="votes" />
+                                </cellValueFactory>
+                            </TableColumn>
+                            <TableColumn fx:id="percentColumn" prefWidth="60" minWidth="60" text="Procent"/>
+                        </columns>
+                    </TableView>
+
+                    <!-- Wykres z minimalną szerokością -->
+                    <BarChart fx:id="resultsChart" prefHeight="400" styleClass="results-chart" minWidth="300.0"
+                              legendVisible="false"
+                              title="Głosy wg kandydata">
+                        <xAxis>
+                            <CategoryAxis fx:id="xAxis" side="BOTTOM" />
+                        </xAxis>
+                        <yAxis>
+                            <NumberAxis fx:id="yAxis" label="Liczba głosów" />
+                        </yAxis>
+                    </BarChart>
+                </SplitPane>
+
+                <!-- Układ przycisków w dwóch wierszach -->
+                <VBox spacing="5">
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Button styleClass="button-refresh" onAction="#refreshResults" text="Odśwież wyniki" />
+                        <Button styleClass="button-export" onAction="#handleExportToCSV" text="Eksportuj do CSV" />
+                        <Button styleClass="button-export" onAction="#handleExportToPDF" text="Eksportuj do PDF" />
+                        <Button styleClass="button-logout" onAction="#handleLogout" text="Wyloguj" />
+                    </HBox>
+                </VBox>
+
+                <!-- Etykieta statusu -->
+                <Label fx:id="statusLabel" styleClass="status-label" wrapText="true" maxWidth="Infinity" />
+            </VBox>
+        </Tab>
+
+        <!-- Narzędzia -->
+        <Tab text="Narzędzia">
+            <VBox spacing="10" styleClass="vbox-padding" prefHeight="250">
+                <Label styleClass="panel-title" text="Narzędzia administratora" />
+                <VBox alignment="CENTER" spacing="30" styleClass="tools-container" prefHeight="150">
+                    <Button styleClass="button-generate" prefWidth="300" prefHeight="50" onAction="#handleOpenHashGenerator" text="Otwórz Generator Hashy" />
+                    <Button styleClass="button-logout" prefWidth="300" prefHeight="50" onAction="#handleLogout" text="Wyloguj" />
+                </VBox>
             </VBox>
         </Tab>
     </TabPane>

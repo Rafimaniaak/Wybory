@@ -42,3 +42,4 @@ INSERT INTO USERS (id, username, password, role, has_voted) VALUES (77, 'admin3'
 INSERT INTO USERS (id, username, password, role, has_voted) VALUES (75, 'admin', '$2a$10$vNNkHZRSlLHv3ag4eOZhpungXDPzDnUUCSiUii4dSjALqivzKLiCe', 'ADMIN', false);
 INSERT INTO USERS (id, username, password, role, has_voted) VALUES (65, 'abc2', '$2a$10$LWY10FGCGfm0KIEbPUZC0.eeS8UKwJFmGF9f23T2u5o/R10rVI..C', 'USER', false);
 INSERT INTO USERS (id, username, password, role, has_voted) VALUES (65, 'abc2', '$2a$10$LWY10FGCGfm0KIEbPUZC0.eeS8UKwJFmGF9f23T2u5o/R10rVI..C', 'USER', false);
+INSERT INTO USERS (id, username, password, role, has_voted) VALUES (65, 'abc2', '$2a$10$c./4QdRH/zMBy7dW79gz3uFr2GyxfYiZW6OwHkpQV0zRDfqn7oRdK', 'USER', false);

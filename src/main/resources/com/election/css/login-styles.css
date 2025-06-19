@@ -1,0 +1,59 @@
+.root-style, .header-style, .footer-style {
+    -fx-background-color: #34495e;
+}
+
+.app-title {
+    -fx-font-size: 40px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.form-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: white;
+}
+
+.form-field, .hbox-password, .button-login {
+    -fx-min-width: 250px;
+    -fx-pref-width: 250px;
+}
+
+.form-field, .hbox-password {
+    -fx-font-size: 20px;
+}
+
+.button-login {
+    -fx-font-size: 20px;
+    -fx-pref-height: 44px;
+    -fx-padding: 0 20px;
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+}
+
+.error-label {
+    -fx-text-fill: #ff4444;
+    -fx-font-size: 20px;
+}
+
+.eye-button {
+    -fx-background-color: #3498db;
+    -fx-background-radius: 3px;
+    -fx-padding: 4px;
+    -fx-min-width: 30px;
+    -fx-min-height: 30px;
+}
+
+.eye-button:hover {
+    -fx-background-color: #2980b9;
+}
+.root-style .text-field,
+.root-style .password-field,
+.root-style .eye-button {
+    -fx-pref-height: 44px;
+    -fx-min-height: 44px;
+}
+
+.root-style .eye-button {
+    -fx-min-width: 44px;
+    -fx-pref-width: 44px;
+}

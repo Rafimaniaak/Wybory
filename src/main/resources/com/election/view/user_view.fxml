@@ -4,46 +4,44 @@
 <?import javafx.scene.layout.*?>
 <?import java.net.URL?>
 
-<BorderPane prefHeight="600" prefWidth="800"
+<BorderPane prefHeight="600" prefWidth="800" styleClass="root-style"
             xmlns="http://javafx.com/javafx/17.0.12"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.election.controller.UserController">
 
     <stylesheets>
-        <URL value="@style.css" />
+        <URL value="@../css/common-styles.css" />
+        <URL value="@../css/user-styles.css" />
     </stylesheets>
 
-    <!-- Stopka -->
+    <top>
+        <VBox alignment="CENTER" prefWidth="800.0" spacing="20" style="-fx-background-color: #34495e;">
+            <HBox styleClass="header-style" alignment="CENTER_RIGHT">
+                <Button fx:id="logoutButton" styleClass="button-logout" onAction="#handleLogout" text="Wyloguj" />
+            </HBox>
+
+            <VBox styleClass="voting-container" alignment="CENTER" spacing="20"
+                  style="-fx-background-color: #2c3e50; -fx-background-radius: 10px; -fx-padding: 40px;">
+                <Label styleClass="panel-title" text="Witaj w systemie głosowania!"
+                       style="-fx-text-fill: white; -fx-font-size: 28px;" />
+
+                <Label text="Wybierz kandydata:"
+                       style="-fx-text-fill: white; -fx-font-size: 22px;" />
+
+                <ComboBox fx:id="candidateComboBox" styleClass="candidate-combo" promptText="Kliknij, aby wybrać..."
+                          style="-fx-background-color: #34495e; -fx-text-fill: white; -fx-pref-height: 70px; -fx-font-size: 28px;"/>
+
+                <Button fx:id="submitButton" styleClass="button-vote" onAction="#handleVoteSubmit" text="Oddaj głos"
+                        style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 36px;" />
+
+                <Label fx:id="statusLabel" styleClass="status-label" wrapText="true"
+                       style="-fx-text-fill: white; -fx-font-size: 20px;" />
+            </VBox>
+        </VBox>
+    </top>
     <bottom>
         <HBox styleClass="footer-style" alignment="CENTER">
             <Label styleClass="footer-text" text="Wybory prezydenckie 2025" />
         </HBox>
     </bottom>
-
-    <!-- Główna zawartość -->
-    <top>
-        <VBox alignment="CENTER" prefWidth="800.0" spacing="20">
-            <!-- Panel nawigacyjny -->
-            <HBox styleClass="header-style" alignment="CENTER_RIGHT">
-                <Button fx:id="logoutButton" styleClass="button-logout" onAction="#handleLogout" text="Wyloguj" />
-            </HBox>
-
-            <!-- Formularz głosowania -->
-            <VBox styleClass="voting-container" alignment="CENTER" spacing="20">
-                <!-- Nagłówek -->
-                <Label styleClass="welcome-text" text="Witaj w systemie głosowania!" />
-
-                <!-- Lista kandydatów -->
-                <Label styleClass="candidate-label" text="Wybierz kandydata:" />
-
-                <ComboBox fx:id="candidateComboBox" styleClass="candidate-combo" promptText="Kliknij, aby wybrać..." />
-
-                <!-- Przycisk głosowania -->
-                <Button fx:id="submitButton" styleClass="button-vote" onAction="#handleVoteSubmit" text="Oddaj głos" />
-
-                <!-- Komunikaty statusu -->
-                <Label fx:id="statusLabel" styleClass="vote-status-label" wrapText="true" />
-            </VBox>
-        </VBox>
-    </top>
 </BorderPane>

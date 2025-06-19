@@ -1,0 +1,120 @@
+/* COMMON-STYLES.CSS */
+/* Style współdzielone między wszystkimi widokami */
+
+/* Globalne */
+.root-style, .header-style, .footer-style {
+    -fx-background-color: #34495e;
+}
+
+.white-text, .panel-title, .app-title,
+.form-label, .footer-text, .radio-button {
+    -fx-text-fill: white;
+}
+
+/* Typografia */
+.panel-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.app-title {
+    -fx-font-size: 40px;
+    -fx-font-weight: bold;
+}
+
+.form-label {
+    -fx-font-size: 14px;
+}
+
+/* Przyciski */
+.button-logout {
+    -fx-base: #e74c3c;
+    -fx-text-fill: white;
+}
+
+/* Statusy i komunikaty */
+.status-label { -fx-text-fill: #2ecc71; }
+.edit-status-label { -fx-text-fill: #f1c40f; }
+.delete-status-label { -fx-text-fill: #e74c3c; }
+.error-label {
+    -fx-text-fill: #ff4444;
+    -fx-font-size: 20px;
+}
+
+.status-label, .edit-status-label,
+.delete-status-label {
+    -fx-font-style: italic;
+}
+
+/* Kontenery */
+.vbox-padding {
+    -fx-padding: 20px;
+}
+
+.voting-container {
+    -fx-background-color: #2c3e50;
+    -fx-background-radius: 10px;
+    -fx-border-color: rgba(255,255,255,0.3);
+    -fx-border-radius: 10px;
+    -fx-border-width: 1px;
+    -fx-padding: 40px;
+}
+
+/* Formularze */
+.form-hint {
+    -fx-text-fill: #bdc3c7;
+    -fx-font-size: 11px;
+    -fx-font-style: italic;
+}
+
+.form-field, .hbox-password {
+    -fx-pref-width: 250px;
+    -fx-min-width: 250px;
+    -fx-font-size: 20px;
+}
+
+.password-field, .text-field {
+    -fx-font-size: 14px;
+    -fx-min-height: 25px;
+}
+
+/* Przycisk oka */
+.eye-button {
+    -fx-background-color: #3498db;
+    -fx-background-radius: 3px;
+    -fx-padding: 4px;
+    -fx-min-width: 30px;
+    -fx-min-height: 30px;
+}
+
+.eye-button:hover {
+    -fx-background-color: #2980b9;
+}
+
+.eye-button .image-view {
+    -fx-fit-width: 20px;
+    -fx-fit-height: 20px;
+}
+
+/* Stopka */
+.footer-text {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+}
+
+/* Radio button */
+.radio-button .radio {
+    -fx-background-color: #ecf0f1;
+    -fx-border-color: #bdc3c7;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+}
+
+.radio-button:selected .radio {
+    -fx-background-color: #3498db;
+}
+
+.vote-status-label {
+    -fx-text-fill: #2ecc71;
+    -fx-font-size: 20px;
+}

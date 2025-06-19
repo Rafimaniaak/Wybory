@@ -22,7 +22,7 @@ public class Main extends Application {
         // Inicjalizacja Hibernate i danych startowych
         initializeHibernate();
 
-        Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/app_icon.png")));
+        Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/app_icon.png")));
         primaryStage.getIcons().add(icon);
 
         // Załaduj GUI (login.fxml)

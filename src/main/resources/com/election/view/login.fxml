@@ -10,7 +10,8 @@
             fx:controller="com.election.controller.LoginController">
 
     <stylesheets>
-        <URL value="@style.css" />
+        <URL value="@../css/common-styles.css" />
+        <URL value="@../css/login-styles.css" />
     </stylesheets>
 
     <center>

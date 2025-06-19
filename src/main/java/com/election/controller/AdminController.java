@@ -171,7 +171,7 @@ public class AdminController {
 
         // Inicjalizacja filtrów
         roleFilterComboBox.setItems(FXCollections.observableArrayList("ADMIN", "USER"));
-
+        resultsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         configureUserTable();
         configureResultsTable();
         configureCandidatesTable();
@@ -426,10 +426,32 @@ public class AdminController {
             @Override
             protected void updateItem(String value, boolean empty) {
                 super.updateItem(value, empty);
-                setText(empty ? null : value);
+                if (empty || value == null) {
+                    setText(null);
+                } else {
+                    setText(value);
+                    setStyle("-fx-font-weight: bold; -fx-text-fill: #3498db;");
+                }
                 setAlignment(Pos.CENTER);
             }
         });
+        candidateColumn.setCellFactory(tc -> new TableCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item);
+                    setWrapText(true);
+                    setAlignment(Pos.CENTER);
+                }
+            }
+        });
+        // Ustawienia tabeli
+        resultsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        resultsTable.setMinHeight(200);
+        resultsTable.setMaxHeight(Double.MAX_VALUE);
     }
 
     // Inicjalizuje kontroler z danymi zalogowanego administratora
@@ -511,6 +533,19 @@ public class AdminController {
                 });
             }
 
+            Platform.runLater(() -> {
+                resultsChart.setAnimated(false);
+                resultsChart.requestLayout();
+                // Minimalna wysokość dla czytelności
+                resultsChart.setMinHeight(300);
+
+                // Zapobieganie nadmiernemu rozciąganiu
+                resultsChart.setMaxHeight(Double.MAX_VALUE);
+
+                // Automatyczne dopasowanie
+                resultsChart.autosize();
+            });
+
             resultsChart.getData().add(series);
             updateYAxisRange(maxVotes);
 
@@ -522,7 +557,7 @@ public class AdminController {
             resultsChart.setBarGap(10);
             resultsChart.setCategoryGap(5); // Zwiększ odstęp między słupkami
             // Zmniejszenie paddingu wykresu (dolny padding zwiększony dla etykiet)
-            resultsChart.setPadding(new Insets(0, 0, 10, 0)); // Zmieniony padding
+            resultsChart.setPadding(new Insets(0, 0, 40, 0)); // Zmieniony padding
 
             // Dodaj etykiety na słupkach
             for (XYChart.Data<String, Number> data : series.getData()) {
@@ -584,13 +619,13 @@ public class AdminController {
             yAxis.setUpperBound(maxVotes < 5 ? 5 : maxVotes + 2); // Dodajemy margines
             yAxis.setTickUnit(maxVotes < 10 ? 1 : Math.max(1, maxVotes / 10));
             yAxis.setMinorTickVisible(false);
-            xAxis.setPrefWidth(candidatesData.size() * 70);
+            xAxis.setPrefWidth(candidatesData.size() * 80);
 
             // Przesunięcie etykiety osi X
             Platform.runLater(() -> {
                 for (Node node : xAxis.getChildrenUnmodifiable()) {
                     if (node instanceof Text text && "Kandydat".equals(text.getText())) {
-                        text.setTranslateY(20); // Przesuń w dół
+                        text.setTranslateY(30); // Przesuń w dół
                     }
                 }
             });
@@ -648,7 +683,7 @@ public class AdminController {
             Stage loginStage = new Stage();
             loginStage.setScene(new Scene(loader.load()));
             loginStage.setTitle("Logowanie");
-            Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/app_icon.png")));
+            Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/app_icon.png")));
             loginStage.getIcons().add(icon);
             loginStage.show();
         } catch (IOException e) {

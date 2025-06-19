@@ -88,7 +88,7 @@ public class UserController {
             Stage loginStage = new Stage();
             loginStage.setScene(new Scene(root));
             loginStage.setTitle("Logowanie");
-            Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/app_icon.png")));
+            Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/app_icon.png")));
             loginStage.getIcons().add(icon);
             loginStage.show();
         } catch (IOException e) {

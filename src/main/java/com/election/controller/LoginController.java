@@ -101,10 +101,11 @@ public class LoginController {
         performLogin();
     }
 
+
     // Wykonuje proces logowania
     private void performLogin() {
         String username = usernameField.getText().trim();
-        String password = passwordField.getText().trim();
+        String password = getPassword().trim();
 
         if (username.isEmpty() || password.isEmpty()) {
             showError("Proszę wypełnić wszystkie pola!");
