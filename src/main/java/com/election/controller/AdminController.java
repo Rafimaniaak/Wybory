@@ -418,7 +418,19 @@ public class AdminController {
             CandidateResult candidate = cellData.getValue();
             int totalVotes = candidatesData.stream().mapToInt(CandidateResult::getVotes).sum();
             double percent = totalVotes > 0 ? (candidate.getVotes() * 100.0) / totalVotes : 0;
-            return new SimpleStringProperty(String.format("%.1f%%", percent));
+
+            // To samo formatowanie co w wykresie
+            String percentText;
+            if (percent == (int) percent) {
+                percentText = String.format("%d%%", (int) percent);
+            } else if (percent * 10 == (int) (percent * 10)) {
+                percentText = String.format("%.1f%%", percent);
+            } else {
+                percentText = String.format("%.2f%%", percent);
+            }
+            percentText = percentText.replace(".", ",");
+
+            return new SimpleStringProperty(percentText);
         });
 
         // Formatowanie komórek
@@ -564,35 +576,41 @@ public class AdminController {
                 Node node = data.getNode();
                 int votes = data.getYValue().intValue();
                 double percent = totalVotes > 0 ? (votes * 100.0) / totalVotes : 0;
-                // Zwiększ minimalną wysokość dla krótkich słupków
-                double barHeight = Math.max(votes * 1.0, 5); // Minimalna wysokość 5
-
-                // Oblicz pozycję etykiety - 50% wysokości słupka
+                double barHeight = Math.max(votes * 1.0, 5);
                 double labelPosition = barHeight / 2;
 
+                // Formatowanie procentów z pominięciem końcowych zer
+                String percentText;
+                if (percent == (int) percent) {
+                    percentText = String.format("%d%%", (int) percent); // Całkowite wartości: 50%
+                } else if (percent * 10 == (int) (percent * 10)) {
+                    percentText = String.format("%.1f%%", percent); // Jedno miejsce po przecinku: 12.5%
+                } else {
+                    percentText = String.format("%.2f%%", percent); // Dwa miejsca po przecinku: 12.34%
+                }
+                // Zamiana kropek na przecinki
+                percentText = percentText.replace(".", ",");
 
-                Label label = new Label(String.format("%.1f%%", percent));
-                label.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12px;");
+                Label label = new Label(percentText);
+                label.setStyle("-fx-text-fill: white; -fx-font-size: 12px;");
 
-                // Ustaw pozycję etykiety w środku słupka
                 StackPane.setAlignment(label, Pos.CENTER);
                 StackPane.setMargin(label, new Insets(-labelPosition, 0, 0, 0));
-                label.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 10px;"); // Mniejsza czcionka
+                label.setStyle("-fx-text-fill: white; -fx-font-size: 10px;");
 
                 if (node != null) {
                     ((StackPane) node).getChildren().add(label);
                 }
 
-                // Dodaj tooltip z pełną informacją
+                // Tooltip z tym samym formatowaniem procentów
                 Tooltip tooltip = new Tooltip(
                         "Kandydat: " + data.getXValue().split("\n")[0] +
                                 "\nPartia: " + data.getXValue().split("\n")[1].replaceAll("[()]", "") +
                                 "\nGłosy: " + votes +
-                                "\nProcent: " + String.format("%.1f%%", percent)
+                                "\nProcent: " + percentText
                 );
                 Tooltip.install(node, tooltip);
 
-                // Obsługa kliknięcia
                 node.setOnMouseClicked(event -> {
                     String candidateName = data.getXValue().split("\n")[0];
                     statusLabel.setText("Kliknięto na: " + candidateName);

@@ -1,5 +1,5 @@
 Eksport struktury katalog體 i plik體
-Wygenerowano: 06/19/2025 21:26:10
+Wygenerowano: 06/19/2025 23:43:25
 
 
 
@@ -618,7 +618,19 @@ public class AdminController {
             CandidateResult candidate = cellData.getValue();
             int totalVotes = candidatesData.stream().mapToInt(CandidateResult::getVotes).sum();
             double percent = totalVotes > 0 ? (candidate.getVotes() * 100.0) / totalVotes : 0;
-            return new SimpleStringProperty(String.format("%.1f%%", percent));
+
+            // To samo formatowanie co w wykresie
+            String percentText;
+            if (percent == (int) percent) {
+                percentText = String.format("%d%%", (int) percent);
+            } else if (percent * 10 == (int) (percent * 10)) {
+                percentText = String.format("%.1f%%", percent);
+            } else {
+                percentText = String.format("%.2f%%", percent);
+            }
+            percentText = percentText.replace(".", ",");
+
+            return new SimpleStringProperty(percentText);
         });
 
         // Formatowanie kom贸rek
@@ -764,35 +776,41 @@ public class AdminController {
                 Node node = data.getNode();
                 int votes = data.getYValue().intValue();
                 double percent = totalVotes > 0 ? (votes * 100.0) / totalVotes : 0;
-                // Zwi臋ksz minimaln膮 wysoko艣膰 dla kr贸tkich s艂upk贸w
-                double barHeight = Math.max(votes * 1.0, 5); // Minimalna wysoko艣膰 5
-
-                // Oblicz pozycj臋 etykiety - 50% wysoko艣ci s艂upka
+                double barHeight = Math.max(votes * 1.0, 5);
                 double labelPosition = barHeight / 2;
 
+                // Formatowanie procent贸w z pomini臋ciem ko艅cowych zer
+                String percentText;
+                if (percent == (int) percent) {
+                    percentText = String.format("%d%%", (int) percent); // Ca艂kowite warto艣ci: 50%
+                } else if (percent * 10 == (int) (percent * 10)) {
+                    percentText = String.format("%.1f%%", percent); // Jedno miejsce po przecinku: 12.5%
+                } else {
+                    percentText = String.format("%.2f%%", percent); // Dwa miejsca po przecinku: 12.34%
+                }
+                // Zamiana kropek na przecinki
+                percentText = percentText.replace(".", ",");
 
-                Label label = new Label(String.format("%.1f%%", percent));
-                label.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12px;");
+                Label label = new Label(percentText);
+                label.setStyle("-fx-text-fill: white; -fx-font-size: 12px;");
 
-                // Ustaw pozycj臋 etykiety w 艣rodku s艂upka
                 StackPane.setAlignment(label, Pos.CENTER);
                 StackPane.setMargin(label, new Insets(-labelPosition, 0, 0, 0));
-                label.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 10px;"); // Mniejsza czcionka
+                label.setStyle("-fx-text-fill: white; -fx-font-size: 10px;");
 
                 if (node != null) {
                     ((StackPane) node).getChildren().add(label);
                 }
 
-                // Dodaj tooltip z pe艂n膮 informacj膮
+                // Tooltip z tym samym formatowaniem procent贸w
                 Tooltip tooltip = new Tooltip(
                         "Kandydat: " + data.getXValue().split("\n")[0] +
                                 "\nPartia: " + data.getXValue().split("\n")[1].replaceAll("[()]", "") +
                                 "\nG艂osy: " + votes +
-                                "\nProcent: " + String.format("%.1f%%", percent)
+                                "\nProcent: " + percentText
                 );
                 Tooltip.install(node, tooltip);
 
-                // Obs艂uga klikni臋cia
                 node.setOnMouseClicked(event -> {
                     String candidateName = data.getXValue().split("\n")[0];
                     statusLabel.setText("Klikni臋to na: " + candidateName);
@@ -2668,10 +2686,29 @@ public class HibernateUtil {
 
 孋IE疜A: src\main\resources\com\election\css\admin-styles.css
 ----------------------------------------------------------------
-/* ADMIN-STYLES.CSS */
-/* Specyficzne style dla panelu administratora */
+/* ADMIN-STYLES.CSS - ZOPTYMALIZOWANA WERSJA */
 
-/* Tabele */
+/* ===== ZGROMADZONE SELEKTORY ===== */
+.root-style, .header-style, .footer-style,
+.results-table, .results-chart, .chart-container,
+.split-pane-bg, .chart-plot-background,
+.candidate-combo, .candidate-combo .list-view,
+#candidatesTable, .scroll-pane .table-view {
+    -fx-background-color: #2c3e50;
+}
+
+.white-text, .panel-title, .app-title,
+.form-label, .footer-text, .radio-button,
+.results-chart, .results-chart .chart-title,
+.results-chart .axis-label, .results-chart .axis,
+.results-table .table-cell, .results-table .column-header .label,
+.x-axis, .chart-axis-label, .axis-label,
+.axis, .column-header-label {
+    -fx-tick-label-fill: white !important;
+    -fx-text-fill: white !important;
+}
+
+/* ===== ELEMENTY WSP脫LNE ===== */
 .compact-table {
     -fx-max-height: 250px;
     -fx-font-size: 11px;
@@ -2681,6 +2718,11 @@ public class HibernateUtil {
     -fx-cell-size: 25px;
 }
 
+.button {
+    -fx-padding: 5px 15px;
+}
+
+/* ===== SPECYFICZNE STYLE ===== */
 /* Formularze */
 #userFormGrid {
     -fx-padding: 10px;
@@ -2694,12 +2736,6 @@ public class HibernateUtil {
     -fx-padding: 8px 20px;
 }
 
-.button-refresh, .button-export,
-.button-add, .button-save,
-.button-delete {
-    -fx-padding: 5px 15px;
-}
-
 .button-add { -fx-base: #27ae60; }
 .button-save { -fx-base: #3498db; }
 .button-delete { -fx-base: #e74c3c; }
@@ -2709,15 +2745,21 @@ public class HibernateUtil {
     -fx-padding: 30px 0 0 0;
 }
 
-/* Wykresy i wyniki */
 .split-pane-bg {
-    -fx-background-color: #2c3e50;
     -fx-background-radius: 0;
     -fx-padding: 0;
+    -fx-min-height: 450px;
+    -fx-pref-height: 450px;
+    -fx-max-height: Infinity;
+}
+
+.results-table, .results-chart {
+    -fx-min-height: 400px;
+    -fx-pref-height: 400px;
+    -fx-max-height: Infinity;
 }
 
 .results-table {
-    -fx-background-color: #2c3e50;
     -fx-min-width: 300px;
     -fx-pref-width: 400px;
     -fx-max-width: 600px;
@@ -2726,17 +2768,13 @@ public class HibernateUtil {
 }
 
 .chart-container {
-    -fx-background-color: #2c3e50;
     -fx-background-radius: 5px;
     -fx-padding: 5px;
 }
 
-.results-chart,
-.results-chart .chart-title,
-.results-chart .axis-label,
-.results-chart .axis {
-    -fx-text-fill: white !important;
+.results-chart {
     -fx-font-size: 16px;
+    -fx-min-width: 325px;
 }
 
 .chart-bar {
@@ -2744,32 +2782,37 @@ public class HibernateUtil {
     -fx-bar-padding: 3px;
 }
 
+.chart-bar .chart-label {
+    -fx-text-fill: white !important;
+}
+.chart-legend {
+    -fx-text-fill: white !important;
+}
 .chart-content {
-    -fx-padding: 5px 5px 120px 5px;
+    -fx-padding: 0;
 }
 
 .results-table .column-header-background {
-    -fx-pref-height: 40px;
-    -fx-max-height: 40px;
+    -fx-pref-height: 60px;
+    -fx-max-height: 60px;
     -fx-background-color: rgba(0, 0, 0, 0.3);
-    -fx-border-color: rgba(255,255,255,0.2);
-    -fx-border-width: 0 0 1px 0;
-    -fx-border-insets: 0 0 15px 0;
-    -fx-padding: 5px 0;
-}
-
-.results-table .column-header .label {
-    -fx-text-fill: white;
-    -fx-font-weight: bold;
-    -fx-background-color: transparent;
+    -fx-border-color: rgba(255,255,255,0.3);
+    -fx-border-width: 0 0 2px 0;
+    -fx-padding: 0 0 0 0; /* Zmieniono padding */
 }
 
 .results-table .table-cell {
-    -fx-text-fill: white;
     -fx-border-color: rgba(255, 255, 255, 0.1);
     -fx-alignment: CENTER;
     -fx-wrap-text: true;
     -fx-padding: 5px;
+    -fx-text-fill: white !important;
+    -fx-border-width: 0 1px 1px 0;
+}
+
+/* Usu艅 lini臋 z ostatniej kom贸rki w wierszu */
+.results-table .table-cell:last-child {
+    -fx-border-width: 0 0 1px 0;
 }
 
 .split-pane-bg > .scroll-pane {
@@ -2778,7 +2821,6 @@ public class HibernateUtil {
 
 .results-table .table-row-cell {
     -fx-background-color: transparent;
-    /* POPRAWIONE: zmniejszona wysoko艣膰 wierszy */
     -fx-cell-size: 35px;
     -fx-min-height: 35px;
     -fx-pref-height: 35px;
@@ -2788,33 +2830,13 @@ public class HibernateUtil {
     -fx-background-color: rgba(0, 0, 0, 0.1);
 }
 
-.tab-pane > .tab-content-area > #tab2 {
-    -fx-background-color: #34495e;
-}
-
-.chart-plot-background {
-    -fx-background-color: #2c3e50;
-}
-
 .chart-horizontal-grid-lines,
 .chart-vertical-grid-lines {
-    -fx-stroke: white;
+    -fx-stroke: #aaaaaa;
+    -fx-stroke-dash-array: 2 5;
 }
 
-.results-chart {
-    -fx-min-width: 300px;
-    -fx-pref-width: 400px;
-    -fx-max-width: 600px;
-    -fx-background-color: #2c3e50;
-}
-
-/* Elementy specyficzne */
-#candidatesTable, .scroll-pane .table-view {
-    -fx-background-color: rgba(255, 255, 255, 0.1);
-    -fx-padding: 10px;
-}
-
-/* LISTA ROZWIJANA */
+/* Listy rozwijane */
 .candidate-combo {
     -fx-pref-height: 65px;
     -fx-pref-width: 450px;
@@ -2822,11 +2844,6 @@ public class HibernateUtil {
 }
 
 .candidate-combo .list-cell {
-    -fx-text-fill: white;
-    -fx-background-color: #34495e;
-}
-
-.candidate-combo .list-view {
     -fx-background-color: #34495e;
 }
 
@@ -2834,7 +2851,7 @@ public class HibernateUtil {
     -fx-background-color: #2c3e50;
 }
 
-/* PRZYCISK G艁OSOWANIA */
+/* Przyciski g艂osowania */
 .button-vote {
     -fx-font-size: 36px;
     -fx-base: #27ae60;
@@ -2842,77 +2859,45 @@ public class HibernateUtil {
     -fx-text-fill: white;
     -fx-font-weight: bold;
 }
-.x-axis {
-    -fx-text-fill: white;
-}
-.chart-axis-label {
-    -fx-text-fill: white !important;
-}
 
-.axis-label {
-    -fx-text-fill: white !important;
-}
-
-.axis {
-    -fx-tick-label-fill: white !important;
-}
-.results-table .table-cell {
-    -fx-text-fill: white !important;
+/* Nag艂贸wki i etykiety */
+.column-header-label {
+    -fx-font-weight: bold;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+    -fx-wrap-text: true;
+    -fx-font-size: 12px;
+    -fx-padding: 0 5px;
+    -fx-max-width: Infinity;
 }
 
 .results-table .column-header {
     -fx-size: 40px;
     -fx-pref-height: 40px;
     -fx-background-color: transparent;
+    -fx-padding: 0 0 0 0;
+    -fx-border-color: rgba(255,255,255,0.2);
+    -fx-border-width: 0 1px 0 0;
+}
+
+/* Usu艅 lini臋 z ostatniej kolumny */
+.results-table .column-header:last-child {
+    -fx-border-width: 0;
 }
 
 .results-table .column-header .label {
-    -fx-text-fill: white;
     -fx-font-weight: bold;
     -fx-font-size: 12px;
     -fx-padding: 10px 0;
     -fx-alignment: CENTER;
-    -fx-wrap-text: true; /* Zawijanie tekstu */
-    -fx-max-height: 35px; /* Ograniczenie wysoko艣ci */
-}
-.column-header-label {
-    -fx-text-fill: white !important;
-    -fx-font-weight: bold;
-    -fx-alignment: center;
     -fx-wrap-text: true;
-    -fx-font-size: 12px;
-    -fx-padding: 0 0 1px 0;
-}
-.results-table .column-header-background {
-    -fx-pref-height: 40px !important;
-    -fx-max-height: 40px !important;
-    -fx-padding: 5px 0 !important;
-    -fx-border-insets: 0 0 15px 0 !important;
+    -fx-max-height: 35px;
+    -fx-padding: 0 5px;
 }
 
-.results-table .table-row-cell {
-    -fx-cell-size: 35px;
-    -fx-min-height: 35px;
-    -fx-pref-height: 35px;
-    -fx-background-color: transparent;
-}
-
+/* Specyficzne ustawienia */
 .results-table {
-    -fx-padding: 0 0 10px 0 !important;
-}
-
-/* .results-table .column-header-background {
-    -fx-background-color: RED !important;
-} */
-.results-table .column-header-background {
-    -fx-pref-height: 40px !important;
-    -fx-max-height: 40px !important;
-    -fx-padding: 5px 0 5px 0 !important; /* Dodano padding g贸rny/dolny */
-    -fx-border-insets: 0 !important; /* Usuni臋to doln膮 warto艣膰 */
-    -fx-background-color: rgba(0, 0, 0, 0.3);
-}
-.results-table {
-    -fx-min-width: 330px; /* suma minWidth kolumn */
+    -fx-min-width: 350px;
 }
 
 .scroll-pane {
@@ -2922,19 +2907,10 @@ public class HibernateUtil {
 .scroll-pane .viewport {
     -fx-background-color: #2c3e50;
 }
+
 .split-pane > .split-pane-divider {
-    -fx-padding: 0 0.5em; /* Dodatkowa przestrze艅 wok贸艂 separatora */
+    -fx-padding: 0 0.5em;
 }
-
-.results-table {
-    -fx-min-width: 350px;
-    -fx-pref-width: 365px; /* Suma prefWidth kolumn */
-}
-
-.results-chart {
-    -fx-min-width: 300px;
-}
-
 
 
 孋IE疜A: src\main\resources\com\election\css\common-styles.css
@@ -3343,7 +3319,7 @@ public class HibernateUtil {
                 <Label styleClass="panel-title" text="Aktualne wyniki wybor贸w" />
 
                 <!-- SplitPane z t艂em -->
-                <SplitPane dividerPositions="0.5" orientation="HORIZONTAL" prefHeight="400" styleClass="split-pane-bg">
+                <SplitPane dividerPositions="0.5" orientation="HORIZONTAL" prefHeight="450" styleClass="split-pane-bg">
                     <!-- Tabela z minimaln膮 szeroko艣ci膮 -->
                     <TableView fx:id="resultsTable" prefHeight="400" styleClass="results-table" minWidth="350.0">
                         <columns>
@@ -3359,9 +3335,9 @@ public class HibernateUtil {
                             </TableColumn>
                             <TableColumn fx:id="votesColumn" prefWidth="70" minWidth="70">
                                 <graphic>
-                                    <VBox alignment="CENTER" spacing="-15">
-                                        <Label text="Liczba" styleClass="column-header-label"/>
-                                        <Label text="g艂os贸w" styleClass="column-header-label"/>
+                                    <VBox alignment="CENTER" spacing="0" prefHeight="40">
+                                        <Label text="Liczba" styleClass="column-header-label" wrapText="true" maxHeight="Infinity"/>
+                                        <Label text="g艂os贸w" styleClass="column-header-label" wrapText="true" maxHeight="Infinity"/>
                                     </VBox>
                                 </graphic>
                                 <cellValueFactory>
@@ -3373,7 +3349,7 @@ public class HibernateUtil {
                     </TableView>
 
                     <!-- Wykres z minimaln膮 szeroko艣ci膮 -->
-                    <BarChart fx:id="resultsChart" prefHeight="400" styleClass="results-chart" minWidth="300.0"
+                    <BarChart fx:id="resultsChart" prefHeight="450" styleClass="results-chart" minWidth="300.0"
                               legendVisible="false"
                               title="G艂osy wg kandydata">
                         <xAxis>
@@ -3526,10 +3502,29 @@ public class HibernateUtil {
 
 孋IE疜A: target\classes\com\election\css\admin-styles.css
 ------------------------------------------------------------
-/* ADMIN-STYLES.CSS */
-/* Specyficzne style dla panelu administratora */
+/* ADMIN-STYLES.CSS - ZOPTYMALIZOWANA WERSJA */
 
-/* Tabele */
+/* ===== ZGROMADZONE SELEKTORY ===== */
+.root-style, .header-style, .footer-style,
+.results-table, .results-chart, .chart-container,
+.split-pane-bg, .chart-plot-background,
+.candidate-combo, .candidate-combo .list-view,
+#candidatesTable, .scroll-pane .table-view {
+    -fx-background-color: #2c3e50;
+}
+
+.white-text, .panel-title, .app-title,
+.form-label, .footer-text, .radio-button,
+.results-chart, .results-chart .chart-title,
+.results-chart .axis-label, .results-chart .axis,
+.results-table .table-cell, .results-table .column-header .label,
+.x-axis, .chart-axis-label, .axis-label,
+.axis, .column-header-label {
+    -fx-tick-label-fill: white !important;
+    -fx-text-fill: white !important;
+}
+
+/* ===== ELEMENTY WSP脫LNE ===== */
 .compact-table {
     -fx-max-height: 250px;
     -fx-font-size: 11px;
@@ -3539,6 +3534,11 @@ public class HibernateUtil {
     -fx-cell-size: 25px;
 }
 
+.button {
+    -fx-padding: 5px 15px;
+}
+
+/* ===== SPECYFICZNE STYLE ===== */
 /* Formularze */
 #userFormGrid {
     -fx-padding: 10px;
@@ -3552,12 +3552,6 @@ public class HibernateUtil {
     -fx-padding: 8px 20px;
 }
 
-.button-refresh, .button-export,
-.button-add, .button-save,
-.button-delete {
-    -fx-padding: 5px 15px;
-}
-
 .button-add { -fx-base: #27ae60; }
 .button-save { -fx-base: #3498db; }
 .button-delete { -fx-base: #e74c3c; }
@@ -3567,15 +3561,21 @@ public class HibernateUtil {
     -fx-padding: 30px 0 0 0;
 }
 
-/* Wykresy i wyniki */
 .split-pane-bg {
-    -fx-background-color: #2c3e50;
     -fx-background-radius: 0;
     -fx-padding: 0;
+    -fx-min-height: 450px;
+    -fx-pref-height: 450px;
+    -fx-max-height: Infinity;
+}
+
+.results-table, .results-chart {
+    -fx-min-height: 400px;
+    -fx-pref-height: 400px;
+    -fx-max-height: Infinity;
 }
 
 .results-table {
-    -fx-background-color: #2c3e50;
     -fx-min-width: 300px;
     -fx-pref-width: 400px;
     -fx-max-width: 600px;
@@ -3584,17 +3584,13 @@ public class HibernateUtil {
 }
 
 .chart-container {
-    -fx-background-color: #2c3e50;
     -fx-background-radius: 5px;
     -fx-padding: 5px;
 }
 
-.results-chart,
-.results-chart .chart-title,
-.results-chart .axis-label,
-.results-chart .axis {
-    -fx-text-fill: white !important;
+.results-chart {
     -fx-font-size: 16px;
+    -fx-min-width: 325px;
 }
 
 .chart-bar {
@@ -3602,32 +3598,37 @@ public class HibernateUtil {
     -fx-bar-padding: 3px;
 }
 
+.chart-bar .chart-label {
+    -fx-text-fill: white !important;
+}
+.chart-legend {
+    -fx-text-fill: white !important;
+}
 .chart-content {
-    -fx-padding: 5px 5px 120px 5px;
+    -fx-padding: 0;
 }
 
 .results-table .column-header-background {
-    -fx-pref-height: 40px;
-    -fx-max-height: 40px;
+    -fx-pref-height: 60px;
+    -fx-max-height: 60px;
     -fx-background-color: rgba(0, 0, 0, 0.3);
-    -fx-border-color: rgba(255,255,255,0.2);
-    -fx-border-width: 0 0 1px 0;
-    -fx-border-insets: 0 0 15px 0;
-    -fx-padding: 5px 0;
-}
-
-.results-table .column-header .label {
-    -fx-text-fill: white;
-    -fx-font-weight: bold;
-    -fx-background-color: transparent;
+    -fx-border-color: rgba(255,255,255,0.3);
+    -fx-border-width: 0 0 2px 0;
+    -fx-padding: 0 0 0 0; /* Zmieniono padding */
 }
 
 .results-table .table-cell {
-    -fx-text-fill: white;
     -fx-border-color: rgba(255, 255, 255, 0.1);
     -fx-alignment: CENTER;
     -fx-wrap-text: true;
     -fx-padding: 5px;
+    -fx-text-fill: white !important;
+    -fx-border-width: 0 1px 1px 0;
+}
+
+/* Usu艅 lini臋 z ostatniej kom贸rki w wierszu */
+.results-table .table-cell:last-child {
+    -fx-border-width: 0 0 1px 0;
 }
 
 .split-pane-bg > .scroll-pane {
@@ -3636,7 +3637,6 @@ public class HibernateUtil {
 
 .results-table .table-row-cell {
     -fx-background-color: transparent;
-    /* POPRAWIONE: zmniejszona wysoko艣膰 wierszy */
     -fx-cell-size: 35px;
     -fx-min-height: 35px;
     -fx-pref-height: 35px;
@@ -3646,33 +3646,13 @@ public class HibernateUtil {
     -fx-background-color: rgba(0, 0, 0, 0.1);
 }
 
-.tab-pane > .tab-content-area > #tab2 {
-    -fx-background-color: #34495e;
-}
-
-.chart-plot-background {
-    -fx-background-color: #2c3e50;
-}
-
 .chart-horizontal-grid-lines,
 .chart-vertical-grid-lines {
-    -fx-stroke: white;
+    -fx-stroke: #aaaaaa;
+    -fx-stroke-dash-array: 2 5;
 }
 
-.results-chart {
-    -fx-min-width: 300px;
-    -fx-pref-width: 400px;
-    -fx-max-width: 600px;
-    -fx-background-color: #2c3e50;
-}
-
-/* Elementy specyficzne */
-#candidatesTable, .scroll-pane .table-view {
-    -fx-background-color: rgba(255, 255, 255, 0.1);
-    -fx-padding: 10px;
-}
-
-/* LISTA ROZWIJANA */
+/* Listy rozwijane */
 .candidate-combo {
     -fx-pref-height: 65px;
     -fx-pref-width: 450px;
@@ -3680,11 +3660,6 @@ public class HibernateUtil {
 }
 
 .candidate-combo .list-cell {
-    -fx-text-fill: white;
-    -fx-background-color: #34495e;
-}
-
-.candidate-combo .list-view {
     -fx-background-color: #34495e;
 }
 
@@ -3692,7 +3667,7 @@ public class HibernateUtil {
     -fx-background-color: #2c3e50;
 }
 
-/* PRZYCISK G艁OSOWANIA */
+/* Przyciski g艂osowania */
 .button-vote {
     -fx-font-size: 36px;
     -fx-base: #27ae60;
@@ -3700,77 +3675,45 @@ public class HibernateUtil {
     -fx-text-fill: white;
     -fx-font-weight: bold;
 }
-.x-axis {
-    -fx-text-fill: white;
-}
-.chart-axis-label {
-    -fx-text-fill: white !important;
-}
 
-.axis-label {
-    -fx-text-fill: white !important;
-}
-
-.axis {
-    -fx-tick-label-fill: white !important;
-}
-.results-table .table-cell {
-    -fx-text-fill: white !important;
+/* Nag艂贸wki i etykiety */
+.column-header-label {
+    -fx-font-weight: bold;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+    -fx-wrap-text: true;
+    -fx-font-size: 12px;
+    -fx-padding: 0 5px;
+    -fx-max-width: Infinity;
 }
 
 .results-table .column-header {
     -fx-size: 40px;
     -fx-pref-height: 40px;
     -fx-background-color: transparent;
+    -fx-padding: 0 0 0 0;
+    -fx-border-color: rgba(255,255,255,0.2);
+    -fx-border-width: 0 1px 0 0;
+}
+
+/* Usu艅 lini臋 z ostatniej kolumny */
+.results-table .column-header:last-child {
+    -fx-border-width: 0;
 }
 
 .results-table .column-header .label {
-    -fx-text-fill: white;
     -fx-font-weight: bold;
     -fx-font-size: 12px;
     -fx-padding: 10px 0;
     -fx-alignment: CENTER;
-    -fx-wrap-text: true; /* Zawijanie tekstu */
-    -fx-max-height: 35px; /* Ograniczenie wysoko艣ci */
-}
-.column-header-label {
-    -fx-text-fill: white !important;
-    -fx-font-weight: bold;
-    -fx-alignment: center;
     -fx-wrap-text: true;
-    -fx-font-size: 12px;
-    -fx-padding: 0 0 1px 0;
-}
-.results-table .column-header-background {
-    -fx-pref-height: 40px !important;
-    -fx-max-height: 40px !important;
-    -fx-padding: 5px 0 !important;
-    -fx-border-insets: 0 0 15px 0 !important;
+    -fx-max-height: 35px;
+    -fx-padding: 0 5px;
 }
 
-.results-table .table-row-cell {
-    -fx-cell-size: 35px;
-    -fx-min-height: 35px;
-    -fx-pref-height: 35px;
-    -fx-background-color: transparent;
-}
-
+/* Specyficzne ustawienia */
 .results-table {
-    -fx-padding: 0 0 10px 0 !important;
-}
-
-/* .results-table .column-header-background {
-    -fx-background-color: RED !important;
-} */
-.results-table .column-header-background {
-    -fx-pref-height: 40px !important;
-    -fx-max-height: 40px !important;
-    -fx-padding: 5px 0 5px 0 !important; /* Dodano padding g贸rny/dolny */
-    -fx-border-insets: 0 !important; /* Usuni臋to doln膮 warto艣膰 */
-    -fx-background-color: rgba(0, 0, 0, 0.3);
-}
-.results-table {
-    -fx-min-width: 330px; /* suma minWidth kolumn */
+    -fx-min-width: 350px;
 }
 
 .scroll-pane {
@@ -3780,19 +3723,10 @@ public class HibernateUtil {
 .scroll-pane .viewport {
     -fx-background-color: #2c3e50;
 }
+
 .split-pane > .split-pane-divider {
-    -fx-padding: 0 0.5em; /* Dodatkowa przestrze艅 wok贸艂 separatora */
+    -fx-padding: 0 0.5em;
 }
-
-.results-table {
-    -fx-min-width: 350px;
-    -fx-pref-width: 365px; /* Suma prefWidth kolumn */
-}
-
-.results-chart {
-    -fx-min-width: 300px;
-}
-
 
 
 孋IE疜A: target\classes\com\election\css\common-styles.css
@@ -4201,7 +4135,7 @@ public class HibernateUtil {
                 <Label styleClass="panel-title" text="Aktualne wyniki wybor贸w" />
 
                 <!-- SplitPane z t艂em -->
-                <SplitPane dividerPositions="0.5" orientation="HORIZONTAL" prefHeight="400" styleClass="split-pane-bg">
+                <SplitPane dividerPositions="0.5" orientation="HORIZONTAL" prefHeight="450" styleClass="split-pane-bg">
                     <!-- Tabela z minimaln膮 szeroko艣ci膮 -->
                     <TableView fx:id="resultsTable" prefHeight="400" styleClass="results-table" minWidth="350.0">
                         <columns>
@@ -4217,9 +4151,9 @@ public class HibernateUtil {
                             </TableColumn>
                             <TableColumn fx:id="votesColumn" prefWidth="70" minWidth="70">
                                 <graphic>
-                                    <VBox alignment="CENTER" spacing="-15">
-                                        <Label text="Liczba" styleClass="column-header-label"/>
-                                        <Label text="g艂os贸w" styleClass="column-header-label"/>
+                                    <VBox alignment="CENTER" spacing="0" prefHeight="40">
+                                        <Label text="Liczba" styleClass="column-header-label" wrapText="true" maxHeight="Infinity"/>
+                                        <Label text="g艂os贸w" styleClass="column-header-label" wrapText="true" maxHeight="Infinity"/>
                                     </VBox>
                                 </graphic>
                                 <cellValueFactory>
@@ -4231,7 +4165,7 @@ public class HibernateUtil {
                     </TableView>
 
                     <!-- Wykres z minimaln膮 szeroko艣ci膮 -->
-                    <BarChart fx:id="resultsChart" prefHeight="400" styleClass="results-chart" minWidth="300.0"
+                    <BarChart fx:id="resultsChart" prefHeight="450" styleClass="results-chart" minWidth="300.0"
                               legendVisible="false"
                               title="G艂osy wg kandydata">
                         <xAxis>

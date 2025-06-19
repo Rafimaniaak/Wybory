@@ -47,10 +47,33 @@
     -fx-base: #3498db;
     -fx-padding: 8px 20px;
 }
+.button-generate:hover,
+.button-refresh:hover,
+.button-export:hover {
+    -fx-background-color: #2980b9;
+    -fx-cursor: hand;
+}
 
 .button-add { -fx-base: #27ae60; }
 .button-save { -fx-base: #3498db; }
 .button-delete { -fx-base: #e74c3c; }
+
+.button-generate,
+.button-refresh,
+.button-export {
+    -fx-font-size: 14px;
+    -fx-pref-height: 44px;
+    -fx-min-width: 120px;
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+}
+
+.button-logout {
+    -fx-font-size: 14px;
+    -fx-pref-height: 44px;
+    -fx-min-width: 120px;
+    -fx-text-fill: white;
+}
 
 /* Kontenery */
 .tools-container {
@@ -60,6 +83,15 @@
 .split-pane-bg {
     -fx-background-radius: 0;
     -fx-padding: 0;
+    -fx-min-height: 450px;
+    -fx-pref-height: 450px;
+    -fx-max-height: Infinity;
+}
+
+.results-table, .results-chart {
+    -fx-min-height: 400px;
+    -fx-pref-height: 400px;
+    -fx-max-height: Infinity;
 }
 
 .results-table {
@@ -92,16 +124,16 @@
     -fx-text-fill: white !important;
 }
 .chart-content {
-    -fx-padding: 5px 5px 120px 5px;
+    -fx-padding: 0;
 }
 
 .results-table .column-header-background {
-    -fx-pref-height: 40px;
-    -fx-max-height: 40px;
+    -fx-pref-height: 60px;
+    -fx-max-height: 60px;
     -fx-background-color: rgba(0, 0, 0, 0.3);
-    -fx-border-color: rgba(255,255,255,0.2);
-    -fx-border-width: 0 0 1px 0;
-    -fx-padding: 5px 0;
+    -fx-border-color: rgba(255,255,255,0.3);
+    -fx-border-width: 0 0 2px 0;
+    -fx-padding: 0 0 0 0; /* Zmieniono padding */
 }
 
 .results-table .table-cell {
@@ -110,6 +142,12 @@
     -fx-wrap-text: true;
     -fx-padding: 5px;
     -fx-text-fill: white !important;
+    -fx-border-width: 0 1px 1px 0;
+}
+
+/* Usuń linię z ostatniej komórki w wierszu */
+.results-table .table-cell:last-child {
+    -fx-border-width: 0 0 1px 0;
 }
 
 .split-pane-bg > .scroll-pane {
@@ -129,7 +167,8 @@
 
 .chart-horizontal-grid-lines,
 .chart-vertical-grid-lines {
-    -fx-stroke: white;
+    -fx-stroke: #aaaaaa;
+    -fx-stroke-dash-array: 2 5;
 }
 
 /* Listy rozwijane */
@@ -160,15 +199,25 @@
 .column-header-label {
     -fx-font-weight: bold;
     -fx-alignment: center;
+    -fx-text-alignment: center;
     -fx-wrap-text: true;
     -fx-font-size: 12px;
-    -fx-padding: 0 0 1px 0;
+    -fx-padding: 0 5px;
+    -fx-max-width: Infinity;
 }
 
 .results-table .column-header {
     -fx-size: 40px;
     -fx-pref-height: 40px;
     -fx-background-color: transparent;
+    -fx-padding: 0 0 0 0;
+    -fx-border-color: rgba(255,255,255,0.2);
+    -fx-border-width: 0 1px 0 0;
+}
+
+/* Usuń linię z ostatniej kolumny */
+.results-table .column-header:last-child {
+    -fx-border-width: 0;
 }
 
 .results-table .column-header .label {
@@ -178,6 +227,7 @@
     -fx-alignment: CENTER;
     -fx-wrap-text: true;
     -fx-max-height: 35px;
+    -fx-padding: 0 5px;
 }
 
 /* Specyficzne ustawienia */
@@ -195,4 +245,34 @@
 
 .split-pane > .split-pane-divider {
     -fx-padding: 0 0.5em;
+}
+.split-pane-divider {
+    -fx-background-color: #3498db;  /* niebieski kolor główny */
+    -fx-background-insets: 0;
+    -fx-padding: 0 0.5em 0 0.5em;  /* zwiększenie obszaru klikalnego */
+    -fx-background-radius: 2px;     /* lekko zaokrąglone rogi */
+    -fx-border-color: #2980b9;      /* ciemniejszy niebieski dla obramowania */
+    -fx-border-width: 1px;
+    -fx-border-radius: 2px;
+}
+/* Efekt hover - rozjaśnienie i animacja */
+.split-pane-divider:hover {
+    -fx-background-color: #2980b9;  /* jaśniejszy odcień niebieskiego */
+    -fx-border-color: #1c638e;       /* ciemniejszy odcień dla kontrastu */
+    -fx-cursor: h-resize;            /* kursor wskazujący możliwość przeciągania */
+    -fx-effect: dropshadow(gaussian, rgba(41,128,185,0.5), 0, 0, 0, 2);
+    -fx-transition: all 0.3s ease;   /* płynna animacja */
+}
+/* Dodatkowy uchwyt graficzny dla lepszej widoczności */
+.split-pane-divider > .grabber {
+    -fx-background-color: rgba(255,255,255,0.7);
+    -fx-background-radius: 1px;
+    -fx-pref-width: 30px;
+    -fx-pref-height: 3px;
+}
+#statusLabel {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2ecc71; /* zachowanie zielonego koloru */
+    -fx-padding: 5px 0; /* dodanie odstępu wertykalnego */
 }

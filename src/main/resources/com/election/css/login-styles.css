@@ -29,6 +29,11 @@
     -fx-background-color: #3498db;
     -fx-text-fill: white;
 }
+/* Efekt hover dla przycisków logowania */
+.button-login:hover {
+    -fx-background-color: #2980b9;
+    -fx-cursor: hand;
+}
 
 .error-label {
     -fx-text-fill: #ff4444;

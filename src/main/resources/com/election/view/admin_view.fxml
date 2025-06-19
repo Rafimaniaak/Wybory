@@ -138,7 +138,7 @@
                 <Label styleClass="panel-title" text="Aktualne wyniki wyborów" />
 
                 <!-- SplitPane z tłem -->
-                <SplitPane dividerPositions="0.5" orientation="HORIZONTAL" prefHeight="400" styleClass="split-pane-bg">
+                <SplitPane dividerPositions="0.5" orientation="HORIZONTAL" prefHeight="450" styleClass="split-pane-bg">
                     <!-- Tabela z minimalną szerokością -->
                     <TableView fx:id="resultsTable" prefHeight="400" styleClass="results-table" minWidth="350.0">
                         <columns>
@@ -154,9 +154,9 @@
                             </TableColumn>
                             <TableColumn fx:id="votesColumn" prefWidth="70" minWidth="70">
                                 <graphic>
-                                    <VBox alignment="CENTER" spacing="-15">
-                                        <Label text="Liczba" styleClass="column-header-label"/>
-                                        <Label text="głosów" styleClass="column-header-label"/>
+                                    <VBox alignment="CENTER" spacing="0" prefHeight="40">
+                                        <Label text="Liczba" styleClass="column-header-label" wrapText="true" maxHeight="Infinity"/>
+                                        <Label text="głosów" styleClass="column-header-label" wrapText="true" maxHeight="Infinity"/>
                                     </VBox>
                                 </graphic>
                                 <cellValueFactory>
@@ -168,9 +168,9 @@
                     </TableView>
 
                     <!-- Wykres z minimalną szerokością -->
-                    <BarChart fx:id="resultsChart" prefHeight="400" styleClass="results-chart" minWidth="300.0"
+                    <BarChart fx:id="resultsChart" prefHeight="450" styleClass="results-chart" minWidth="300.0"
                               legendVisible="false"
-                              title="Głosy wg kandydata">
+                              title="Głosy według kandydata">
                         <xAxis>
                             <CategoryAxis fx:id="xAxis" side="BOTTOM" />
                         </xAxis>
