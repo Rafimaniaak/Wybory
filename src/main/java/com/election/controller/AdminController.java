@@ -500,6 +500,15 @@ public class AdminController {
             candidatesData.setAll(results);
             resultsTable.setItems(candidatesData);
 
+            // Oblicz wymaganą szerokość wykresu
+            double barWidth = 60; // Minimalna szerokość słupka
+            double gap = 10;      // Odstęp między słupkami
+            double requiredWidth = results.size() * (barWidth + gap) + 100; // Dodaj margines
+
+            // Ustaw minimalną szerokość wykresu
+            resultsChart.setMinWidth(requiredWidth);
+            resultsChart.setPrefWidth(requiredWidth);
+
             // Oblicz sumę głosów
             int totalVotes = results.stream().mapToInt(CandidateResult::getVotes).sum();
 
@@ -532,6 +541,7 @@ public class AdminController {
                         : result.getName();
                 String candidateLabel = formattedName + "\n(" + (party != null ? party : "brak") + ")";
                 XYChart.Data<String, Number> data = new XYChart.Data<>(candidateLabel, votes);
+                data.setExtraValue(result);
                 series.getData().add(data);
 
                 if (votes > maxVotes) maxVotes = votes;
@@ -566,8 +576,8 @@ public class AdminController {
             xAxis.setTickLabelFont(Font.font("System", 10));
             xAxis.setMinHeight(Region.USE_PREF_SIZE);
             xAxis.setPrefHeight(50); // Zwiększ wysokość osi X
-            resultsChart.setBarGap(10);
-            resultsChart.setCategoryGap(5); // Zwiększ odstęp między słupkami
+            resultsChart.setCategoryGap(gap);
+            resultsChart.setBarGap(1);
             // Zmniejszenie paddingu wykresu (dolny padding zwiększony dla etykiet)
             resultsChart.setPadding(new Insets(0, 0, 40, 0)); // Zmieniony padding
 
@@ -576,6 +586,7 @@ public class AdminController {
                 Node node = data.getNode();
                 int votes = data.getYValue().intValue();
                 double percent = totalVotes > 0 ? (votes * 100.0) / totalVotes : 0;
+                CandidateResult candidate = (CandidateResult) data.getExtraValue();
                 double barHeight = Math.max(votes * 1.0, 5);
                 double labelPosition = barHeight / 2;
 
@@ -592,20 +603,22 @@ public class AdminController {
                 percentText = percentText.replace(".", ",");
 
                 Label label = new Label(percentText);
+                label.getStyleClass().add("chart-bar-label");
                 label.setStyle("-fx-text-fill: white; -fx-font-size: 12px;");
 
                 StackPane.setAlignment(label, Pos.CENTER);
                 StackPane.setMargin(label, new Insets(-labelPosition, 0, 0, 0));
-                label.setStyle("-fx-text-fill: white; -fx-font-size: 10px;");
+                label.setStyle("-fx-text-fill: white; -fx-font-size: 10px; -fx-font-weight: bold;");
 
                 if (node != null) {
                     ((StackPane) node).getChildren().add(label);
+                    node.setStyle("-fx-min-width: 40px; " + node.getStyle());
                 }
 
                 // Tooltip z tym samym formatowaniem procentów
                 Tooltip tooltip = new Tooltip(
-                        "Kandydat: " + data.getXValue().split("\n")[0] +
-                                "\nPartia: " + data.getXValue().split("\n")[1].replaceAll("[()]", "") +
+                        "Kandydat: " + candidate.getName() +
+                                "\nPartia: " + (candidate.getParty() != null ? candidate.getParty() : "brak") +
                                 "\nGłosy: " + votes +
                                 "\nProcent: " + percentText
                 );
@@ -637,7 +650,9 @@ public class AdminController {
             yAxis.setUpperBound(maxVotes < 5 ? 5 : maxVotes + 2); // Dodajemy margines
             yAxis.setTickUnit(maxVotes < 10 ? 1 : Math.max(1, maxVotes / 10));
             yAxis.setMinorTickVisible(false);
-            xAxis.setPrefWidth(candidatesData.size() * 80);
+            //xAxis.setPrefWidth(candidatesData.size() * 80);
+            // Ustaw preferowaną szerokość osi X na podstawie liczby kandydatów
+            xAxis.setPrefWidth(resultsChart.getMinWidth());
 
             // Przesunięcie etykiety osi X
             Platform.runLater(() -> {

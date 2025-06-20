@@ -168,16 +168,18 @@
                     </TableView>
 
                     <!-- Wykres z minimalną szerokością -->
-                    <BarChart fx:id="resultsChart" prefHeight="450" styleClass="results-chart" minWidth="300.0"
-                              legendVisible="false"
-                              title="Głosy według kandydata">
-                        <xAxis>
-                            <CategoryAxis fx:id="xAxis" side="BOTTOM" />
-                        </xAxis>
-                        <yAxis>
-                            <NumberAxis fx:id="yAxis" label="Liczba głosów" />
-                        </yAxis>
-                    </BarChart>
+                    <ScrollPane fitToHeight="true" hbarPolicy="AS_NEEDED" vbarPolicy="NEVER" styleClass="scroll-pane-for-chart">
+                        <BarChart fx:id="resultsChart" prefHeight="450" styleClass="results-chart"
+                                  minWidth="300.0" minHeight="400" legendVisible="false"
+                                  title="Głosy według kandydata">
+                            <xAxis>
+                                <CategoryAxis fx:id="xAxis" side="BOTTOM" />
+                            </xAxis>
+                            <yAxis>
+                                <NumberAxis fx:id="yAxis" label="Liczba głosów" />
+                            </yAxis>
+                        </BarChart>
+                    </ScrollPane>
                 </SplitPane>
 
                 <!-- Układ przycisków w dwóch wierszach -->
