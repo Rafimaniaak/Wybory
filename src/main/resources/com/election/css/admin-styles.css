@@ -74,6 +74,34 @@
     -fx-min-width: 120px;
     -fx-text-fill: white;
 }
+.button-action {
+    -fx-font-size: 14px;
+    -fx-pref-height: 44px;
+    -fx-min-width: 120px;
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+    -fx-background-radius: 3px;
+}
+
+.button-action:hover {
+    -fx-background-color: #2980b9;
+    -fx-cursor: hand;
+}
+
+/* Style dla przycisków usuwania */
+.button-delete {
+    -fx-font-size: 14px;
+    -fx-pref-height: 44px;
+    -fx-min-width: 120px;
+    -fx-background-color: #e74c3c;
+    -fx-text-fill: white;
+    -fx-background-radius: 3px;
+}
+
+.button-delete:hover {
+    -fx-background-color: #c0392b;
+    -fx-cursor: hand;
+}
 
 /* Kontenery */
 .tools-container {
@@ -280,6 +308,13 @@
     -fx-font-weight: bold;
     -fx-text-fill: #2ecc71; /* zachowanie zielonego koloru */
     -fx-padding: 5px 0; /* dodanie odstępu wertykalnego */
+}
+/* Komunikaty statusu */
+.status-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 5px 0;
+    -fx-text-fill: #2ecc71; /* zielony kolor */
 }
 
 /* Styl dla poziomego suwaka w ScrollPane (pod wykresem) */

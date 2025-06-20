@@ -85,13 +85,13 @@
                 </GridPane>
 
                 <HBox spacing="10" alignment="CENTER">
-                    <Button text="Dodaj nowego" onAction="#handleAddUser" styleClass="button-add" />
-                    <Button text="Zapisz zmiany" onAction="#handleUpdateUser" styleClass="button-save" />
-                    <Button text="Usuń użytkownika" onAction="#handleDeleteUser" styleClass="button-delete" />
-                    <Button text="Wyczyść formularz" onAction="#handleClearUserForm" />
+                    <Button styleClass="button-action" text="Dodaj nowego" onAction="#handleAddUser" />
+                    <Button styleClass="button-action" text="Zapisz zmiany" onAction="#handleUpdateUser" />
+                    <Button styleClass="button-delete" text="Usuń użytkownika" onAction="#handleDeleteUser" />
+                    <Button styleClass="button-action" text="Wyczyść formularz" onAction="#handleClearUserForm" />
                 </HBox>
 
-                <Label fx:id="userManagementStatus" styleClass="status-label" />
+                <Label fx:id="userManagementStatus" styleClass="status-label" wrapText="true" maxWidth="Infinity" />
             </VBox>
         </Tab>
         <!-- Zakładka Kandydaci -->
@@ -122,14 +122,14 @@
 
                 <!-- Przyciski akcji -->
                 <HBox spacing="20" prefHeight="40">
-                    <Button text="Dodaj" onAction="#handleAddCandidate" />
-                    <Button text="Edytuj" onAction="#handleUpdateCandidate" />
-                    <Button text="Usuń" onAction="#handleDeleteCandidate" />
-                    <Button text="Odśwież" onAction="#handleRefreshCandidates" />
-                    <Button text="Wyczyść formularz" onAction="#handleClearCandidateForm" />
+                    <Button styleClass="button-action" text="Dodaj" onAction="#handleAddCandidate" />
+                    <Button styleClass="button-action" text="Edytuj" onAction="#handleUpdateCandidate" />
+                    <Button styleClass="button-delete" text="Usuń" onAction="#handleDeleteCandidate" />
+                    <Button styleClass="button-action" text="Odśwież" onAction="#handleRefreshCandidates" />
+                    <Button styleClass="button-action" text="Wyczyść formularz" onAction="#handleClearCandidateForm" />
                 </HBox>
 
-                <Label fx:id="candidateStatusLabel" styleClass="status-label" />
+                <Label fx:id="candidateStatusLabel" styleClass="status-label" wrapText="true" maxWidth="Infinity" />
             </VBox>
         </Tab>
         <!-- Wyniki wyborów -->
