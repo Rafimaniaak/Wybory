@@ -52,6 +52,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 // Kontroler panelu administratora
 public class AdminController {
@@ -781,7 +782,7 @@ public class AdminController {
     private void handleExportToCSV() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Zapisz plik CSV");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV files (*.csv)", "*.csv"));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Pliki CSV (*.csv)", "*.csv"));
         File file = fileChooser.showSaveDialog(resultsTable.getScene().getWindow());
 
         if (file != null) {
@@ -789,10 +790,23 @@ public class AdminController {
                     new FileOutputStream(file), StandardCharsets.UTF_8)) {
 
                 writer.write('\uFEFF'); // BOM dla UTF-8
-                writer.write("Kandydat;Liczba głosów\n");
+                writer.write("ID;Kandydat;Partia;Liczba głosów;Procent\n");
+
+                int totalVotes = candidatesData.stream().mapToInt(CandidateResult::getVotes).sum();
 
                 for (CandidateResult result : resultsTable.getItems()) {
-                    writer.write(result.getName() + ";" + result.getVotes() + "\n");
+                    double percent = totalVotes > 0 ?
+                            (result.getVotes() * 100.0) / totalVotes : 0;
+
+                    String percentFormatted = String.format("%.2f%%", percent).replace('.', ',');
+
+                    writer.write(
+                            result.getId() + ";" +
+                                    result.getName() + ";" +
+                                    (result.getParty() != null ? result.getParty() : "") + ";" +
+                                    result.getVotes() + ";" +
+                                    percentFormatted + "\n"
+                    );
                 }
 
                 writer.flush();
@@ -807,17 +821,28 @@ public class AdminController {
     private void handleExportToPDF() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Zapisz plik PDF");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF files (*.pdf)", "*.pdf"));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Pliki PDF (*.pdf)", "*.pdf"));
 
-        // Ustaw domyślną nazwę pliku z datą
-        String defaultFileName = "wyniki_wyborow_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmm")) + ".pdf";
+        String defaultFileName = "wyniki_wyborow_" +
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmm")) + ".pdf";
         fileChooser.setInitialFileName(defaultFileName);
 
         File file = fileChooser.showSaveDialog(resultsTable.getScene().getWindow());
 
         if (file != null) {
             try {
-                ExportServicePDF.exportToPDF(candidateDAO.getAllCandidates(), file.getAbsolutePath());
+                List<Candidate> candidates = candidatesData.stream()
+                        .map(cr -> {
+                            Candidate c = new Candidate();
+                            c.setId(cr.getId());
+                            c.setName(cr.getName());
+                            c.setParty(cr.getParty());
+                            c.setVotes(cr.getVotes());
+                            return c;
+                        })
+                        .collect(Collectors.toList());
+
+                ExportServicePDF.exportToPDF(candidates, file.getAbsolutePath());
                 statusLabel.setText("Zapisano wyniki do: " + file.getName());
             } catch (Exception e) {
                 statusLabel.setText("Błąd eksportu do PDF");

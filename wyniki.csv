@@ -1,5 +1,5 @@
-﻿Kandydat;Liczba głosów
-Jan Kowalski;8
-Anna Nowak;5
-Jan Tarczynski;2
-Janusz Korwin-Mikke;1
+﻿ID;Kandydat;Partia;Liczba głosów;Procent
+1;Grzegorz Braun;KKP;8;50,00%
+2;Sławomir Mentzen;Konfederacja;5;31,25%
+3;Rafał Trzaskowski;PO;2;12,50%
+5;Janusz Korwin-Mikke;Kobra G;1;6,25%

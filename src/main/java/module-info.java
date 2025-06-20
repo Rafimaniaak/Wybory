@@ -13,6 +13,7 @@ module com.election {
     requires jakarta.persistence;
     requires com.github.librepdf.openpdf;
     requires java.rmi;
+    requires java.desktop;
     // ... [zależności]
 
     exports com.election;

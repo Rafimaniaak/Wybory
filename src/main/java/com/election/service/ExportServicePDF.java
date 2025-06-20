@@ -2,60 +2,73 @@ package com.election.service;
 
 import com.election.model.Candidate;
 import com.lowagie.text.*;
+import com.lowagie.text.Font;
 import com.lowagie.text.pdf.BaseFont;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
-
+import java.awt.Color; // Dodany import
 import java.io.FileOutputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-// Serwis eksportu do PDF
 public class ExportServicePDF {
 
-    // Eksportuje wyniki do pliku PDF
     public static void exportToPDF(List<Candidate> candidates, String filePath) throws Exception {
-        Document document = new Document();
+        Document document = new Document(PageSize.A4.rotate());
         PdfWriter.getInstance(document, new FileOutputStream(filePath));
         document.open();
 
-        // Dodaj czcionkę z obsługą polskich znaków
         BaseFont bf = BaseFont.createFont("c:/windows/fonts/arial.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
         Font font = new Font(bf, 12);
+        Font headerFont = new Font(bf, 14, Font.BOLD);
 
-        // Nagłówek z datą
-        document.add(new Paragraph("Wyniki wyborów - " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")), font));
-        document.add(new Paragraph(" "));
+        Paragraph header = new Paragraph("Wyniki wyborów - " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")), headerFont);
+        header.setAlignment(Element.ALIGN_CENTER);
+        header.setSpacingAfter(20);
+        document.add(header);
 
-        // Tabela z danymi
-        PdfPTable table = new PdfPTable(4);
+        int totalVotes = candidates.stream().mapToInt(Candidate::getVotes).sum();
+
+        PdfPTable table = new PdfPTable(5);
         table.setWidthPercentage(100);
+        table.setWidths(new float[]{1, 3, 2, 2, 2});
 
-        // Nagłówki tabeli
-        table.addCell(createCell("ID", font, Element.ALIGN_CENTER));
-        table.addCell(createCell("Nazwisko i Imię", font, Element.ALIGN_CENTER));
-        table.addCell(createCell("Partia", font, Element.ALIGN_CENTER));
-        table.addCell(createCell("Liczba głosów", font, Element.ALIGN_CENTER));
+        table.addCell(createHeaderCell("ID", headerFont));
+        table.addCell(createHeaderCell("Kandydat", headerFont));
+        table.addCell(createHeaderCell("Partia", headerFont));
+        table.addCell(createHeaderCell("Liczba głosów", headerFont));
+        table.addCell(createHeaderCell("Procent", headerFont));
 
-        // Wiersze z danymi
         for (Candidate c : candidates) {
-            table.addCell(createCell(String.valueOf(c.getId()), font, Element.ALIGN_CENTER));
-            table.addCell(createCell(c.getName(), font, Element.ALIGN_LEFT));
-            table.addCell(createCell(c.getParty() != null ? c.getParty() : "", font, Element.ALIGN_LEFT));
-            table.addCell(createCell(String.valueOf(c.getVotes()), font, Element.ALIGN_CENTER));
+            double percent = totalVotes > 0 ? (c.getVotes() * 100.0) / totalVotes : 0;
+            String percentText = String.format("%.2f%%", percent).replace('.', ',');
+
+            table.addCell(createCell(String.valueOf(c.getId()), font));
+            table.addCell(createCell(c.getName(), font));
+            table.addCell(createCell(c.getParty() != null ? c.getParty() : "", font));
+            table.addCell(createCell(String.valueOf(c.getVotes()), font));
+            table.addCell(createCell(percentText, font));
         }
 
         document.add(table);
         document.close();
     }
 
-    // Pomocnicza metoda do tworzenia komórek z formatowaniem
-    private static PdfPCell createCell(String content, Font font, int alignment) {
+    private static PdfPCell createHeaderCell(String content, Font font) {
         PdfPCell cell = new PdfPCell(new Phrase(content, font));
-        cell.setHorizontalAlignment(alignment);
+        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        cell.setBackgroundColor(new Color(220, 220, 220)); // Szary kolor
         cell.setPadding(5);
+        cell.setBorderWidth(1);
+        return cell;
+    }
+
+    private static PdfPCell createCell(String content, Font font) {
+        PdfPCell cell = new PdfPCell(new Phrase(content, font));
+        cell.setPadding(5);
+        cell.setBorderWidth(1);
         return cell;
     }
 }
