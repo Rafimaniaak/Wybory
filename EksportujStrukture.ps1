@@ -30,43 +30,48 @@ function Export-Structure {
     # Uzyskaj pełną ścieżkę startową
     $absoluteStart = (Get-Item $startPath).FullName
     
-    # Przeszukaj wszystkie pliki
-    Get-ChildItem -Path $startPath -Recurse -File | ForEach-Object {
-        $absolutePath = $_.FullName
+    # Wyrażenie regularne do pomijania folderu /target/
+    $excludeTargetPattern = '(^|[\\])target([\\]|$)'
+    
+    # Przeszukaj wszystkie pliki z pominięciem folderu target
+    Get-ChildItem -Path $startPath -Recurse -File | 
+        Where-Object { $_.Directory.FullName -notmatch $excludeTargetPattern } |
+        ForEach-Object {
+            $absolutePath = $_.FullName
 
-        # Pomijanie plików wykluczonych po nazwie
-        if ($excludeFiles -contains $_.Name) { return }
-        
-        # Pomijanie pliku wyjściowego po pełnej ścieżce
-        if ($absolutePath -eq (Join-Path $pwd $output)) { return }
-
-        # Pomijaj pliki binarne
-        if (-not (Test-IsTextFile -Path $absolutePath)) { return }
-        
-        $relativePath = $absolutePath.Substring($absoluteStart.Length).TrimStart('\')
-        $separator = "-" * ($relativePath.Length + 12)
-        
-        Add-Content -Path $output -Value "`n`nŚCIEŻKA: $relativePath"
-        Add-Content -Path $output -Value $separator
-        
-        # Próba odczytu zawartości
-        try {
-            $content = Get-Content -Path $absolutePath -Raw -ErrorAction Stop
+            # Pomijanie plików wykluczonych po nazwie
+            if ($excludeFiles -contains $_.Name) { return }
             
-            if ([string]::IsNullOrWhiteSpace($content)) {
-                Add-Content -Path $output -Value "[PLIK PUSTY]"
+            # Pomijanie pliku wyjściowego po pełnej ścieżce
+            if ($absolutePath -eq (Join-Path $pwd $output)) { return }
+
+            # Pomijaj pliki binarne
+            if (-not (Test-IsTextFile -Path $absolutePath)) { return }
+            
+            $relativePath = $absolutePath.Substring($absoluteStart.Length).TrimStart('\')
+            $separator = "-" * ($relativePath.Length + 12)
+            
+            Add-Content -Path $output -Value "`n`nŚCIEŻKA: $relativePath"
+            Add-Content -Path $output -Value $separator
+            
+            # Próba odczytu zawartości
+            try {
+                $content = Get-Content -Path $absolutePath -Raw -ErrorAction Stop
+                
+                if ([string]::IsNullOrWhiteSpace($content)) {
+                    Add-Content -Path $output -Value "[PLIK PUSTY]"
+                }
+                else {
+                    Add-Content -Path $output -Value $content
+                }
             }
-            else {
-                Add-Content -Path $output -Value $content
+            catch [System.UnauthorizedAccessException] {
+                Add-Content -Path $output -Value "[BRAK UPRAWNIEŃ - NIE MOŻNA ODCZYTAĆ]"
+            }
+            catch {
+                Add-Content -Path $output -Value "[BŁĄD ODCZYTU: $($_.Exception.Message)]"
             }
         }
-        catch [System.UnauthorizedAccessException] {
-            Add-Content -Path $output -Value "[BRAK UPRAWNIEŃ - NIE MOŻNA ODCZYTAĆ]"
-        }
-        catch {
-            Add-Content -Path $output -Value "[BŁĄD ODCZYTU: $($_.Exception.Message)]"
-        }
-    }
 }
 
 # Uruchomienie eksportu
@@ -75,6 +80,10 @@ Export-Structure -output $outputFile
 # Komunikat końcowy
 $outputPath = Join-Path (Get-Location) $outputFile
 Write-Host "`nOperacja zakończona pomyślnie!"
-Write-Host "Plik wyjściowy: $outputPath"
+Write-Host "Plik wyjściowy: $outputPath" -ForegroundColor Green
 Write-Host "`nNaciśnij dowolny klawisz, aby kontynuować..."
-[Console]::ReadKey($true) | Out-Null
+
+# Zabezpieczone oczekiwanie na klawisz
+if ($host.Name -eq 'ConsoleHost') {
+    $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
+}

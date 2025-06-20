@@ -1,5 +1,5 @@
 Eksport struktury katalog體 i plik體
-Wygenerowano: 06/20/2025 02:31:38
+Wygenerowano: 06/20/2025 03:04:16
 
 
 
@@ -2277,6 +2277,426 @@ public class User {
 }
 
 
+孋IE疜A: src\main\java\com\election\model\Vote.java
+------------------------------------------------------
+package com.election.model;
+
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "VOTES")
+public class Vote {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "candidate_id")
+    private Candidate candidate;
+
+    @Column(name = "has_voted", nullable = false)
+    private boolean hasVoted;
+
+    @Column(name = "vote_time", nullable = false)
+    private LocalDateTime voteTime;
+
+    // Gettery i Settery
+    public Long getId() {
+        return id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+
+    public Candidate getCandidate() {
+        return candidate;
+    }
+
+    public void setCandidate(Candidate candidate) {
+        this.candidate = candidate;
+    }
+
+    public LocalDateTime getVoteTime() {
+        return voteTime;
+    }
+
+    public void setVoteTime(LocalDateTime voteTime) {
+        this.voteTime = voteTime;
+    }
+    public boolean isHasVoted() {
+        return hasVoted;
+    }
+
+    public void setHasVoted(boolean hasVoted) {
+        this.hasVoted = hasVoted;
+    }
+}
+
+
+孋IE疜A: src\main\java\com\election\service\AuthService.java
+---------------------------------------------------------------
+package com.election.service;
+
+import com.election.dao.UserDAO;
+import com.election.model.User;
+import org.mindrot.jbcrypt.BCrypt;
+
+// Serwis uwierzytelniania
+public class AuthService {
+    private final UserDAO userDAO = new UserDAO();
+
+    // Weryfikuje dane logowania
+    public AuthResult authenticate(String username, String password) {
+        User user = userDAO.findByUsername(username);
+        if (user == null) {
+            return new AuthResult(null, AuthStatus.USER_NOT_FOUND);
+        }
+        if (!BCrypt.checkpw(password, user.getPassword())) {
+            return new AuthResult(null, AuthStatus.INVALID_PASSWORD);
+        }
+        return new AuthResult(user, AuthStatus.SUCCESS);
+    }
+
+    // Statusy uwierzytelniania
+    public enum AuthStatus {
+        SUCCESS, USER_NOT_FOUND, INVALID_PASSWORD
+    }
+
+    // Klasa wynik贸w uwierzytelniania
+        public record AuthResult(User user, AuthStatus status) {
+    }
+}
+
+
+孋IE疜A: src\main\java\com\election\service\ElectionService.java
+-------------------------------------------------------------------
+package com.election.service;
+
+import com.election.exception.VotingException;
+import com.election.model.Candidate;
+import com.election.model.CandidateResult;
+import com.election.util.HibernateUtil;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+
+import java.util.List;
+
+// Serwis wyborczy
+public class ElectionService {
+
+    // Pobiera aktualne wyniki wybor贸w
+    public List<CandidateResult> getCurrentResults() {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            String hql = "SELECT new com.election.model.CandidateResult(c.id, c.name, c.party, c.votes) FROM Candidate c";
+            return session.createQuery(hql, CandidateResult.class).getResultList();
+        }
+    }
+
+    // Pobiera wszystkich kandydat贸w
+    public List<Candidate> getAllCandidates() {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            return session.createQuery("FROM Candidate", Candidate.class).getResultList();
+        }
+    }
+
+    // Rejestruje g艂os na kandydata
+    public void registerVote(Candidate candidate) throws VotingException {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        Transaction transaction = null;
+
+        try {
+            transaction = session.beginTransaction();
+
+            Candidate managedCandidate = session.get(Candidate.class, candidate.getId());
+            managedCandidate.setVotes(managedCandidate.getVotes() + 1);
+
+            session.update(managedCandidate);
+            transaction.commit();
+
+        } catch (Exception e) {
+            if (transaction != null) transaction.rollback();
+            throw new VotingException("B艂膮d podczas rejestracji g艂osu: " + e.getMessage());
+        } finally {
+            session.close();
+        }
+    }
+}
+
+
+孋IE疜A: src\main\java\com\election\service\ExportServicePDF.java
+--------------------------------------------------------------------
+package com.election.service;
+
+import com.election.model.Candidate;
+import com.lowagie.text.*;
+import com.lowagie.text.pdf.BaseFont;
+import com.lowagie.text.pdf.PdfPCell;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfWriter;
+
+import java.io.FileOutputStream;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
+// Serwis eksportu do PDF
+public class ExportServicePDF {
+
+    // Eksportuje wyniki do pliku PDF
+    public static void exportToPDF(List<Candidate> candidates, String filePath) throws Exception {
+        Document document = new Document();
+        PdfWriter.getInstance(document, new FileOutputStream(filePath));
+        document.open();
+
+        // Dodaj czcionk臋 z obs艂ug膮 polskich znak贸w
+        BaseFont bf = BaseFont.createFont("c:/windows/fonts/arial.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+        Font font = new Font(bf, 12);
+
+        // Nag艂贸wek z dat膮
+        document.add(new Paragraph("Wyniki wybor贸w - " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")), font));
+        document.add(new Paragraph(" "));
+
+        // Tabela z danymi
+        PdfPTable table = new PdfPTable(4);
+        table.setWidthPercentage(100);
+
+        // Nag艂贸wki tabeli
+        table.addCell(createCell("ID", font, Element.ALIGN_CENTER));
+        table.addCell(createCell("Nazwisko i Imi臋", font, Element.ALIGN_CENTER));
+        table.addCell(createCell("Partia", font, Element.ALIGN_CENTER));
+        table.addCell(createCell("Liczba g艂os贸w", font, Element.ALIGN_CENTER));
+
+        // Wiersze z danymi
+        for (Candidate c : candidates) {
+            table.addCell(createCell(String.valueOf(c.getId()), font, Element.ALIGN_CENTER));
+            table.addCell(createCell(c.getName(), font, Element.ALIGN_LEFT));
+            table.addCell(createCell(c.getParty() != null ? c.getParty() : "", font, Element.ALIGN_LEFT));
+            table.addCell(createCell(String.valueOf(c.getVotes()), font, Element.ALIGN_CENTER));
+        }
+
+        document.add(table);
+        document.close();
+    }
+
+    // Pomocnicza metoda do tworzenia kom贸rek z formatowaniem
+    private static PdfPCell createCell(String content, Font font, int alignment) {
+        PdfPCell cell = new PdfPCell(new Phrase(content, font));
+        cell.setHorizontalAlignment(alignment);
+        cell.setPadding(5);
+        return cell;
+    }
+}
+
+
+
+孋IE疜A: src\main\java\com\election\service\VotingService.java
+-----------------------------------------------------------------
+package com.election.service;
+
+import com.election.exception.ServiceException;
+import com.election.model.Candidate;
+import com.election.model.User;
+import com.election.model.Vote;
+import com.election.util.HibernateUtil;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+
+import java.time.LocalDateTime;
+
+// Serwis g艂osowania
+public class VotingService {
+
+    // Rejestruje g艂os u偶ytkownika
+    public void castVote(User user, Candidate candidate) {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = null;
+
+        try {
+            tx = session.beginTransaction();
+
+            if (user == null || candidate == null) {
+                throw new IllegalStateException("Nie znaleziono u偶ytkownika lub kandydata.");
+            }
+
+            // Sprawd藕 w bazie czy u偶ytkownik ju偶 g艂osowa艂
+            User managedUser = session.get(User.class, user.getId());
+            if (managedUser == null) {
+                throw new IllegalStateException("U偶ytkownik nie istnieje w bazie danych!");
+            }
+
+            if (managedUser.isHasVoted()) {
+                throw new IllegalStateException("U偶ytkownik ju偶 g艂osowa艂.");
+            }
+
+            // Zwi臋ksz liczb臋 g艂os贸w
+            Candidate managedCandidate = session.get(Candidate.class, candidate.getId());
+            if (managedCandidate == null) {
+                throw new IllegalStateException("Kandydat nie istnieje w bazie danych!");
+            }
+
+            managedCandidate.setVotes(managedCandidate.getVotes() + 1);
+            session.merge(managedCandidate);
+
+            // Utw贸rz nowy g艂os
+            Vote vote = new Vote();
+            vote.setCandidate(managedCandidate);
+            vote.setUser(managedUser);
+            vote.setVoteTime(LocalDateTime.now());
+            session.persist(vote);
+
+            // Zaktualizuj u偶ytkownika
+            managedUser.setHasVoted(true);
+            session.merge(managedUser);
+
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null && tx.isActive()) {
+                tx.rollback();
+            }
+            throw new ServiceException("B艂膮d podczas g艂osowania: " + e.getMessage(), e);
+        } finally {
+            if (session != null && session.isOpen()) {
+                session.close();
+            }
+        }
+    }
+}
+
+
+孋IE疜A: src\main\java\com\election\util\DataInitializer.java
+----------------------------------------------------------------
+package com.election.util;
+
+import org.hibernate.Session;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.sql.Statement;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+// Inicjalizator danych
+public class DataInitializer {
+
+    // Inicjalizuje baz臋 danych je艣li jest pusta
+    public static void initializeIfEmpty(Session session) {
+        boolean shouldImport = isDatabaseEmpty(session);
+
+        if (shouldImport) {
+            System.out.println("Import danych z import.sql...");
+            runImportSQL(session);
+        } else {
+            System.out.println("Baza danych ju偶 zawiera dane. Import pomini臋ty.");
+        }
+    }
+
+    // Sprawdza czy baza jest pusta
+    private static boolean isDatabaseEmpty(Session session) {
+        List<?> users = session.createQuery("from User").setMaxResults(1).list();
+        List<?> candidates = session.createQuery("from Candidate").setMaxResults(1).list();
+        return users.isEmpty() && candidates.isEmpty();
+    }
+
+    // Wykonuje skrypty SQL
+    private static void runImportSQL(Session session) {
+        runSqlFile(session, "import.sql");
+        runSqlFile(session, "import_dynamic.sql");
+    }
+
+    // Wykonuje pojedynczy plik SQL
+    private static void runSqlFile(Session session, String fileName) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                Objects.requireNonNull(DataInitializer.class.getClassLoader().getResourceAsStream(fileName))))) {
+
+            String sql = reader.lines().collect(Collectors.joining("\n"));
+
+            session.doWork(connection -> {
+                try (Statement stmt = connection.createStatement()) {
+                    for (String part : sql.split(";")) {
+                        if (!part.trim().isEmpty()) {
+                            stmt.execute(part.trim());
+                        }
+                    }
+                }
+            });
+
+            System.out.println("Zaimportowano dane z " + fileName);
+
+        } catch (Exception e) {
+            System.err.println("B艂膮d przy imporcie pliku " + fileName + ": " + e.getMessage());
+        }
+    }
+
+}
+
+
+
+孋IE疜A: src\main\java\com\election\util\HibernateUtil.java
+--------------------------------------------------------------
+package com.election.util;
+
+import com.election.model.ElectionResult;
+import com.election.model.User;
+import com.election.model.Candidate;
+import com.election.model.Vote;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.service.ServiceRegistry;
+
+// Narz臋dzia Hibernate
+public class HibernateUtil {
+    private static final SessionFactory sessionFactory = buildSessionFactory();
+
+    // Buduje fabryk臋 sesji
+    private static SessionFactory buildSessionFactory() {
+        try {
+            // Wczytaj konfiguracj臋 z hibernate.cfg.xml z classpath
+            Configuration configuration = new Configuration().configure();
+
+            // Dodaj klasy mapowane
+            configuration.addAnnotatedClass(User.class);
+            configuration.addAnnotatedClass(Candidate.class);
+            configuration.addAnnotatedClass(Vote.class);
+            configuration.addAnnotatedClass(ElectionResult.class);
+
+            ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
+                    .applySettings(configuration.getProperties())
+                    .build();
+
+            return configuration.buildSessionFactory(serviceRegistry);
+
+        } catch (Throwable ex) {
+            System.err.println("Initial SessionFactory creation failed." + ex);
+            throw new ExceptionInInitializerError(ex);
+        }
+    }
+
+    // Zwraca fabryk臋 sesji
+    public static SessionFactory getSessionFactory() {
+        return sessionFactory;
+    }
+
+    // Zamyka po艂膮czenia
+    public static void shutdown() {
+        if (sessionFactory != null) {
+            sessionFactory.close();
+        }
+    }
+}
 
 
 孋IE疜A: src\main\resources\com\election\css\admin-styles.css
@@ -2613,13 +3033,10 @@ public class User {
 }
 .tab {
     -fx-background-color: #34495e;
-    -fx-background-insets: 0, 0 0 2px 0;
+    -fx-background-insets: 0, 0, 0;
     -fx-background-radius: 5px 5px 0 0;
     -fx-padding: 0 25px;
     -fx-border-width: 0;
-    /*
-    -fx-border-color: transparent;
-    */
     -fx-border-color:
             linear-gradient(to bottom, #85c1e9, #5dade2);
     -fx-cursor: hand;
@@ -2635,14 +3052,7 @@ public class User {
     -fx-background-color: #3498db;
     -fx-background-radius: 5px 5px 0 0;
     -fx-background-insets: 0, 0 0 2px 0;
-    /*
-    -fx-border-color:
-        linear-gradient(to bottom, #85c1e9, #5dade2)
-        linear-gradient(to bottom, #5dade2, #3498db);
-    -fx-border-width: 1.5px;
-    -fx-border-insets: 0;
-    */
-    /*-fx-border-width: 0;*/
+    -fx-border-width: 0;
 }
 
 .tab:selected .tab-label {
@@ -2654,11 +3064,6 @@ public class User {
 .tab:hover {
     -fx-background-color: #2980b9;
     -fx-background-radius: 5px 5px 0 0;
-    /* Pod艣wietlenie ramki przy najechaniu
-    -fx-border-color:
-        linear-gradient(to bottom, #85c1e9, #5dade2);
-    -fx-border-width: 1.2px;
-    */
     -fx-border-width: 0;
 }
 
@@ -2674,10 +3079,6 @@ public class User {
 /* Efekt "wci艣ni臋cia" dla aktywnej zak艂adki */
 .tab:selected:focused {
     -fx-background-color: #2980b9;
-    /*
-    -fx-background-insets: 0, 0 0 -1 0, 1 1 0 1;
-    -fx-border-insets: 0, 0 0 1 0;
-    */
     -fx-background-insets: 0;
     -fx-border-insets: 0;
 }
@@ -2693,6 +3094,11 @@ public class User {
 .tab-pane:focused > .tab-header-area > .headers-region > .tab:selected .focus-indicator {
     -fx-border-color: transparent;
     -fx-border-width: 0;
+}
+.tab-pane > .tab-header-area {
+    -fx-border-color: #3498db;
+    -fx-border-width: 0 0 2px 0;
+    -fx-padding: 0;
 }
 
 
@@ -3264,1040 +3670,6 @@ public class User {
 
 孋IE疜A: src\main\resources\com\election\view\user_view.fxml
 ---------------------------------------------------------------
-<?xml version="1.0" encoding="UTF-8"?>
-
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import java.net.URL?>
-
-<BorderPane prefHeight="600" prefWidth="800" styleClass="root-style"
-            xmlns="http://javafx.com/javafx/17.0.12"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.election.controller.UserController">
-
-    <stylesheets>
-        <URL value="@../css/common-styles.css" />
-        <URL value="@../css/user-styles.css" />
-    </stylesheets>
-
-    <top>
-        <VBox alignment="CENTER" prefWidth="800.0" spacing="20" style="-fx-background-color: #34495e;">
-            <HBox styleClass="header-style" alignment="CENTER_RIGHT">
-                <Button fx:id="logoutButton" styleClass="button-logout" onAction="#handleLogout" text="Wyloguj" />
-            </HBox>
-
-            <VBox styleClass="voting-container" alignment="CENTER" spacing="20"
-                  style="-fx-background-color: #2c3e50; -fx-background-radius: 10px; -fx-padding: 40px;">
-                <Label styleClass="panel-title" text="Witaj w systemie g艂osowania!"
-                       style="-fx-text-fill: white; -fx-font-size: 28px;" />
-
-                <Label text="Wybierz kandydata:"
-                       style="-fx-text-fill: white; -fx-font-size: 22px;" />
-
-                <ComboBox fx:id="candidateComboBox" styleClass="candidate-combo" promptText="Kliknij, aby wybra膰..."
-                          style="-fx-background-color: #34495e; -fx-text-fill: white; -fx-pref-height: 70px; -fx-font-size: 28px;"/>
-
-                <Button fx:id="submitButton" styleClass="button-vote" onAction="#handleVoteSubmit" text="Oddaj g艂os"
-                        style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 36px;" />
-
-                <Label fx:id="statusLabel" styleClass="status-label" wrapText="true"
-                       style="-fx-text-fill: white; -fx-font-size: 20px;" />
-            </VBox>
-        </VBox>
-    </top>
-    <bottom>
-        <HBox styleClass="footer-style" alignment="CENTER">
-            <Label styleClass="footer-text" text="Wybory prezydenckie 2025" />
-        </HBox>
-    </bottom>
-</BorderPane>
-
-
-孋IE疜A: target\classes\com\election\css\admin-styles.css
-------------------------------------------------------------
-/* ADMIN-STYLES.CSS - ZOPTYMALIZOWANA WERSJA */
-
-/* ===== ZGROMADZONE SELEKTORY ===== */
-.root-style, .header-style, .footer-style,
-.results-table, .results-chart, .chart-container,
-.split-pane-bg, .chart-plot-background,
-.candidate-combo, .candidate-combo .list-view,
-#candidatesTable, .scroll-pane .table-view {
-    -fx-background-color: #2c3e50;
-}
-
-.white-text, .panel-title, .app-title,
-.form-label, .footer-text, .radio-button,
-.results-chart, .results-chart .chart-title,
-.results-chart .axis-label, .results-chart .axis,
-.results-table .table-cell, .results-table .column-header .label,
-.x-axis, .chart-axis-label, .axis-label,
-.axis, .column-header-label {
-    -fx-tick-label-fill: white !important;
-    -fx-text-fill: white !important;
-}
-
-/* ===== ELEMENTY WSP脫LNE ===== */
-.compact-table {
-    -fx-max-height: 250px;
-    -fx-font-size: 11px;
-}
-
-.table-row-cell {
-    -fx-cell-size: 25px;
-}
-
-.button {
-    -fx-padding: 5px 15px;
-}
-
-/* ===== SPECYFICZNE STYLE ===== */
-/* Formularze */
-#userFormGrid {
-    -fx-padding: 10px;
-    -fx-background-color: rgba(255, 255, 255, 0.1);
-    -fx-background-radius: 5px;
-}
-
-/* Przyciski */
-.button-generate {
-    -fx-base: #3498db;
-    -fx-padding: 8px 20px;
-}
-.button-generate:hover,
-.button-refresh:hover,
-.button-export:hover {
-    -fx-background-color: #2980b9;
-    -fx-cursor: hand;
-}
-
-.button-add { -fx-base: #27ae60; }
-.button-save { -fx-base: #3498db; }
-.button-delete { -fx-base: #e74c3c; }
-
-.button-generate,
-.button-refresh,
-.button-export {
-    -fx-font-size: 14px;
-    -fx-pref-height: 44px;
-    -fx-min-width: 120px;
-    -fx-background-color: #3498db;
-    -fx-text-fill: white;
-}
-
-.button-logout {
-    -fx-font-size: 14px;
-    -fx-pref-height: 44px;
-    -fx-min-width: 120px;
-    -fx-text-fill: white;
-}
-
-/* Kontenery */
-.tools-container {
-    -fx-padding: 30px 0 0 0;
-}
-
-.split-pane-bg {
-    -fx-background-radius: 0;
-    -fx-padding: 0;
-    -fx-min-height: 450px;
-    -fx-pref-height: 450px;
-    -fx-max-height: Infinity;
-}
-
-.results-table, .results-chart {
-    -fx-min-height: 400px;
-    -fx-pref-height: 400px;
-    -fx-max-height: Infinity;
-}
-
-.results-table {
-    -fx-min-width: 300px;
-    -fx-pref-width: 400px;
-    -fx-max-width: 600px;
-    -fx-padding: 0 0 10px 0;
-    -fx-table-cell-height: 35px;
-}
-
-.chart-container {
-    -fx-background-radius: 5px;
-    -fx-padding: 5px;
-}
-
-.results-chart {
-    -fx-font-size: 16px;
-    -fx-min-width: 325px;
-}
-
-.chart-bar {
-    -fx-bar-fill: #3498db;
-    -fx-bar-padding: 5px;
-    -fx-min-width: 40px;
-}
-/* Pogrubienie procent贸w */
-.chart-bar-label {
-    -fx-font-weight: bold !important;
-}
-
-.chart-bar .chart-label {
-    -fx-text-fill: white !important;
-}
-.chart-legend {
-    -fx-text-fill: white !important;
-}
-.chart-content {
-    -fx-padding: 0;
-}
-
-.results-table .column-header-background {
-    -fx-pref-height: 60px;
-    -fx-max-height: 60px;
-    -fx-background-color: rgba(0, 0, 0, 0.3);
-    -fx-border-color: rgba(255,255,255,0.3);
-    -fx-border-width: 0 0 2px 0;
-    -fx-padding: 0 0 0 0; /* Zmieniono padding */
-}
-
-.results-table .table-cell {
-    -fx-border-color: rgba(255, 255, 255, 0.1);
-    -fx-alignment: CENTER;
-    -fx-wrap-text: true;
-    -fx-padding: 5px;
-    -fx-text-fill: white !important;
-    -fx-border-width: 0 1px 1px 0;
-}
-
-/* Usu艅 lini臋 z ostatniej kom贸rki w wierszu */
-.results-table .table-cell:last-child {
-    -fx-border-width: 0 0 1px 0;
-}
-
-.split-pane-bg > .scroll-pane {
-    -fx-hbar-policy: never;
-}
-
-.results-table .table-row-cell {
-    -fx-background-color: transparent;
-    -fx-cell-size: 35px;
-    -fx-min-height: 35px;
-    -fx-pref-height: 35px;
-}
-
-.results-table .table-row-cell:odd {
-    -fx-background-color: rgba(0, 0, 0, 0.1);
-}
-
-.chart-horizontal-grid-lines,
-.chart-vertical-grid-lines {
-    -fx-stroke: #aaaaaa;
-    -fx-stroke-dash-array: 2 5;
-}
-
-/* Listy rozwijane */
-.candidate-combo {
-    -fx-pref-height: 65px;
-    -fx-pref-width: 450px;
-    -fx-font-size: 25px;
-}
-
-.candidate-combo .list-cell {
-    -fx-background-color: #34495e;
-}
-
-.candidate-combo .list-cell:filled:hover {
-    -fx-background-color: #2c3e50;
-}
-
-/* Przyciski g艂osowania */
-.button-vote {
-    -fx-font-size: 36px;
-    -fx-base: #27ae60;
-    -fx-pref-width: 450px;
-    -fx-text-fill: white;
-    -fx-font-weight: bold;
-}
-
-/* Nag艂贸wki i etykiety */
-.column-header-label {
-    -fx-font-weight: bold;
-    -fx-alignment: center;
-    -fx-text-alignment: center;
-    -fx-wrap-text: true;
-    -fx-font-size: 12px;
-    -fx-padding: 0 5px;
-    -fx-max-width: Infinity;
-}
-
-.results-table .column-header {
-    -fx-size: 40px;
-    -fx-pref-height: 40px;
-    -fx-background-color: transparent;
-    -fx-padding: 0 0 0 0;
-    -fx-border-color: rgba(255,255,255,0.2);
-    -fx-border-width: 0 1px 0 0;
-}
-
-/* Usu艅 lini臋 z ostatniej kolumny */
-.results-table .column-header:last-child {
-    -fx-border-width: 0;
-}
-
-.results-table .column-header .label {
-    -fx-font-weight: bold;
-    -fx-font-size: 12px;
-    -fx-padding: 10px 0;
-    -fx-alignment: CENTER;
-    -fx-wrap-text: true;
-    -fx-max-height: 35px;
-    -fx-padding: 0 5px;
-}
-
-/* Specyficzne ustawienia */
-.results-table {
-    -fx-min-width: 350px;
-}
-
-.scroll-pane {
-    -fx-background-color: transparent;
-}
-
-.scroll-pane .viewport {
-    -fx-background-color: #2c3e50;
-}
-
-.split-pane > .split-pane-divider {
-    -fx-padding: 0 0.5em;
-}
-.split-pane-divider {
-    -fx-background-color: #3498db;  /* niebieski kolor g艂贸wny */
-    -fx-background-insets: 0;
-    -fx-padding: 0 0.5em 0 0.5em;  /* zwi臋kszenie obszaru klikalnego */
-    -fx-background-radius: 2px;     /* lekko zaokr膮glone rogi */
-    -fx-border-color: #2980b9;      /* ciemniejszy niebieski dla obramowania */
-    -fx-border-width: 1px;
-    -fx-border-radius: 2px;
-}
-/* Efekt hover - rozja艣nienie i animacja */
-.split-pane-divider:hover {
-    -fx-background-color: #2980b9;  /* ja艣niejszy odcie艅 niebieskiego */
-    -fx-border-color: #1c638e;       /* ciemniejszy odcie艅 dla kontrastu */
-    -fx-cursor: h-resize;            /* kursor wskazuj膮cy mo偶liwo艣膰 przeci膮gania */
-    -fx-effect: dropshadow(gaussian, rgba(41,128,185,0.5), 0, 0, 0, 2);
-    -fx-transition: all 0.3s ease;   /* p艂ynna animacja */
-}
-/* Dodatkowy uchwyt graficzny dla lepszej widoczno艣ci */
-.split-pane-divider > .grabber {
-    -fx-background-color: rgba(255,255,255,0.7);
-    -fx-background-radius: 1px;
-    -fx-pref-width: 30px;
-    -fx-pref-height: 3px;
-}
-#statusLabel {
-    -fx-font-size: 14px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #2ecc71; /* zachowanie zielonego koloru */
-    -fx-padding: 5px 0; /* dodanie odst臋pu wertykalnego */
-}
-
-/* Styl dla poziomego suwaka w ScrollPane (pod wykresem) */
-.scroll-pane-for-chart .scroll-bar:horizontal {
-    -fx-background-color: #34495e;
-    -fx-background-insets: 0;
-    -fx-background-radius: 0;
-}
-
-.scroll-pane-for-chart .scroll-bar:horizontal .thumb {
-    -fx-background-color: #3498db;
-    -fx-background-radius: 2px;
-    -fx-border-color: #2980b9;
-    -fx-border-width: 1px;
-    -fx-border-radius: 2px;
-}
-
-.scroll-pane-for-chart .scroll-bar:horizontal .thumb:hover {
-    -fx-background-color: #2980b9;
-    -fx-border-color: #1c638e;
-    -fx-effect: dropshadow(gaussian, rgba(41,128,185,0.5), 0, 0, 0, 2);
-}
-
-.scroll-pane-for-chart .scroll-bar:horizontal .increment-button,
-.scroll-pane-for-chart .scroll-bar:horizontal .decrement-button {
-    -fx-background-color: transparent;
-    -fx-background-radius: 0;
-    -fx-padding: 0;
-}
-
-.scroll-pane-for-chart .scroll-bar:horizontal .increment-arrow,
-.scroll-pane-for-chart .scroll-bar:horizontal .decrement-arrow {
-    -fx-shape: " ";
-    -fx-padding: 0;
-}
-/* ===== STYLE DLA ZAK艁ADEK ===== */
-.tab-pane {
-    -fx-background-color: #34495e;
-    -fx-tab-min-height: 45px;
-    -fx-tab-max-height: 45px;
-    -fx-padding: 0;
-}
-
-.tab-header-background {
-    -fx-background-color: #2c3e50;
-    -fx-border-color: #3498db;
-    -fx-border-width: 0 0 2px 0;
-}
-.tab {
-    -fx-background-color: #34495e;
-    -fx-background-insets: 0, 0 0 2px 0;
-    -fx-background-radius: 5px 5px 0 0;
-    -fx-padding: 0 25px;
-    -fx-border-width: 0;
-    /*
-    -fx-border-color: transparent;
-    */
-    -fx-border-color:
-            linear-gradient(to bottom, #85c1e9, #5dade2);
-    -fx-cursor: hand;
-}
-.tab .tab-label {
-    -fx-text-fill: #bdc3c7;
-    -fx-font-weight: bold;
-    -fx-font-size: 14px;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 0, 0, 0, 1);
-}
-
-.tab:selected {
-    -fx-background-color: #3498db;
-    -fx-background-radius: 5px 5px 0 0;
-    -fx-background-insets: 0, 0 0 2px 0;
-    /*
-    -fx-border-color:
-        linear-gradient(to bottom, #85c1e9, #5dade2)
-        linear-gradient(to bottom, #5dade2, #3498db);
-    -fx-border-width: 1.5px;
-    -fx-border-insets: 0;
-    */
-    /*-fx-border-width: 0;*/
-}
-
-.tab:selected .tab-label {
-    -fx-text-fill: white;
-    -fx-font-weight: bold;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 0, 0, 0, 2);
-}
-
-.tab:hover {
-    -fx-background-color: #2980b9;
-    -fx-background-radius: 5px 5px 0 0;
-    /* Pod艣wietlenie ramki przy najechaniu
-    -fx-border-color:
-        linear-gradient(to bottom, #85c1e9, #5dade2);
-    -fx-border-width: 1.2px;
-    */
-    -fx-border-width: 0;
-}
-
-.tab:hover .tab-label {
-    -fx-text-fill: white;
-}
-
-/* Strza艂ki przewijania zak艂adek */
-.tab-pane > .tab-header-area > .headers-region > .tab > .tab-container > .tab-close-button {
-    -fx-background-color: transparent;
-}
-
-/* Efekt "wci艣ni臋cia" dla aktywnej zak艂adki */
-.tab:selected:focused {
-    -fx-background-color: #2980b9;
-    /*
-    -fx-background-insets: 0, 0 0 -1 0, 1 1 0 1;
-    -fx-border-insets: 0, 0 0 1 0;
-    */
-    -fx-background-insets: 0;
-    -fx-border-insets: 0;
-}
-/* Strza艂ki przewijania zak艂adek */
-.tab-pane > .tab-header-area > .control-buttons-container > .tab-down-button {
-    -fx-background-color: #3498db;
-    -fx-background-radius: 3px;
-}
-
-.tab-pane > .tab-header-area > .control-buttons-container > .tab-down-button .arrow {
-    -fx-background-color: white;
-}
-.tab-pane:focused > .tab-header-area > .headers-region > .tab:selected .focus-indicator {
-    -fx-border-color: transparent;
-    -fx-border-width: 0;
-}
-
-
-孋IE疜A: target\classes\com\election\css\common-styles.css
--------------------------------------------------------------
-/* COMMON-STYLES.CSS */
-/* Style wsp贸艂dzielone mi臋dzy wszystkimi widokami */
-
-/* Globalne */
-.root-style, .header-style, .footer-style {
-    -fx-background-color: #34495e;
-}
-
-.white-text, .panel-title, .app-title,
-.form-label, .footer-text, .radio-button {
-    -fx-text-fill: white;
-}
-
-/* Typografia */
-.panel-title {
-    -fx-font-size: 18px;
-    -fx-font-weight: bold;
-}
-
-.app-title {
-    -fx-font-size: 40px;
-    -fx-font-weight: bold;
-}
-
-.form-label {
-    -fx-font-size: 14px;
-}
-
-/* Przyciski */
-.button {
-    -fx-background-radius: 3px;
-    -fx-transition: background-color 0.3s ease;
-}
-.button-logout {
-    -fx-base: #e74c3c;
-    -fx-text-fill: white;
-    -fx-pref-height: 44px;
-    -fx-min-width: 120px;
-}
-/* Efekt hover dla przycisku wylogowania */
-.button-logout:hover {
-    -fx-background-color: #c0392b;
-    -fx-cursor: hand;
-}
-.button-action {
-    -fx-font-size: 14px;
-    -fx-pref-height: 44px;
-    -fx-min-width: 120px;
-    -fx-background-color: #3498db;
-    -fx-text-fill: white;
-}
-/* Efekt hover dla niebieskich przycisk贸w */
-.button-action:hover {
-    -fx-background-color: #2980b9;
-    -fx-cursor: hand;
-}
-
-/* Statusy i komunikaty */
-.status-label { -fx-text-fill: #2ecc71; }
-.edit-status-label { -fx-text-fill: #f1c40f; }
-.delete-status-label { -fx-text-fill: #e74c3c; }
-.error-label {
-    -fx-text-fill: #ff4444;
-    -fx-font-size: 20px;
-}
-
-.status-label, .edit-status-label,
-.delete-status-label {
-    -fx-font-style: italic;
-}
-
-/* Kontenery */
-.vbox-padding {
-    -fx-padding: 20px;
-}
-
-.voting-container {
-    -fx-background-color: #2c3e50;
-    -fx-background-radius: 10px;
-    -fx-border-color: rgba(255,255,255,0.3);
-    -fx-border-radius: 10px;
-    -fx-border-width: 1px;
-    -fx-padding: 40px;
-}
-
-/* Formularze */
-.form-hint {
-    -fx-text-fill: #bdc3c7;
-    -fx-font-size: 11px;
-    -fx-font-style: italic;
-}
-
-.form-field, .hbox-password {
-    -fx-pref-width: 250px;
-    -fx-min-width: 250px;
-    -fx-font-size: 20px;
-}
-
-.password-field, .text-field {
-    -fx-font-size: 14px;
-    -fx-min-height: 25px;
-}
-
-/* Przycisk oka */
-.eye-button {
-    -fx-background-color: #3498db;
-    -fx-background-radius: 3px;
-    -fx-padding: 4px;
-    -fx-min-width: 30px;
-    -fx-min-height: 30px;
-}
-
-.eye-button:hover {
-    -fx-background-color: #2980b9;
-}
-
-.eye-button .image-view {
-    -fx-fit-width: 20px;
-    -fx-fit-height: 20px;
-}
-
-/* Stopka */
-.footer-text {
-    -fx-font-size: 24px;
-    -fx-font-weight: bold;
-}
-
-/* Radio button */
-.radio-button .radio {
-    -fx-background-color: #ecf0f1;
-    -fx-border-color: #bdc3c7;
-    -fx-border-radius: 10px;
-    -fx-background-radius: 10px;
-}
-
-.radio-button:selected .radio {
-    -fx-background-color: #3498db;
-}
-
-.vote-status-label {
-    -fx-text-fill: #2ecc71;
-    -fx-font-size: 20px;
-}
-
-
-孋IE疜A: target\classes\com\election\css\login-styles.css
-------------------------------------------------------------
-.root-style, .header-style, .footer-style {
-    -fx-background-color: #34495e;
-}
-
-.app-title {
-    -fx-font-size: 40px;
-    -fx-font-weight: bold;
-    -fx-text-fill: white;
-}
-
-.form-label {
-    -fx-font-size: 14px;
-    -fx-text-fill: white;
-}
-
-.form-field, .hbox-password, .button-login {
-    -fx-min-width: 250px;
-    -fx-pref-width: 250px;
-}
-
-.form-field, .hbox-password {
-    -fx-font-size: 20px;
-}
-
-.button-login {
-    -fx-font-size: 20px;
-    -fx-pref-height: 44px;
-    -fx-padding: 0 20px;
-    -fx-background-color: #3498db;
-    -fx-text-fill: white;
-}
-/* Efekt hover dla przycisk贸w logowania */
-.button-login:hover {
-    -fx-background-color: #2980b9;
-    -fx-cursor: hand;
-}
-
-.error-label {
-    -fx-text-fill: #ff4444;
-    -fx-font-size: 20px;
-}
-
-.eye-button {
-    -fx-background-color: #3498db;
-    -fx-background-radius: 3px;
-    -fx-padding: 4px;
-    -fx-min-width: 30px;
-    -fx-min-height: 30px;
-}
-
-.eye-button:hover {
-    -fx-background-color: #2980b9;
-}
-.root-style .text-field,
-.root-style .password-field,
-.root-style .eye-button {
-    -fx-pref-height: 44px;
-    -fx-min-height: 44px;
-}
-
-.root-style .eye-button {
-    -fx-min-width: 44px;
-    -fx-pref-width: 44px;
-}
-
-
-孋IE疜A: target\classes\com\election\css\user-styles.css
------------------------------------------------------------
-/* USER-STYLES.CSS */
-/* Specyficzne style dla panelu u偶ytkownika */
-
-/* G艂贸wne kontenery */
-.user-view-container {
-    -fx-background-color: #2c3e50;
-    -fx-background-radius: 10px;
-    -fx-border-color: rgba(255,255,255,0.3);
-    -fx-border-radius: 10px;
-    -fx-border-width: 1px;
-    -fx-padding: 25px;
-}
-
-.voting-container {
-    -fx-background-color: #2c3e50;
-    -fx-background-radius: 10px;
-    -fx-border-color: rgba(255,255,255,0.3);
-    -fx-border-radius: 10px;
-    -fx-padding: 40px !important;
-    -fx-spacing: 30px !important;
-}
-
-/* Teksty */
-.user-view-text {
-    -fx-text-fill: white !important;
-}
-
-.panel-title {
-    -fx-font-size: 28px !important;
-}
-
-/* Przyciski */
-.button-vote {
-    -fx-font-size: 36px !important;
-    -fx-base: #27ae60;
-    -fx-pref-width: 450px;
-    -fx-pref-height: 80px !important;
-    -fx-text-fill: white;
-    -fx-font-weight: bold;
-}
-
-#logoutButton {
-    -fx-font-size: 18px !important;
-    -fx-pref-width: 150px !important;
-    -fx-pref-height: 50px !important;
-    -fx-padding: 10px 20px !important;
-}
-
-/* Listy rozwijane */
-.user-view-combo,
-.candidate-combo {
-    -fx-background-color: #34495e;
-    -fx-text-fill: white;
-    -fx-prompt-text-fill: rgba(255,255,255,0.7);
-    -fx-pref-height: 70px;
-    -fx-font-size: 28px;
-}
-
-.user-view-combo .list-cell,
-.candidate-combo .list-cell {
-    -fx-text-fill: white;
-    -fx-background-color: #34495e;
-}
-
-.user-view-combo .list-view,
-.candidate-combo .list-view {
-    -fx-background-color: #34495e;
-}
-
-.user-view-combo .list-cell:filled:hover,
-.candidate-combo .list-cell:filled:hover {
-    -fx-background-color: #2c3e50;
-}
-
-
-孋IE疜A: target\classes\com\election\view\admin_view.fxml
-------------------------------------------------------------
-<?xml version="1.0" encoding="UTF-8"?>
-
-<?import javafx.scene.chart.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.control.cell.PropertyValueFactory?>
-<?import javafx.scene.layout.*?>
-
-<?import java.net.URL?>
-<?import javafx.collections.FXCollections?>
-<?import java.lang.String?>
-<?import javafx.geometry.Insets?>
-<StackPane prefHeight="600" prefWidth="800" styleClass="root-style"
-           xmlns="http://javafx.com/javafx/17.0.12"
-           xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="com.election.controller.AdminController">
-
-    <stylesheets>
-        <URL value="@../css/common-styles.css" />
-        <URL value="@../css/admin-styles.css" />
-    </stylesheets>
-
-    <TabPane prefHeight="600" prefWidth="800" tabClosingPolicy="UNAVAILABLE">
-
-        <!-- U偶ytkownicy -->
-        <Tab text="U偶ytkownicy" onSelectionChanged="#handleUserTabSelected">
-            <VBox spacing="10" styleClass="vbox-padding">
-                <HBox spacing="10" alignment="CENTER_LEFT">
-                    <Label styleClass="panel-title" text="Panel administratora" />
-                </HBox>
-                <HBox spacing="5" alignment="CENTER_LEFT">
-                    <Label styleClass="form-label" text="Filtry:"/>
-                    <TextField fx:id="firstNameFilter" prefWidth="100" promptText="Imi臋"/>
-                    <TextField fx:id="lastNameFilter" prefWidth="100" promptText="Nazwisko"/>
-                    <TextField fx:id="peselFilter" prefWidth="120" promptText="PESEL"/>
-                    <ComboBox fx:id="roleFilterComboBox" prefWidth="80" promptText="Rola"/>
-                    <Button text="Filtruj" prefWidth="80" onAction="#handleFilterUsers"/>
-                    <Button text="Wyczy艣膰" prefWidth="80" onAction="#handleClearFilters"/>
-                </HBox>
-
-                <TableView fx:id="usersTable" maxHeight="80" styleClass="compact-table">
-                    <columns>
-                        <TableColumn fx:id="idColumn" prefWidth="30" text="ID" /> <!-- Mniejsza szeroko艣膰 -->
-                        <TableColumn fx:id="usernameColumn" prefWidth="70" text="Login" /> <!-- Mniejsza szeroko艣膰 -->
-                        <TableColumn fx:id="roleColumn" prefWidth="50" text="Rola" /> <!-- Mniejsza szeroko艣膰 -->
-                        <TableColumn fx:id="firstNameColumn" prefWidth="80" text="Imi臋" /> <!-- Mniejsza szeroko艣膰 -->
-                        <TableColumn fx:id="lastNameColumn" prefWidth="80" text="Nazwisko" /> <!-- Mniejsza szeroko艣膰 -->
-                        <TableColumn fx:id="peselColumn" prefWidth="100" text="PESEL" /> <!-- Mniejsza szeroko艣膰 -->
-                    </columns>
-                </TableView>
-
-                <GridPane fx:id="userFormGrid" hgap="5" vgap="5">
-                    <Label styleClass="form-label" text="Imi臋:*" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                    <TextField fx:id="firstNameField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-                    <Label styleClass="form-hint" text="Tylko litery ma艂e (a-z) oraz litery du偶e (A-Z)" GridPane.columnIndex="2" GridPane.rowIndex="0" />
-
-                    <Label styleClass="form-label" text="Nazwisko:*" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                    <TextField fx:id="lastNameField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                    <Label styleClass="form-hint" text="Tylko litery ma艂e (a-z) oraz litery du偶e (A-Z)" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-
-                    <Label styleClass="form-label" text="PESEL:*" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                    <TextField fx:id="peselField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                    <Label styleClass="form-hint" text="11 cyfr" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-
-                    <Label styleClass="form-label" text="Login:*" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                    <TextField fx:id="usernameField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                    <Label styleClass="form-hint" text="Tylko litery ma艂e (a-z), litery du偶e (A-Z), cyfry (0-9) i znak (_)" GridPane.columnIndex="2" GridPane.rowIndex="3" />
-
-                    <Label styleClass="form-label" text="Has艂o:*" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-                    <HBox GridPane.columnIndex="1" GridPane.rowIndex="4">
-                        <PasswordField fx:id="passwordField" HBox.hgrow="ALWAYS" />
-                        <TextField fx:id="visiblePasswordField" HBox.hgrow="ALWAYS" visible="false" managed="false" />
-                        <Button fx:id="showPasswordButton" styleClass="eye-button" onAction="#togglePasswordVisibility" />
-                    </HBox>
-<!--                    <Label styleClass="form-hint" text="Nie mo偶e by膰 puste" GridPane.columnIndex="2" GridPane.rowIndex="4" />-->
-
-                    <Label styleClass="form-label" text="Rola:*" GridPane.columnIndex="0" GridPane.rowIndex="5" />
-                    <ComboBox fx:id="roleComboBox" GridPane.columnIndex="1" GridPane.rowIndex="5" value="USER">
-                        <items>
-                            <FXCollections fx:factory="observableArrayList">
-                                <String fx:value="USER"/>
-                                <String fx:value="ADMIN"/>
-                            </FXCollections>
-                        </items>
-                    </ComboBox>
-                </GridPane>
-
-                <HBox spacing="10" alignment="CENTER">
-                    <Button text="Dodaj nowego" onAction="#handleAddUser" styleClass="button-add" />
-                    <Button text="Zapisz zmiany" onAction="#handleUpdateUser" styleClass="button-save" />
-                    <Button text="Usu艅 u偶ytkownika" onAction="#handleDeleteUser" styleClass="button-delete" />
-                    <Button text="Wyczy艣膰 formularz" onAction="#handleClearUserForm" />
-                </HBox>
-
-                <Label fx:id="userManagementStatus" styleClass="status-label" />
-            </VBox>
-        </Tab>
-        <!-- Zak艂adka Kandydaci -->
-        <Tab text="Kandydaci">
-            <VBox styleClass="vbox-padding" spacing="10">
-                <Label styleClass="panel-title" text="Zarz膮dzanie kandydatami" />
-
-                <!-- Tabela kandydat贸w -->
-                <TableView fx:id="candidatesTable" prefHeight="200">
-                    <columns>
-                        <TableColumn fx:id="candidateIdColumn" prefWidth="50" text="ID" />
-                        <TableColumn fx:id="candidateNameColumn" prefWidth="200" text="Imi臋 i nazwisko" />
-                        <TableColumn fx:id="candidatePartyColumn" prefWidth="150" text="Partia" />
-                        <TableColumn fx:id="candidateVotesColumn" prefWidth="100" text="G艂osy" />
-                    </columns>
-                </TableView>
-
-                <!-- Formularz -->
-                <GridPane hgap="15" vgap="15" prefHeight="100">
-                    <Label styleClass="form-label" text="Imi臋 i nazwisko:*" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                    <TextField fx:id="candidateNameField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-                    <Label styleClass="form-hint" text="Wymagane" GridPane.columnIndex="2" GridPane.rowIndex="0" />
-
-                    <Label styleClass="form-label" text="Partia:*" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                    <TextField fx:id="candidatePartyField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                    <Label styleClass="form-hint" text="Wymagane" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                </GridPane>
-
-                <!-- Przyciski akcji -->
-                <HBox spacing="20" prefHeight="40">
-                    <Button text="Dodaj" onAction="#handleAddCandidate" />
-                    <Button text="Edytuj" onAction="#handleUpdateCandidate" />
-                    <Button text="Usu艅" onAction="#handleDeleteCandidate" />
-                    <Button text="Od艣wie偶" onAction="#handleRefreshCandidates" />
-                    <Button text="Wyczy艣膰 formularz" onAction="#handleClearCandidateForm" />
-                </HBox>
-
-                <Label fx:id="candidateStatusLabel" styleClass="status-label" />
-            </VBox>
-        </Tab>
-        <!-- Wyniki wybor贸w -->
-        <Tab text="Wyniki wybor贸w">
-            <VBox spacing="5" styleClass="vbox-padding root-style">
-                <Label styleClass="panel-title" text="Aktualne wyniki wybor贸w" />
-
-                <!-- SplitPane z t艂em -->
-                <SplitPane dividerPositions="0.5" orientation="HORIZONTAL" prefHeight="450" styleClass="split-pane-bg">
-                    <!-- Tabela z minimaln膮 szeroko艣ci膮 -->
-                    <TableView fx:id="resultsTable" prefHeight="400" styleClass="results-table" minWidth="350.0">
-                        <columns>
-                            <TableColumn fx:id="candidateColumn" prefWidth="145" minWidth="120" text="Kandydat">
-                                <cellValueFactory>
-                                    <PropertyValueFactory property="name" />
-                                </cellValueFactory>
-                            </TableColumn>
-                            <TableColumn fx:id="partyColumn" prefWidth="90" minWidth="80" text="Partia">
-                                <cellValueFactory>
-                                    <PropertyValueFactory property="party" />
-                                </cellValueFactory>
-                            </TableColumn>
-                            <TableColumn fx:id="votesColumn" prefWidth="70" minWidth="70">
-                                <graphic>
-                                    <VBox alignment="CENTER" spacing="0" prefHeight="40">
-                                        <Label text="Liczba" styleClass="column-header-label" wrapText="true" maxHeight="Infinity"/>
-                                        <Label text="g艂os贸w" styleClass="column-header-label" wrapText="true" maxHeight="Infinity"/>
-                                    </VBox>
-                                </graphic>
-                                <cellValueFactory>
-                                    <PropertyValueFactory property="votes" />
-                                </cellValueFactory>
-                            </TableColumn>
-                            <TableColumn fx:id="percentColumn" prefWidth="60" minWidth="60" text="Procent"/>
-                        </columns>
-                    </TableView>
-
-                    <!-- Wykres z minimaln膮 szeroko艣ci膮 -->
-                    <ScrollPane fitToHeight="true" hbarPolicy="AS_NEEDED" vbarPolicy="NEVER" styleClass="scroll-pane-for-chart">
-                        <BarChart fx:id="resultsChart" prefHeight="450" styleClass="results-chart"
-                                  minWidth="300.0" minHeight="400" legendVisible="false"
-                                  title="G艂osy wed艂ug kandydata">
-                            <xAxis>
-                                <CategoryAxis fx:id="xAxis" side="BOTTOM" />
-                            </xAxis>
-                            <yAxis>
-                                <NumberAxis fx:id="yAxis" label="Liczba g艂os贸w" />
-                            </yAxis>
-                        </BarChart>
-                    </ScrollPane>
-                </SplitPane>
-
-                <!-- Uk艂ad przycisk贸w w dw贸ch wierszach -->
-                <VBox spacing="5">
-                    <HBox spacing="10" alignment="CENTER_LEFT">
-                        <Button styleClass="button-refresh" onAction="#refreshResults" text="Od艣wie偶 wyniki" />
-                        <Button styleClass="button-export" onAction="#handleExportToCSV" text="Eksportuj do CSV" />
-                        <Button styleClass="button-export" onAction="#handleExportToPDF" text="Eksportuj do PDF" />
-                        <Button styleClass="button-logout" onAction="#handleLogout" text="Wyloguj" />
-                    </HBox>
-                </VBox>
-
-                <!-- Etykieta statusu -->
-                <Label fx:id="statusLabel" styleClass="status-label" wrapText="true" maxWidth="Infinity" />
-            </VBox>
-        </Tab>
-
-        <!-- Narz臋dzia -->
-        <Tab text="Narz臋dzia">
-            <VBox spacing="10" styleClass="vbox-padding" prefHeight="250">
-                <Label styleClass="panel-title" text="Narz臋dzia administratora" />
-                <VBox alignment="CENTER" spacing="30" styleClass="tools-container" prefHeight="150">
-                    <Button styleClass="button-generate" prefWidth="300" prefHeight="50" onAction="#handleOpenHashGenerator" text="Otw贸rz Generator Hashy" />
-                    <Button styleClass="button-logout" prefWidth="300" prefHeight="50" onAction="#handleLogout" text="Wyloguj" />
-                </VBox>
-            </VBox>
-        </Tab>
-    </TabPane>
-</StackPane>
-
-
-孋IE疜A: target\classes\com\election\view\login.fxml
--------------------------------------------------------
-<?xml version="1.0" encoding="UTF-8"?>
-
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import java.net.URL?>
-
-<BorderPane prefHeight="600.0" prefWidth="800.0"
-            xmlns="http://javafx.com/javafx/17.0.12"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.election.controller.LoginController">
-
-    <stylesheets>
-        <URL value="@../css/common-styles.css" />
-        <URL value="@../css/login-styles.css" />
-    </stylesheets>
-
-    <center>
-        <VBox styleClass="root-style" alignment="CENTER" spacing="20">
-            <Label styleClass="app-title" text="Wybory prezydenckie" />
-
-            <GridPane alignment="CENTER" hgap="10" vgap="10">
-                <columnConstraints>
-                    <ColumnConstraints halignment="RIGHT" />
-                    <ColumnConstraints />
-                </columnConstraints>
-
-                <rowConstraints>
-                    <RowConstraints />
-                    <RowConstraints />
-                    <RowConstraints />
-                </rowConstraints>
-
-                <Label styleClass="form-label" text="Login:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                <TextField fx:id="usernameField" styleClass="form-field" promptText="Wprowad藕 login" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-
-                <Label styleClass="form-label" text="Has艂o:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                <HBox alignment="CENTER_LEFT" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                    <PasswordField fx:id="passwordField" styleClass="form-field" promptText="Wprowad藕 has艂o" HBox.hgrow="ALWAYS" />
-                    <TextField fx:id="visiblePasswordField" styleClass="form-field" promptText="Wprowad藕 has艂o" HBox.hgrow="ALWAYS" visible="false" managed="false" />
-                    <Button fx:id="showPasswordButton" styleClass="eye-button" onAction="#togglePasswordVisibility" />
-                </HBox>
-
-                <VBox alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="2">
-                    <!-- Dodajemy min-width i max-width -->
-                    <Button styleClass="button-login" onAction="#handleLogin" text="Zaloguj"
-                            minWidth="250" maxWidth="Infinity" />
-                </VBox>
-            </GridPane>
-
-            <VBox alignment="CENTER" spacing="10">
-                <Label fx:id="errorLabel" styleClass="error-label" />
-            </VBox>
-        </VBox>
-    </center>
-</BorderPane>
-
-
-孋IE疜A: target\classes\com\election\view\user_view.fxml
------------------------------------------------------------
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
