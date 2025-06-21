@@ -1,5 +1,5 @@
 Eksport struktury katalog�w i plik�w
-Wygenerowano: 06/20/2025 21:58:50
+Wygenerowano: 06/21/2025 04:51:32
 
 
 
@@ -211,6 +211,8 @@ import com.election.model.CandidateResult;
 import com.election.model.User;
 import com.election.service.ElectionService;
 import com.election.service.ExportServicePDF;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
@@ -238,9 +240,9 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.io.File;
@@ -361,6 +363,7 @@ public class AdminController {
         eyeIcon.setFitWidth(16);
         eyeIcon.setFitHeight(16);
         showPasswordButton.setGraphic(eyeIcon);
+
         // Ustaw tooltip
         Tooltip.install(showPasswordButton, new Tooltip("Pokaż/ukryj hasło"));
         // Ukryj widoczne pole hasła na starcie
@@ -406,6 +409,12 @@ public class AdminController {
 
         // Dodaj nasłuchiwanie zmian w polach hasła
         addPasswordListeners();
+
+        // Konfiguruj paski przewijania dla tabel
+        configureScrollBar(usersTable);
+        ensureScrollBarHeight(usersTable);
+        configureScrollBar(candidatesTable);
+        ensureScrollBarHeight(candidatesTable);
     }
 
     private void addPasswordListeners() {
@@ -461,12 +470,6 @@ public class AdminController {
         }
 
         return true;
-    }
-
-    public void refreshUserTab() {
-        List<User> users = userDAO.getAllUsers();
-        masterUserList.setAll(users);
-        usersTable.refresh();
     }
 
     private void configureCandidatesTable() {
@@ -866,46 +869,6 @@ public class AdminController {
             });
         }
     }
-
-    // Nowa metoda do poprawiania pozycji etykiet
-    private void fixLabelPositions() {
-        for (int i = 0; i < resultsChart.getData().size(); i++) {
-            XYChart.Series<String, Number> series = resultsChart.getData().get(i);
-            for (int j = 0; j < series.getData().size(); j++) {
-                XYChart.Data<String, Number> data = series.getData().get(j);
-                Node node = data.getNode();
-                if (node != null) {
-                    // Popraw pozycjonowanie słupka
-                    node.relocate(node.getLayoutX() - 5, node.getLayoutY());
-                }
-
-                // Popraw etykiety na osi
-                if (j < xAxis.getCategories().size()) {
-                    String category = xAxis.getCategories().get(j);
-                    for (Node axisNode : xAxis.getChildrenUnmodifiable()) {
-                        if (axisNode instanceof Text text) {
-                            if (category.equals(text.getText())) {
-                                text.setTextAlignment(TextAlignment.CENTER);
-                                text.setWrappingWidth(80);
-                                text.setLayoutY(text.getLayoutY() - 5); // Delikatne podniesienie
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    // Aktualizuje skalę osi Y na wykresie
-//    private void updateYAxisRange(int maxVotes) {
-//        if (yAxis != null) {
-//            yAxis.setAutoRanging(false);
-//            yAxis.setLowerBound(0);
-//            yAxis.setUpperBound(maxVotes < 5 ? 5 : maxVotes + 1);
-//            yAxis.setTickUnit(1);
-//            yAxis.setMinorTickVisible(false);
-//        }
-//    }
 
     // Obsługuje wylogowywanie użytkownika
     @FXML
@@ -1373,6 +1336,40 @@ public class AdminController {
         candidateNameField.clear();
         candidatePartyField.clear();
         candidatesTable.getSelectionModel().clearSelection();
+    }
+
+    private void configureScrollBar(TableView<?> tableView) {
+        tableView.skinProperty().addListener((obs, oldSkin, newSkin) -> {
+            if (newSkin != null) {
+                // Czekaj na zakończenie układania sceny
+                Platform.runLater(() -> {
+                    // Znajdź pionowy pasek przewijania
+                    ScrollBar scrollBar = (ScrollBar) tableView.lookup(".scroll-bar:vertical");
+                    if (scrollBar != null) {
+                        // Ustaw minimalną wysokość kciuka
+                        scrollBar.minHeightProperty().unbind();
+                        scrollBar.setMinHeight(25);
+
+                        // Ustaw styl dla pewności
+                        scrollBar.setStyle("-fx-min-height: 25px; -fx-pref-height: 25px;");
+                    }
+                });
+            }
+        });
+    }
+    private void ensureScrollBarHeight(TableView<?> tableView) {
+        new Timeline(new KeyFrame(Duration.seconds(0.5), e -> {
+            for (Node node : tableView.lookupAll(".scroll-bar:vertical")) {
+                if (node instanceof ScrollBar scrollBar) {
+                    if (scrollBar.getMinHeight() < 25) {
+                        scrollBar.setMinHeight(25);
+                    }
+                    if (scrollBar.lookup(".thumb") != null) {
+                        scrollBar.lookup(".thumb").setStyle("-fx-min-height: 25px;");
+                    }
+                }
+            }
+        })).play();
     }
 }
 
@@ -2815,6 +2812,34 @@ public class HibernateUtil {
     -fx-min-width: 120px;
     -fx-text-fill: white;
 }
+.button-action {
+    -fx-font-size: 14px;
+    -fx-pref-height: 44px;
+    -fx-min-width: 120px;
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+    -fx-background-radius: 3px;
+}
+
+.button-action:hover {
+    -fx-background-color: #2980b9;
+    -fx-cursor: hand;
+}
+
+/* Style dla przycisków usuwania */
+.button-delete {
+    -fx-font-size: 14px;
+    -fx-pref-height: 44px;
+    -fx-min-width: 120px;
+    -fx-background-color: #e74c3c;
+    -fx-text-fill: white;
+    -fx-background-radius: 3px;
+}
+
+.button-delete:hover {
+    -fx-background-color: #c0392b;
+    -fx-cursor: hand;
+}
 
 /* Kontenery */
 .tools-container {
@@ -2980,7 +3005,154 @@ public class HibernateUtil {
 .results-table {
     -fx-min-width: 350px;
 }
+/* COMMON TABLE STYLES (dla usersTable i candidatesTable) */
+.common-table {
+    -fx-background-color: transparent;
+    -fx-table-cell-border-color: rgba(255, 255, 255, 0.1);
+    -fx-selection-bar: #3498db;
+    -fx-selection-bar-non-focused: #2c3e50;
+    -fx-border-color: #3498db;
+    -fx-border-width: 1px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
 
+/* Usuń padding z obszaru widoku */
+.common-table .scroll-pane .viewport {
+    -fx-background-color: #34495e;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+/* Usuń marginesy z kontenera tabeli */
+.common-table .scroll-pane .content {
+    -fx-background-color: #34495e;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+.common-table .scroll-pane {
+    -fx-background-color: #34495e;
+}
+
+/* Usuń marginesy z samej tabeli */
+.common-table .table-view {
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.common-table .column-header-background {
+    -fx-background-color: rgba(0, 0, 0, 0.3);
+    -fx-border-color: rgba(255,255,255,0.3);
+    -fx-border-width: 0 0 2px 0;
+    -fx-padding: 0;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-pref-height: 40px;
+}
+
+.common-table .column-header {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-border-color: rgba(255,255,255,0.2);
+    -fx-border-width: 0 1px 0 0;
+    -fx-size: 40px;
+}
+
+.common-table .column-header:last-child {
+    -fx-border-width: 0;
+    -fx-padding: 0;
+    -fx-background-insets: 0;
+}
+
+.common-table .column-header .label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-alignment: CENTER;
+    -fx-wrap-text: true;
+    -fx-padding: 10px 0;
+}
+
+.common-table .table-cell {
+    -fx-text-fill: white;
+    -fx-border-color: rgba(255, 255, 255, 0.1);
+    -fx-border-width: 0 1px 1px 0;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 0 5px;
+    -fx-background-insets: 0;
+}
+
+.common-table .table-cell:last-child {
+    -fx-border-width: 0 0 1px 0;
+}
+
+.common-table .table-row-cell {
+    -fx-background-color: transparent;
+    -fx-cell-size: 35px;
+    -fx-min-height: 35px;
+    -fx-pref-height: 35px;
+    -fx-padding: 0;
+    -fx-background-insets: 0;
+}
+
+.common-table .table-row-cell:odd {
+    -fx-background-color: rgba(0, 0, 0, 0.1);
+}
+
+.common-table .table-row-cell:selected {
+    -fx-background-color: #3498db;
+}
+
+/* Napraw pionowy padding w tabeli */
+.common-table > .virtual-flow > .clipped-container > .sheet > .table-row-cell {
+    -fx-padding: 0;
+}
+
+/* Usuń marginesy z paska przewijania */
+.common-table .scroll-bar:vertical {
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.common-table .scroll-bar:vertical .track {
+    -fx-background-color: #34495e;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+.common-table .scroll-bar:vertical .thumb {
+    -fx-min-height: 25px !important; /* Minimalna wysokość suwaka */
+    -fx-pref-height: 25px !important; /* Preferowana wysokość */
+    -fx-background-radius: 4px;
+}
+
+/* Ukryj strzałki przewijania */
+.common-table .scroll-bar:vertical .increment-button,
+.common-table .scroll-bar:vertical .decrement-button {
+    -fx-pref-height: 0;
+    -fx-min-height: 0;
+    -fx-max-height: 0;
+    -fx-padding: 0;
+}
+
+/* SPECIFIC TABLE STYLES */
+#usersTable {
+    -fx-pref-height: 150px;  /* Zwiększona wysokość */
+    -fx-min-height: 150px;
+    -fx-max-height: Infinity;
+}
+
+#candidatesTable .table-cell {
+    -fx-alignment: CENTER; /* Wyśrodkowanie dla kandydatów */
+}
+#usersTable .table-cell {
+    -fx-alignment: CENTER;
+}
+
+#usersTable .column-header .label {
+    -fx-alignment: CENTER;
+}
 .scroll-pane {
     -fx-background-color: transparent;
 }
@@ -3021,6 +3193,13 @@ public class HibernateUtil {
     -fx-font-weight: bold;
     -fx-text-fill: #2ecc71; /* zachowanie zielonego koloru */
     -fx-padding: 5px 0; /* dodanie odstępu wertykalnego */
+}
+/* Komunikaty statusu */
+.status-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 5px 0;
+    -fx-text-fill: #2ecc71; /* zielony kolor */
 }
 
 /* Styl dla poziomego suwaka w ScrollPane (pod wykresem) */
@@ -3137,6 +3316,96 @@ public class HibernateUtil {
     -fx-border-color: #3498db;
     -fx-border-width: 0 0 2px 0;
     -fx-padding: 0;
+}
+/* Styl dla pionowych scrollbarów w TableView */
+.table-view .scroll-bar:vertical {
+    -fx-background-color: #34495e;
+    -fx-pref-width: 15px;
+    -fx-padding: 0; /* Kluczowe: brak paddingu */
+    -fx-background-insets: 0; /* Brak wewnętrznych marginesów */
+}
+.table-view .scroll-bar:vertical .track {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0; /* Brak marginesów dla toru */
+    -fx-padding: 0; /* Brak paddingu dla toru */
+}
+.table-view .scroll-bar:vertical .thumb {
+    -fx-background-color: #3498db;
+    -fx-background-radius: 4px;
+    -fx-border-color: #2980b9;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+    -fx-min-width: 12px;     /* Minimalna szerokość kciuka */
+    -fx-pref-width: 12px;    /* Preferowana szerokość kciuka */
+    -fx-min-height: 40px;        /* Minimalna wysokość kciuka */
+    -fx-background-insets: 0;
+}
+
+.table-view .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #2980b9;
+    -fx-border-color: #1c638e;
+    -fx-effect: dropshadow(gaussian, rgba(41,128,185,0.5), 0, 0, 0, 2);
+}
+
+/* CAŁKOWICIE UKRYJ PRZYCISKI NAWIGACYJNE */
+.table-view .scroll-bar:vertical .increment-button,
+.table-view .scroll-bar:vertical .decrement-button {
+    -fx-pref-height: 0; /* Zerowa wysokość */
+    -fx-min-height: 0;  /* Zerowa wysokość */
+    -fx-max-height: 0;  /* Zerowa wysokość */
+    -fx-padding: 0;     /* Brak paddingu */
+    -fx-background-color: transparent; /* Przezroczyste tło */
+    -fx-background-insets: 0; /* Brak marginesów */
+    -fx-shape: null; /* Brak kształtu */
+}
+
+.table-view .scroll-bar:vertical .increment-arrow,
+.table-view .scroll-bar:vertical .decrement-arrow {
+    -fx-shape: " ";
+    -fx-padding: 0;
+}
+table-view .scroll-bar:vertical .track-background {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+}
+.table-view .scroll-bar:vertical > .container {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.table-view .scroll-bar:vertical > .track-background {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+.table-view > .virtual-flow > .scroll-bar:vertical {
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.table-view > .virtual-flow > .scroll-bar:vertical > .track {
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+/* Styl dla poziomych scrollbarów (dla spójności) */
+.table-view .scroll-bar:horizontal {
+    -fx-background-color: #34495e;
+}
+
+.table-view .scroll-bar:horizontal .thumb {
+    -fx-background-color: #3498db;
+    -fx-background-radius: 2px;
+    -fx-border-color: #2980b9;
+    -fx-border-width: 1px;
+    -fx-border-radius: 2px;
+}
+
+.table-view .scroll-bar:horizontal .thumb:hover {
+    -fx-background-color: #2980b9;
+    -fx-border-color: #1c638e;
+    -fx-effect: dropshadow(gaussian, rgba(41,128,185,0.5), 0, 0, 0, 2);
 }
 
 
@@ -3473,15 +3742,16 @@ public class HibernateUtil {
                     <Button text="Wyczyść" prefWidth="80" onAction="#handleClearFilters"/>
                 </HBox>
 
-                <TableView fx:id="usersTable" maxHeight="80" styleClass="compact-table">
+                <TableView fx:id="usersTable" maxHeight="80" styleClass="common-table">
                     <columns>
-                        <TableColumn fx:id="idColumn" prefWidth="30" text="ID" /> <!-- Mniejsza szerokość -->
-                        <TableColumn fx:id="usernameColumn" prefWidth="70" text="Login" /> <!-- Mniejsza szerokość -->
-                        <TableColumn fx:id="roleColumn" prefWidth="50" text="Rola" /> <!-- Mniejsza szerokość -->
+                        <TableColumn fx:id="idColumn" prefWidth="100" text="ID" /> <!-- Mniejsza szerokość -->
+                        <TableColumn fx:id="usernameColumn" prefWidth="120" text="Login" /> <!-- Mniejsza szerokość -->
+                        <TableColumn fx:id="roleColumn" prefWidth="70" text="Rola" /> <!-- Mniejsza szerokość -->
                         <TableColumn fx:id="firstNameColumn" prefWidth="80" text="Imię" /> <!-- Mniejsza szerokość -->
                         <TableColumn fx:id="lastNameColumn" prefWidth="80" text="Nazwisko" /> <!-- Mniejsza szerokość -->
                         <TableColumn fx:id="peselColumn" prefWidth="100" text="PESEL" /> <!-- Mniejsza szerokość -->
                     </columns>
+                    <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
                 </TableView>
 
                 <GridPane fx:id="userFormGrid" hgap="5" vgap="5">
@@ -3521,13 +3791,13 @@ public class HibernateUtil {
                 </GridPane>
 
                 <HBox spacing="10" alignment="CENTER">
-                    <Button text="Dodaj nowego" onAction="#handleAddUser" styleClass="button-add" />
-                    <Button text="Zapisz zmiany" onAction="#handleUpdateUser" styleClass="button-save" />
-                    <Button text="Usuń użytkownika" onAction="#handleDeleteUser" styleClass="button-delete" />
-                    <Button text="Wyczyść formularz" onAction="#handleClearUserForm" />
+                    <Button styleClass="button-action" text="Dodaj nowego" onAction="#handleAddUser" />
+                    <Button styleClass="button-action" text="Zapisz zmiany" onAction="#handleUpdateUser" />
+                    <Button styleClass="button-delete" text="Usuń użytkownika" onAction="#handleDeleteUser" />
+                    <Button styleClass="button-action" text="Wyczyść formularz" onAction="#handleClearUserForm" />
                 </HBox>
 
-                <Label fx:id="userManagementStatus" styleClass="status-label" />
+                <Label fx:id="userManagementStatus" styleClass="status-label" wrapText="true" maxWidth="Infinity" />
             </VBox>
         </Tab>
         <!-- Zakładka Kandydaci -->
@@ -3536,13 +3806,14 @@ public class HibernateUtil {
                 <Label styleClass="panel-title" text="Zarządzanie kandydatami" />
 
                 <!-- Tabela kandydatów -->
-                <TableView fx:id="candidatesTable" prefHeight="200">
+                <TableView fx:id="candidatesTable" prefHeight="200" styleClass="common-table">
                     <columns>
-                        <TableColumn fx:id="candidateIdColumn" prefWidth="50" text="ID" />
+                        <TableColumn fx:id="candidateIdColumn" prefWidth="100" text="ID" />
                         <TableColumn fx:id="candidateNameColumn" prefWidth="200" text="Imię i nazwisko" />
                         <TableColumn fx:id="candidatePartyColumn" prefWidth="150" text="Partia" />
                         <TableColumn fx:id="candidateVotesColumn" prefWidth="100" text="Głosy" />
                     </columns>
+                    <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
                 </TableView>
 
                 <!-- Formularz -->
@@ -3558,14 +3829,14 @@ public class HibernateUtil {
 
                 <!-- Przyciski akcji -->
                 <HBox spacing="20" prefHeight="40">
-                    <Button text="Dodaj" onAction="#handleAddCandidate" />
-                    <Button text="Edytuj" onAction="#handleUpdateCandidate" />
-                    <Button text="Usuń" onAction="#handleDeleteCandidate" />
-                    <Button text="Odśwież" onAction="#handleRefreshCandidates" />
-                    <Button text="Wyczyść formularz" onAction="#handleClearCandidateForm" />
+                    <Button styleClass="button-action" text="Dodaj" onAction="#handleAddCandidate" />
+                    <Button styleClass="button-action" text="Edytuj" onAction="#handleUpdateCandidate" />
+                    <Button styleClass="button-delete" text="Usuń" onAction="#handleDeleteCandidate" />
+                    <Button styleClass="button-action" text="Odśwież" onAction="#handleRefreshCandidates" />
+                    <Button styleClass="button-action" text="Wyczyść formularz" onAction="#handleClearCandidateForm" />
                 </HBox>
 
-                <Label fx:id="candidateStatusLabel" styleClass="status-label" />
+                <Label fx:id="candidateStatusLabel" styleClass="status-label" wrapText="true" maxWidth="Infinity" />
             </VBox>
         </Tab>
         <!-- Wyniki wyborów -->

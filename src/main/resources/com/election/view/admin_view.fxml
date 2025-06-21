@@ -37,15 +37,16 @@
                     <Button text="Wyczyść" prefWidth="80" onAction="#handleClearFilters"/>
                 </HBox>
 
-                <TableView fx:id="usersTable" maxHeight="80" styleClass="compact-table">
+                <TableView fx:id="usersTable" maxHeight="80" styleClass="common-table">
                     <columns>
-                        <TableColumn fx:id="idColumn" prefWidth="30" text="ID" /> <!-- Mniejsza szerokość -->
-                        <TableColumn fx:id="usernameColumn" prefWidth="70" text="Login" /> <!-- Mniejsza szerokość -->
-                        <TableColumn fx:id="roleColumn" prefWidth="50" text="Rola" /> <!-- Mniejsza szerokość -->
+                        <TableColumn fx:id="idColumn" prefWidth="100" text="ID" /> <!-- Mniejsza szerokość -->
+                        <TableColumn fx:id="usernameColumn" prefWidth="120" text="Login" /> <!-- Mniejsza szerokość -->
+                        <TableColumn fx:id="roleColumn" prefWidth="70" text="Rola" /> <!-- Mniejsza szerokość -->
                         <TableColumn fx:id="firstNameColumn" prefWidth="80" text="Imię" /> <!-- Mniejsza szerokość -->
                         <TableColumn fx:id="lastNameColumn" prefWidth="80" text="Nazwisko" /> <!-- Mniejsza szerokość -->
                         <TableColumn fx:id="peselColumn" prefWidth="100" text="PESEL" /> <!-- Mniejsza szerokość -->
                     </columns>
+                    <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
                 </TableView>
 
                 <GridPane fx:id="userFormGrid" hgap="5" vgap="5">
@@ -100,13 +101,14 @@
                 <Label styleClass="panel-title" text="Zarządzanie kandydatami" />
 
                 <!-- Tabela kandydatów -->
-                <TableView fx:id="candidatesTable" prefHeight="200">
+                <TableView fx:id="candidatesTable" prefHeight="200" styleClass="common-table">
                     <columns>
-                        <TableColumn fx:id="candidateIdColumn" prefWidth="50" text="ID" />
+                        <TableColumn fx:id="candidateIdColumn" prefWidth="100" text="ID" />
                         <TableColumn fx:id="candidateNameColumn" prefWidth="200" text="Imię i nazwisko" />
                         <TableColumn fx:id="candidatePartyColumn" prefWidth="150" text="Partia" />
                         <TableColumn fx:id="candidateVotesColumn" prefWidth="100" text="Głosy" />
                     </columns>
+                    <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
                 </TableView>
 
                 <!-- Formularz -->

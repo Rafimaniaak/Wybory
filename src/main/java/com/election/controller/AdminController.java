@@ -10,6 +10,8 @@ import com.election.model.CandidateResult;
 import com.election.model.User;
 import com.election.service.ElectionService;
 import com.election.service.ExportServicePDF;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
@@ -37,9 +39,9 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.io.File;
@@ -160,6 +162,7 @@ public class AdminController {
         eyeIcon.setFitWidth(16);
         eyeIcon.setFitHeight(16);
         showPasswordButton.setGraphic(eyeIcon);
+
         // Ustaw tooltip
         Tooltip.install(showPasswordButton, new Tooltip("Pokaż/ukryj hasło"));
         // Ukryj widoczne pole hasła na starcie
@@ -205,6 +208,12 @@ public class AdminController {
 
         // Dodaj nasłuchiwanie zmian w polach hasła
         addPasswordListeners();
+
+        // Konfiguruj paski przewijania dla tabel
+        configureScrollBar(usersTable);
+        ensureScrollBarHeight(usersTable);
+        configureScrollBar(candidatesTable);
+        ensureScrollBarHeight(candidatesTable);
     }
 
     private void addPasswordListeners() {
@@ -260,12 +269,6 @@ public class AdminController {
         }
 
         return true;
-    }
-
-    public void refreshUserTab() {
-        List<User> users = userDAO.getAllUsers();
-        masterUserList.setAll(users);
-        usersTable.refresh();
     }
 
     private void configureCandidatesTable() {
@@ -665,46 +668,6 @@ public class AdminController {
             });
         }
     }
-
-    // Nowa metoda do poprawiania pozycji etykiet
-    private void fixLabelPositions() {
-        for (int i = 0; i < resultsChart.getData().size(); i++) {
-            XYChart.Series<String, Number> series = resultsChart.getData().get(i);
-            for (int j = 0; j < series.getData().size(); j++) {
-                XYChart.Data<String, Number> data = series.getData().get(j);
-                Node node = data.getNode();
-                if (node != null) {
-                    // Popraw pozycjonowanie słupka
-                    node.relocate(node.getLayoutX() - 5, node.getLayoutY());
-                }
-
-                // Popraw etykiety na osi
-                if (j < xAxis.getCategories().size()) {
-                    String category = xAxis.getCategories().get(j);
-                    for (Node axisNode : xAxis.getChildrenUnmodifiable()) {
-                        if (axisNode instanceof Text text) {
-                            if (category.equals(text.getText())) {
-                                text.setTextAlignment(TextAlignment.CENTER);
-                                text.setWrappingWidth(80);
-                                text.setLayoutY(text.getLayoutY() - 5); // Delikatne podniesienie
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    // Aktualizuje skalę osi Y na wykresie
-//    private void updateYAxisRange(int maxVotes) {
-//        if (yAxis != null) {
-//            yAxis.setAutoRanging(false);
-//            yAxis.setLowerBound(0);
-//            yAxis.setUpperBound(maxVotes < 5 ? 5 : maxVotes + 1);
-//            yAxis.setTickUnit(1);
-//            yAxis.setMinorTickVisible(false);
-//        }
-//    }
 
     // Obsługuje wylogowywanie użytkownika
     @FXML
@@ -1172,5 +1135,39 @@ public class AdminController {
         candidateNameField.clear();
         candidatePartyField.clear();
         candidatesTable.getSelectionModel().clearSelection();
+    }
+
+    private void configureScrollBar(TableView<?> tableView) {
+        tableView.skinProperty().addListener((obs, oldSkin, newSkin) -> {
+            if (newSkin != null) {
+                // Czekaj na zakończenie układania sceny
+                Platform.runLater(() -> {
+                    // Znajdź pionowy pasek przewijania
+                    ScrollBar scrollBar = (ScrollBar) tableView.lookup(".scroll-bar:vertical");
+                    if (scrollBar != null) {
+                        // Ustaw minimalną wysokość kciuka
+                        scrollBar.minHeightProperty().unbind();
+                        scrollBar.setMinHeight(25);
+
+                        // Ustaw styl dla pewności
+                        scrollBar.setStyle("-fx-min-height: 25px; -fx-pref-height: 25px;");
+                    }
+                });
+            }
+        });
+    }
+    private void ensureScrollBarHeight(TableView<?> tableView) {
+        new Timeline(new KeyFrame(Duration.seconds(0.5), e -> {
+            for (Node node : tableView.lookupAll(".scroll-bar:vertical")) {
+                if (node instanceof ScrollBar scrollBar) {
+                    if (scrollBar.getMinHeight() < 25) {
+                        scrollBar.setMinHeight(25);
+                    }
+                    if (scrollBar.lookup(".thumb") != null) {
+                        scrollBar.lookup(".thumb").setStyle("-fx-min-height: 25px;");
+                    }
+                }
+            }
+        })).play();
     }
 }
