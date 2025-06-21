@@ -1,5 +1,5 @@
 Eksport struktury katalogów i plików
-Wygenerowano: 06/21/2025 04:51:32
+Wygenerowano: 06/21/2025 05:05:02
 
 
 
@@ -3049,7 +3049,8 @@ public class HibernateUtil {
     -fx-padding: 0;
     -fx-background-insets: 0;
     -fx-background-radius: 0;
-    -fx-pref-height: 40px;
+    -fx-pref-height: 30px; /* Zmiana z 40px */
+    -fx-max-height: 30px;  /* Dodaj tÄ™ liniÄ™ */
 }
 
 .common-table .column-header {
@@ -3057,7 +3058,8 @@ public class HibernateUtil {
     -fx-padding: 0;
     -fx-border-color: rgba(255,255,255,0.2);
     -fx-border-width: 0 1px 0 0;
-    -fx-size: 40px;
+    -fx-pref-height: 30px;
+    -fx-size: 30px;
 }
 
 .common-table .column-header:last-child {
@@ -3072,7 +3074,7 @@ public class HibernateUtil {
     -fx-font-size: 12px;
     -fx-alignment: CENTER;
     -fx-wrap-text: true;
-    -fx-padding: 10px 0;
+    -fx-padding: 5px 0;
 }
 
 .common-table .table-cell {
@@ -3090,9 +3092,9 @@ public class HibernateUtil {
 
 .common-table .table-row-cell {
     -fx-background-color: transparent;
-    -fx-cell-size: 35px;
-    -fx-min-height: 35px;
-    -fx-pref-height: 35px;
+    -fx-cell-size: 30px;
+    -fx-min-height: 30px;
+    -fx-pref-height: 30px;
     -fx-padding: 0;
     -fx-background-insets: 0;
 }
